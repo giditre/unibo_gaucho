@@ -1,0 +1,16 @@
+{
+  "services": [
+  {
+    "name": "Service1",
+    "descr": "Description of service Service1"
+  },
+  {
+    "name": "Service2",
+    "descr": "Description of service Service2"
+  },
+  {
+    "name": "Service3",
+    "descr": "Description of service Service3"
+  }
+  ]
+}

@@ -1,0 +1,1 @@
+{"nodes": {"1": {"class": "S", "service_id": -1, "avail_res": 100}, "2": {"class": "P", "service_id": 3, "avail_res": 83}, "3": {"class": "I", "service_id": 1, "avail_res": 76}, "aa:22:33:44:55:66": {"class_id": "X", "service_id": 10, "av_res": 100}}, "services": {"1": {"name": "Service1"}, "2": {"name": "Service2"}, "3": {"name": "Service3"}}}
