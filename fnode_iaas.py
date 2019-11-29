@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Resource, Api, reqparse, abort
 import json
 import argparse
@@ -40,38 +40,33 @@ class Test(Resource):
   def get(self):
     return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
 
-class ImageList(Resource):
-  def get(self):
-    return requests.get("http://{}:{}/images".format(repo_address, repo_port)).json()
-
 class FogApplication(Resource):
   def __init__(self):
     super().__init__()
     self.parser = reqparse.RequestParser()
     self.parser.add_argument('image', type=str, help='Image locator')
-    self.parser.add_argument('node', type=str, help='Node locator')
   def post(self):
-    # retrieve information from POST body
-    args = self.parser.parse_args()
-    image_id = args["image"]
-    node_url = args["node"]
-    r = requests.post("http://{}:{}/app".format(node_url, 5005), data="image={}".format(image_id))
-    # logger.debug(f"{r}")
-    return '', r.status_code
+    ## retrieve information from POST body
+    #args = self.parser.parse_args()
+    #image_id = args["image"]
+    image_uri = request.get_json(force=True)["uri"]
+    logger.debug(f"{image_uri}")
+    r = requests.get("http://{}:{}/image/{}".format(repo_address, repo_port, image_uri)).json()
+    logger.debug(f"{r}")
+    return '', 201
 
-def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
-  url = "http://{}:{}/{}".format(ep_address, ep_port, path)
+def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
     resp_code = -1
     try:
-      r = requests.get(url)
+      r = requests.get("http://{}:{}/test".format(ep_address, ep_port))
       resp_code = r.status_code
     except requests.exceptions.ConnectionError as ce:
       logger.warning("Connection error, retrying soon...")
     if resp_code == 200:
-      logger.info("Remote endpoint ({}) ready".format(url))
+      logger.info("Remote endpoint ready")
       break
-    logger.warning("Remote endpoint ({}) not ready (reponse code {}), retrying soon...".format(url, resp_code))
+    logger.warning("Remote endpoint not ready (reponse code {}), retrying soon...".format(resp_code))
     sleep(random.randint(5,15))
 
 ### API definition
@@ -81,7 +76,7 @@ api = Api(app)
 
 api.add_resource(Test, '/test')
 
-api.add_resource(ImageList, '/images')
+api.add_resource(FogApplication, '/app')
 
 ### MAIN
 
