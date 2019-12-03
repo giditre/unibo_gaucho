@@ -47,13 +47,14 @@ class Test(Resource):
 class FogApplicationList(Resource):
   def get(self):
     # get app list from database
-    return requests.get("http://{}:{}/appcat".format(db_address, db_port)).json()
+    r = requests.get("http://{}:{}/appcat".format(db_address, db_port))
+    return r.json(), r.status_code
 
 class FogApplication(Resource):
   def get(self, app_id):
     # get node id from broker
-    r = requests.get("http://{}:{}/app/{}".format(broker_address, broker_port, app_id)).json()
-    return r
+    r = requests.get("http://{}:{}/app/{}".format(broker_address, broker_port, app_id))
+    return r.json(), r.status_code
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)

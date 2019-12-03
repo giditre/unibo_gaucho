@@ -17,23 +17,32 @@ def rand_mac():
 
 class FogNodeAgent(threading.Thread):
 
-  def __init__(self, collector_address, collector_port, name="_FNA000_", log=None, lim=0, period=10):
+  def __init__(self, collector_address, collector_port, name="_FNA000_", node_mac=None, node_class=None, logger=None, lim=0, period=10):
     # TODO also consider other parameters that the init function of Thread expects (it works anyway but it's not clean)
     super().__init__()
     self.collector_address = collector_address
     self.collector_port = collector_port
     self.name = name
-    self.log = log
+    self.node_mac = node_mac
+    self.node_class = node_class
+    self.logger = logger
     self.count = 0
     self.count_lim = lim
     self.period = period
     self.uuid = ""
 
+  def set_node_class(self, node_class):
+    self.logger.debug(f"Setting node class to {node_class}")
+    self.node_class = node_class
+
   def run(self):
 
     # generate ramdom MAC address
-    node_mac = rand_mac()
-    node_class = random.choice(["I", "P", "S"])
+    node_mac = self.node_mac if self.node_mac else rand_mac()
+
+    #node_class = self.node_class if self.node_class else random.choice(["I", "P", "S"])
+    node_class = self.node_class if self.node_class else random.choice(["P", "S"])
+    #apps = [f"FA{i:03d}" for i in range(1,4)]
     apps = [f"FA{i:03d}" for i in range(1,3)]
     sdps = [f"SDP{i:03d}" for i in range(1,4)]
     fves = [f"FVE{i:03d}" for i in range(1,4)]
@@ -44,12 +53,12 @@ class FogNodeAgent(threading.Thread):
       # pick no app or at most one app
       node_apps = random.sample(apps, random.randint(0,1))
     elif node_class == "P":
-      # pick any number of apps
-      node_apps = random.sample(apps, random.randint(0,len(apps)))
+      ## pick any number of apps
+      #node_apps = random.sample(apps, random.randint(0,len(apps)))
       node_SDP = random.choice(sdps)
     elif node_class == "I":
-      # pick any number of apps
-      node_apps = random.sample(apps, random.randint(0,len(apps)))
+      ## pick any number of apps
+      #node_apps = random.sample(apps, random.randint(0,len(apps)))
       node_FVE = random.choice(fves)
       
     # create informative message
@@ -69,21 +78,24 @@ class FogNodeAgent(threading.Thread):
     while True:
 
       try:
+        #if payload["class"] != self.node_class:
+        payload["class"] = self.node_class
+        
         # random generation of available resource counter
         # TODO make it not random - maybe take data from Zabbix?
         payload["av_res"] = random.randint(1,100)
     
-        #self.log.debug("[ {} ] {}".format(self.name, json.dumps(payload)))
+        #self.logger.debug("[ {} ] {}".format(self.name, json.dumps(payload)))
 
         r = requests.post("http://{}:{}/nodes".format(self.collector_address, self.collector_port), json=payload)
-        if self.log:
+        if self.logger:
           if r.status_code == 201:
             self.name = r.json()["name"] 
-            self.log.info("[ {} ] Entry created".format(self.name))
+            self.logger.info("[ {} ] Entry created".format(self.name))
           elif r.status_code == 200:
-            self.log.info("[ {} ] Entry updated".format(self.name))
+            self.logger.info("[ {} ] Entry updated".format(self.name))
           else:
-            self.log.warning("[ {} ] Request failed with response code {}".format(self.name, r.status_code))
+            self.logger.warning("[ {} ] Request failed with response code {}".format(self.name, r.status_code))
 
         self.count += 1
         if self.count_lim > 0 and self.count >= self.count_lim:
@@ -93,8 +105,8 @@ class FogNodeAgent(threading.Thread):
         sleep(self.period)
     
       except requests.exceptions.ConnectionError as ce:
-        self.log.warning("[ {} ] Connection error, retrying soon...".format(self.name))
-        self.log.warning("{}".format(ce))
+        self.logger.warning("[ {} ] Connection error, retrying soon...".format(self.name))
+        self.logger.warning("{}".format(ce))
         # "backoff" time
         sleep(random.randint(5,15))
       except KeyboardInterrupt:
@@ -124,13 +136,13 @@ if __name__ == "__main__":
   
   args = parser.parse_args()
   
-  ep_address = args.address
-  ep_port = args.port
+  collector_address = args.address
+  collector_port = args.port
   n_agents = args.num_agents
   lim_updates = args.limit_updates
   interval = args.update_interval
   
   for n in range(n_agents):
-    fna = FogNodeAgent(ep_address, ep_port, name=f"_FNA{n:03d}_", log=logger, lim=lim_updates, period=interval)
+    fna = FogNodeAgent(collector_address, collector_port, name=f"_FNA{n:03d}_", logger=logger, lim=lim_updates, period=interval)
     fna.start()
 

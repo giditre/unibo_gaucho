@@ -33,12 +33,14 @@ ep_port = args.port
 ### global variables
 
 image_list = {
-  img : {
-    "name": img,
-    "descr": f"Description of image {img}",
-    "uri": f"fogimages/{img}",
-    "apps": [ f"FA{n:03d}" ]
+  "fogimages" : {
+    img: {
+      "name": img,
+      "descr": f"Description of image {img}",
+      "uri": f"fogimages/{img}",
+      "apps": [ f"FA{n:03d}" ]
   } for n, img in zip([ n for n in range(1,11) ], [ f"Image{n:02d}" for n in range(1,11) ])
+  }
 }
 
 ### Resource definition
@@ -52,8 +54,8 @@ class ImageList(Resource):
     return image_list
 
 class Image(Resource):
-  def get(self, image_id):
-    return image_list[image_id]
+  def get(self, repo_name, image_name):
+    return image_list[repo_name][image_name]
 
 ### API definition
 
@@ -63,7 +65,7 @@ api = Api(app)
 api.add_resource(Test, '/test')
 
 api.add_resource(ImageList, '/images')
-api.add_resource(Image, '/image/<image_id>')
+api.add_resource(Image, '/image/<repo_name>/<image_name>')
 
 
 ### MAIN

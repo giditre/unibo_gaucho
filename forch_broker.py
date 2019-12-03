@@ -63,33 +63,35 @@ class FogApplication(Resource):
     app = app_list[app_id]
     app_node_list = app["nodes"]
     # check if this app is implemented on some node
-    if node_list:
+    if app_node_list:
       # if we get here, there are active nodes that implement this app
       # pick the first node on the list (TODO implement a better picking method)
       node_id = app_node_list[0]
       node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
-      return {"url": node["url"]}
+      return {"message": "Application {} available".format(app_id), "node_url": node["url"]}
     else:
       # this means this app is not implemented/deployed on any node
       # TODO try installing image on a IaaS node to implement this app
       # get list of nodes and look for IaaS nodes
       node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
-      iaas_nodes = [ node for node in node_list if node["class"] == "I" ]    # TODO also check if node has resources available
+      iaas_nodes = [ node for node in node_list if node_list[node]["class"] == "I" ]    # TODO also check if node has resources available
       if not iaas_nodes:
         return "App not deployed and no available IaaS node", 503
       # pick the first node on the list (TODO implement a better picking method)
       node_id = iaas_nodes[0]
       node_url = node_list[node_id]["url"]
       # get list of available images and look for image that offers the required app
-      image_list = requests.get("http://{}:{}/images".format(repo_address, repo_port)).json()
-      app_image_list = [ image for image in image_list if app_id in image["apps"] ]
+      image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()
+      app_image_list = [ image for image in image_list["fogimages"] if app_id in image_list["fogimages"][image]["apps"] ]
       if not app_image_list:
         return "App not deployed and not provided by any available image", 503
       # pick the first image on the list (TODO implement a better picking method)
       image_id = app_image_list[0]
-      image_uri = image_list[image_id]["uri"]
-      
-      return requests.post("http://{}:{}/app".format(node_url, 5005), data={"uri": image_uri})
+      image_uri = image_list["fogimages"][image_id]["uri"]
+      logger.debug(image_uri) 
+      logger.debug(node_url) 
+      r = requests.post("http://{}:{}/app".format(iaas_mgmt_address, iaas_mgmt_port), json={"image_uri": image_uri, "node_url": node_url})
+      return r.json(), r.status_code
     
   def post(self):
     # retrieve information from POST body
