@@ -51,8 +51,6 @@ class Test(Resource):
 class FogApplication(Resource):
   def __init__(self):
     super().__init__()
-    self.parser = reqparse.RequestParser()
-    self.parser.add_argument('image', type=str, help='Image locator')
 
   def get(self, app_id):
     # determine node id by choosing a node among the ones that implement this app (if any)
@@ -76,21 +74,22 @@ class FogApplication(Resource):
       node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
       iaas_nodes = [ node for node in node_list if node_list[node]["class"] == "I" ]    # TODO also check if node has resources available
       if not iaas_nodes:
-        return "App not deployed and no available IaaS node", 503
+        return {"message": "App not deployed and no available IaaS node."}, 503
       # pick the first node on the list (TODO implement a better picking method)
       node_id = iaas_nodes[0]
       node_url = node_list[node_id]["url"]
+      node_ipv4 = node_list[node_id]["ipv4"]
       # get list of available images and look for image that offers the required app
       image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()
       app_image_list = [ image for image in image_list["fogimages"] if app_id in image_list["fogimages"][image]["apps"] ]
       if not app_image_list:
-        return "App not deployed and not provided by any available image", 503
+        return {"message": "App not deployed and not provided by any available image."}, 503
       # pick the first image on the list (TODO implement a better picking method)
       image_id = app_image_list[0]
       image_uri = image_list["fogimages"][image_id]["uri"]
-      logger.debug(image_uri) 
-      logger.debug(node_url) 
-      r = requests.post("http://{}:{}/app".format(iaas_mgmt_address, iaas_mgmt_port), json={"image_uri": image_uri, "node_url": node_url})
+      #logger.debug(image_uri)
+      #logger.debug(node_url) 
+      r = requests.post("http://{}:{}/app".format(iaas_mgmt_address, iaas_mgmt_port), json={"image_uri": image_uri, "node_url": node_url, "node_ipv4": node_ipv4})
       return r.json(), r.status_code
     
   def post(self):
@@ -101,6 +100,27 @@ class FogApplication(Resource):
     node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port, image_id)).json()
     #logger.debug(f"{r}")
     return '', 201
+
+class FogVirtEngine(Resource):
+  def __init__(self):
+    super().__init__()
+
+  def get(self, fve_id):
+    # determine node id by choosing node amons the ones offering this FVE (if any)
+    fve_list = requests.get("http://{}:{}/fves".format(db_address, db_port)).json()
+    if fve_id not in fve_list:
+      # TODO understand why it returns 200 OK anyway (maybe check the return value(s) of abort)
+      abort(404, message="Fog Virtualization Engine {} not found.".format(fve_id))
+    fve = fve_list[fve_id]
+    fve_node_list = fve["nodes"]
+    if fve_node_list:
+      # there is a node offering this FVE
+      # pick the first node on the list (TODO implement a better picking method)
+      node_id = fve_node_list[0]
+      node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
+      return {"message": "Fog Virtualization Engine {} available.".format(fve_id), "node_url": node["url"]}
+    else:
+      return {"message": "FVE {} not available on any node.".format(fve_id)}, 503
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)
@@ -125,6 +145,8 @@ api = Api(app)
 api.add_resource(Test, '/test')
 
 api.add_resource(FogApplication, '/app/<app_id>')
+
+api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
 ### MAIN
 

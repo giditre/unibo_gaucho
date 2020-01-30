@@ -79,13 +79,13 @@ class RSDB():
 
     #self.known_services = [ self.rsdb["services"][s]["name"] for s in self.rsdb["services"] ]
 
-    #self.db_lock = threading.Lock()
+    self.db_lock = threading.Lock()
   
     # write initial database
     #write_db_to_file(db_fname, self.rsdb, period=10)
 
     # define fields we expect to find in a node update packet
-    self.node_fields = ["mac", "class", "apps", "SDP", "FVE", "av_res"]
+    self.node_fields = ["mac", "ipv4", "class", "apps", "SDPs", "FVEs", "av_res"]
 
     self.write_db = True
 
@@ -101,20 +101,20 @@ class RSDB():
       fve_cat = json.load(f)
 
     rsdb["app_catalog"] = app_cat["apps"]
-    rsdb["sdp_catalog"] = sdp_cat["sdps"]
-    rsdb["fve_catalog"] = fve_cat["fves"]
+    rsdb["SDP_catalog"] = sdp_cat["SDPs"]
+    rsdb["FVE_catalog"] = fve_cat["FVEs"]
 
     rsdb["apps"] = deepcopy(rsdb["app_catalog"])
     for app in rsdb["app_catalog"]:
       rsdb["apps"][app]["nodes"] = []
 
-    rsdb["sdps"] = deepcopy(rsdb["sdp_catalog"])
-    for sdp in rsdb["sdp_catalog"]:
-      rsdb["sdps"][sdp]["nodes"] = []
+    rsdb["SDPs"] = deepcopy(rsdb["SDP_catalog"])
+    for sdp in rsdb["SDP_catalog"]:
+      rsdb["SDPs"][sdp]["nodes"] = []
 
-    rsdb["fves"] = deepcopy(rsdb["fve_catalog"])
-    for fve in rsdb["fve_catalog"]:
-      rsdb["fves"][fve]["nodes"] = []    
+    rsdb["FVEs"] = deepcopy(rsdb["FVE_catalog"])
+    for fve in rsdb["FVE_catalog"]:
+      rsdb["FVEs"][fve]["nodes"] = []    
 
     return rsdb   
 
@@ -133,54 +133,56 @@ class RSDB():
     response_code = -1
     # generate deterministic UUID based on MAC address of node
     node_uuid = mac_to_uuid(node_json["mac"])
-    # check if there is an entry for this node (identified by MAC-based UUID)
-    if node_uuid not in self.rsdb["nodes"]:
-      response_code = 201
-      # create  entry
-      self.rsdb["nodes"][node_uuid] = { "uuid": node_uuid }
-      self.rsdb["nodes"][node_uuid]["name"] = "fn-{}".format(node_uuid[-4:])
-      self.rsdb["nodes"][node_uuid]["url"] = "{}.fog.net".format(self.rsdb["nodes"][node_uuid]["name"])
-      for field in self.node_fields:
-        self.rsdb["nodes"][node_uuid][field] = node_json[field]
-      # insert timestamp
-      self.rsdb["nodes"][node_uuid]["last_heard"] = int(time())
-    else:
-      response_code = 200
-      # update entry
-      for field in [ f for f in self.node_fields if f not in ["mac", "class", "SDP", "FVE"] ]:
-        self.rsdb["nodes"][node_uuid][field] = node_json[field]
-      # insert timestamp
-      self.rsdb["nodes"][node_uuid]["last_heard"] = int(time())
-
-    # update apps database
-    #logger.debug("1 "+json.dumps(self.rsdb["nodes"][node_uuid]["apps"]))
-    #logger.debug("1 "+json.dumps(self.rsdb["apps"]))
-    #logger.debug("1 "+json.dumps(self.rsdb["app_catalog"]))
-    for app in self.rsdb["nodes"][node_uuid]["apps"]:
-      if app in self.rsdb["apps"]:
-        if node_uuid not in self.rsdb["apps"][app]["nodes"]:
-          self.rsdb["apps"][app]["nodes"].append(node_uuid)
-          #logger.debug("2 "+json.dumps(self.rsdb["app_catalog"]))
+    # acquire the lock for the whole sequence of operations on the database
+    with self.db_lock:
+      # check if there is an entry for this node (identified by MAC-based UUID)
+      if node_uuid not in self.rsdb["nodes"]:
+        response_code = 201
+        # create  entry
+        self.rsdb["nodes"][node_uuid] = { "uuid": node_uuid }
+        self.rsdb["nodes"][node_uuid]["name"] = "fn-{}".format(node_uuid[-4:])
+        self.rsdb["nodes"][node_uuid]["url"] = "{}.fog.net".format(self.rsdb["nodes"][node_uuid]["name"])
+        for field in self.node_fields:
+          self.rsdb["nodes"][node_uuid][field] = node_json[field]
+        # insert timestamp
+        self.rsdb["nodes"][node_uuid]["last_heard"] = int(time())
       else:
-        self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
-        #logger.debug("3 "+json.dumps(self.rsdb["apps"]))
-        #logger.debug("3 "+json.dumps(self.rsdb["app_catalog"]))
-        self.rsdb["apps"][app]["nodes"] = [node_uuid]
-        #del self.rsdb['app_catalog'][app]["nodes"]
-        #logger.debug("4 "+json.dumps(self.rsdb["apps"]))
-        #logger.debug("4 "+json.dumps(self.rsdb["app_catalog"]))
+        response_code = 200
+        # update entry
+        for field in [ f for f in self.node_fields if f not in ["mac"] ]:
+          self.rsdb["nodes"][node_uuid][field] = node_json[field]
+        # insert timestamp
+        self.rsdb["nodes"][node_uuid]["last_heard"] = int(time())
 
-    #logger.debug("5 "+json.dumps(self.rsdb["app_catalog"])) 
+      # update apps database
+      for app in self.rsdb["nodes"][node_uuid]["apps"]:
+        if app in self.rsdb["apps"]:
+          if node_uuid not in self.rsdb["apps"][app]["nodes"]:
+            self.rsdb["apps"][app]["nodes"].append(node_uuid)
+        else:
+          self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
+          self.rsdb["apps"][app]["nodes"] = [node_uuid]
 
-    if self.write_db:
-      # update stored database
-      with open("debug_rsdb.json", "w") as f:
-        json.dump(self.rsdb, f)
+      # update FVEs database
+      if self.rsdb["nodes"][node_uuid]["FVEs"]:
+        for fve in self.rsdb["nodes"][node_uuid]["FVEs"]:
+          if fve in self.rsdb["FVEs"]:
+            if node_uuid not in self.rsdb["FVEs"][fve]["nodes"]:
+              self.rsdb["FVEs"][fve]["nodes"].append(node_uuid)
+          else:
+            self.rsdb["FVEs"][fve] = deepcopy(self.rsdb["FVE_catalog"][fve])
+            self.rsdb["FVEs"][fve]["nodes"] = [node_uuid]
+
+      if self.write_db:
+        # update stored database
+        with open("debug_rsdb.json", "w") as f:
+          json.dump(self.rsdb, f)
 
     return self.rsdb["nodes"][node_uuid]["name"], response_code
 
   def flush_db(self):
-    self.rsdb = self.init_db()
+    with self.db_lock:
+      self.rsdb = self.init_db()
     return 204
 
   def get_app_catalog(self):
@@ -195,26 +197,26 @@ class RSDB():
     return self.rsdb["apps"][app_id]
 
   def get_sdp_catalog(self):
-    return self.rsdb["sdp_catalog"]
+    return self.rsdb["SDP_catalog"]
 
   def get_sdp_list(self):
-    return self.rsdb["sdps"]
+    return self.rsdb["SDPs"]
 
   def get_sdp(self, sdp_id):
-    if sdp_id not in self.rsdb["sdps"]:
+    if sdp_id not in self.rsdb["SDPs"]:
       abort(404, message="SDP {} not found.".format(sdp_id))
-    return self.rsdb["sdps"][sdp_id]
+    return self.rsdb["SDPs"][sdp_id]
 
   def get_fve_catalog(self):
-    return self.rsdb["fve_catalog"]
+    return self.rsdb["FVE_catalog"]
 
   def get_fve_list(self):
-    return self.rsdb["fves"]
+    return self.rsdb["FVEs"]
 
   def get_fve(self, fve_id):
-    if fve_id not in self.rsdb["fves"]:
+    if fve_id not in self.rsdb["FVEs"]:
       abort(404, message="FVE {} not found.".format(fve_id))
-    return self.rsdb["fves"][fve_id]
+    return self.rsdb["FVEs"][fve_id]
 
 # initialize database handler
 rsdb = RSDB()
@@ -239,6 +241,7 @@ class FogNodeList(Resource):
         #  raise ValueError
         node[field] = json_data[field]
       except KeyError:
+        print("Request does not specify required field {}.".format(field))
         abort(400, message="Request does not specify required field {}.".format(field))
       #except ValueError:
       #  abort(400, message="Request does not specify value for required field {}.".format(field))

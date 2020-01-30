@@ -24,12 +24,14 @@ class FogApplication(Resource):
 
   def post(self):
     # retrieve information from POST body
-    image_uri = request.get_json(force=True)["image_uri"]
+    req_json = request.get_json(force=True)
+    image_uri = req_json["image_uri"]
     #logger.debug(f"{image_uri}")
-    r = requests.get("http://{}:{}/image/{}".format(repo_address, repo_port, image_uri)).json()
-    logger.debug("Deploying {}".format(r["name"]))
+    resp_json = requests.get("http://{}:{}/image/{}".format(repo_address, repo_port, image_uri)).json()
+    logger.debug("Deploying {}".format(resp_json["name"]))
     self.fna.set_node_class("S")
-    return {"message": "Deploying {}".format(r["name"])}, 201
+    self.fna.set_node_apps(resp_json["apps"])
+    return {"message": "Deploying app(s) {} with image {}".format(", ".join(resp_json["apps"]), resp_json["name"])}, 201
 
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
@@ -107,7 +109,7 @@ if __name__ == '__main__':
   wait_for_remote_endpoint(collector_address, collector_port)
   wait_for_remote_endpoint(repo_address, repo_port)
 
-  fna = fnagent.FogNodeAgent(collector_address, collector_port, name="_FNA{:03d}_".format(0), node_class="I", logger=logger, lim=lim_updates, period=interval)
+  fna = fnagent.FogNodeAgent(collector_address, collector_port, node_ipv4=ep_address, name="_FNA{:03d}_".format(0), node_class="I", logger=logger, lim=lim_updates, period=interval)
 
   ### API definition
   app = Flask(__name__)

@@ -55,14 +55,15 @@ class FogApplication(Resource):
     #args = self.parser.parse_args()
     #image_id = args["image"]
     #node_url = args["node"]
-    image_uri = request.get_json(force=True)["image_uri"] 
-    node_url = request.get_json(force=True)["node_url"] 
-    # TODO use node_url instead of hardcoded address
-    r = requests.post("http://{}:{}/app".format("127.0.0.1", 5005), json={"image_uri": image_uri})
+    req_json = request.get_json(force=True)
+    image_uri = req_json["image_uri"] 
+    node_url = req_json["node_url"]
+    node_ipv4 = req_json["node_ipv4"]
+    r = requests.post("http://{}:{}/app".format(node_ipv4, 5005), json={"image_uri": image_uri})
     # logger.debug(f"{r}")
-    r_json = r.json()
-    r_json["node_url"] = node_url
-    return r_json, r.status_code
+    resp_json = r.json()
+    resp_json["node_url"] = node_url
+    return resp_json, r.status_code
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)

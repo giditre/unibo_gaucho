@@ -17,14 +17,16 @@ def rand_mac():
 
 class FogNodeAgent(threading.Thread):
 
-  def __init__(self, collector_address, collector_port, name="_FNA000_", node_mac=None, node_class=None, logger=None, lim=0, period=10):
+  def __init__(self, collector_address, collector_port, name="_FNA000_", node_mac=None, node_ipv4=None, node_class=None, logger=None, lim=0, period=10):
     # TODO also consider other parameters that the init function of Thread expects (it works anyway but it's not clean)
     super().__init__()
     self.collector_address = collector_address
     self.collector_port = collector_port
     self.name = name
     self.node_mac = node_mac
+    self.node_ipv4 = node_ipv4
     self.node_class = node_class
+    self.node_apps = []
     self.logger = logger
     self.count = 0
     self.count_lim = lim
@@ -35,10 +37,16 @@ class FogNodeAgent(threading.Thread):
     self.logger.debug(f"Setting node class to {node_class}")
     self.node_class = node_class
 
+  def set_node_apps(self, apps):
+    self.logger.debug(f"Setting node apps to {apps}")
+    self.node_apps = apps
+
   def run(self):
 
     # generate ramdom MAC address
     node_mac = self.node_mac if self.node_mac else rand_mac()
+
+    node_ipv4 = self.node_ipv4 if self.node_ipv4 else "127.0.0.1"
 
     #node_class = self.node_class if self.node_class else random.choice(["I", "P", "S"])
     node_class = self.node_class if self.node_class else random.choice(["P", "S"])
@@ -47,28 +55,30 @@ class FogNodeAgent(threading.Thread):
     sdps = [f"SDP{i:03d}" for i in range(1,4)]
     fves = [f"FVE{i:03d}" for i in range(1,4)]
     node_apps = []
-    node_SDP = None
-    node_FVE = None
+    node_SDPs = None
+    node_FVEs = None
     if node_class == "S":
-      # pick no app or at most one app
-      node_apps = random.sample(apps, random.randint(0,1))
+      # pick (no app or at most) one app
+      node_apps = random.sample(apps, 1)
     elif node_class == "P":
       ## pick any number of apps
-      #node_apps = random.sample(apps, random.randint(0,len(apps)))
-      node_SDP = random.choice(sdps)
+      node_apps = random.sample(apps, random.randint(0,len(apps)))
+      node_SDPs = random.sample(sdps, 1)
     elif node_class == "I":
       ## pick any number of apps
       #node_apps = random.sample(apps, random.randint(0,len(apps)))
-      node_FVE = random.choice(fves)
-      
+      node_FVEs = random.sample(fves, 1)
+    
+    self.node_apps = node_apps
+  
     # create informative message
     payload = {
       "mac": node_mac,
-      "ipv4": "127.0.0.1",
+      "ipv4": node_ipv4,
       "class": node_class,
       "apps": node_apps,
-      "SDP": node_SDP,
-      "FVE": node_FVE,
+      "SDPs": node_SDPs,
+      "FVEs": node_FVEs,
       "av_res": -1
     }
     
@@ -79,8 +89,12 @@ class FogNodeAgent(threading.Thread):
 
       try:
         #if payload["class"] != self.node_class:
+        #self.logger.debug("Current node class {}".format(self.node_class))
         payload["class"] = self.node_class
+        #self.logger.debug("Current payload node class {}".format(self.node_class))
         
+        payload["apps"] = self.node_apps
+
         # random generation of available resource counter
         # TODO make it not random - maybe take data from Zabbix?
         payload["av_res"] = random.randint(1,100)

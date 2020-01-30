@@ -56,6 +56,18 @@ class FogApplication(Resource):
     r = requests.get("http://{}:{}/app/{}".format(broker_address, broker_port, app_id))
     return r.json(), r.status_code
 
+class FogVirtEngineList(Resource):
+  def get(self):
+    # get app list from database
+    r = requests.get("http://{}:{}/fvecat".format(db_address, db_port))
+    return r.json(), r.status_code
+
+class FogVirtEngine(Resource):
+  def get(self, fve_id):
+    # get node id from broker
+    r = requests.get("http://{}:{}/fve/{}".format(broker_address, broker_port, fve_id))
+    return r.json(), r.status_code
+
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)
   while True:
@@ -81,6 +93,8 @@ api.add_resource(Test, '/test')
 api.add_resource(FogApplicationList, '/apps')
 api.add_resource(FogApplication, '/app/<app_id>')
 
+api.add_resource(FogVirtEngineList, '/fves')
+api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
 ### MAIN
 

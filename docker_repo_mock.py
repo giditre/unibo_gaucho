@@ -38,7 +38,7 @@ image_list = {
       "name": img,
       "descr": f"Description of image {img}",
       "uri": f"fogimages/{img}",
-      "apps": [ f"FA{n:03d}" ]
+      "apps": [f"FA{n:03d}"]
   } for n, img in zip([ n for n in range(1,11) ], [ f"Image{n:02d}" for n in range(1,11) ])
   }
 }
