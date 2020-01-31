@@ -26,11 +26,16 @@ class FogApplication(Resource):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     image_uri = req_json["image_uri"]
+
     #logger.debug(f"{image_uri}")
-    resp_json = requests.get("http://{}:{}/image/{}".format(repo_address, repo_port, image_uri)).json()
-    logger.debug("Deploying {}".format(resp_json["name"]))
-    self.fna.set_node_class("S")
-    self.fna.set_node_apps(resp_json["apps"])
+    #resp_json = requests.get("http://{}:{}/image/{}".format(repo_address, repo_port, image_uri)).json()
+    #logger.debug("Deploying {}".format(resp_json["name"]))
+    #self.fna.set_node_class("S")
+    #self.fna.set_node_apps(resp_json["apps"])
+
+    # here try to deploy image image_uri on this node
+    
+
     return {"message": "Deploying app(s) {} with image {}".format(", ".join(resp_json["apps"]), resp_json["name"])}, 201
 
 def wait_for_remote_endpoint(ep_address, ep_port):
