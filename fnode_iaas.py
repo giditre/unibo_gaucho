@@ -6,9 +6,17 @@ import requests
 import logging
 import random
 from time import sleep
+import datetime
 import os
 import threading
+
+import docker
+
 import fnode_agent as fnagent
+
+### Docker
+
+docker_client = docker.from_env()
 
 ### Resource definition
 
@@ -35,8 +43,31 @@ class FogApplication(Resource):
 
     # here try to deploy image image_uri on this node
     
+    logger.debug("Deploying {}".format(image_uri))
 
-    return {"message": "Deploying app(s) {} with image {}".format(", ".join(resp_json["apps"]), resp_json["name"])}, 201
+    cont_name = image_uri + "-" + '{0:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+
+    docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3})
+
+    container = docker_client.containers.get(cont_name)
+
+    cont_ip = container.attrs["NetworkSettings"]["IPAddress"]
+    logger.debug(cont_ip)
+
+    port_mappings = []
+
+    ports_dict = container.attrs["NetworkSettings"]["Ports"]
+    for cont_port in ports_dict:
+      for host_port_dict in ports_dict[cont_port]:
+        port_map = "{}:{}->{}".format(host_port_dict["HostIp"], host_port_dict["HostPort"], cont_port)
+        port_mappings.append(port_map)
+        logger.debug(port_map)
+
+    return {"message": "Deployed image {}".format(image_uri),
+        "Name": cont_name,
+        "IPAddress": cont_ip,
+        "PortMappings": port_mappings
+        }, 201
 
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
@@ -98,6 +129,7 @@ if __name__ == '__main__':
   parser.add_argument("-n", "--num-agents", help="Number of FogNodeAgents to spawn", type=int, nargs="?", default=1)
   parser.add_argument("-l", "--limit-updates", help="Number of updates to send before quitting", type=int, nargs="?", default=0)
   parser.add_argument("-i", "--update-interval", help="Update interval in seconds", type=int, nargs="?", default=10)
+  parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s)", action="store_true", default=False)
   
   args = parser.parse_args()
   
@@ -110,9 +142,11 @@ if __name__ == '__main__':
   n_agents = args.num_agents
   lim_updates = args.limit_updates
   interval = args.update_interval
+  wait_remote = args.wait_remote
 
-  wait_for_remote_endpoint(collector_address, collector_port)
-  wait_for_remote_endpoint(repo_address, repo_port)
+  if wait_remote:
+    wait_for_remote_endpoint(collector_address, collector_port)
+    wait_for_remote_endpoint(repo_address, repo_port)
 
   fna = fnagent.FogNodeAgent(collector_address, collector_port, node_ipv4=ep_address, name="_FNA{:03d}_".format(0), node_class="I", logger=logger, lim=lim_updates, period=interval)
 
@@ -125,7 +159,15 @@ if __name__ == '__main__':
   #fnode_iaas = FogNodeIaaS(ep_address, ep_port, repo_address, repo_port, logger=logger)
   #fnode_iaas.start()
 
-  fna.start()
+  #fna.start()
 
   app.run(host=ep_address, port=ep_port, debug=False)
+  
+  #try:
+  #  while True:
+  #    sleep(1)
+  #except KeyboardInterrupt:
+  #  docker_client.containers.get("apache").stop()
+  #  docker_client.containers.prune()
+    
 
