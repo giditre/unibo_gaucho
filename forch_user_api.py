@@ -24,10 +24,10 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("address", help="Endpoint IP address")
 parser.add_argument("port", help="Endpoint TCP port")
-parser.add_argument("--db-address", help="Database endpoint IP address", nargs="?", default="127.0.0.1")
-parser.add_argument("--db-port", help="Database endpoint TCP port", nargs="?", default=5003)
-parser.add_argument("--broker-address", help="Broker endpoint IP address", nargs="?", default="127.0.0.1")
-parser.add_argument("--broker-port", help="Broker endpoint TCP port", nargs="?", default=5002)
+parser.add_argument("--db-address", help="Database endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+parser.add_argument("--db-port", help="Database endpoint TCP port, default: 5003", nargs="?", default=5003)
+parser.add_argument("--broker-address", help="Broker endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+parser.add_argument("--broker-port", help="Broker endpoint TCP port, default: 5002", nargs="?", default=5002)
 
 args = parser.parse_args()
 
