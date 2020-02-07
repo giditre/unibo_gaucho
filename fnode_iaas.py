@@ -122,14 +122,14 @@ if __name__ == '__main__':
   
   parser.add_argument("address", help="Endpoint IP address")
   parser.add_argument("port", help="Endpoint TCP port")
-  parser.add_argument("--collector-address", help="Collector endpoint IP address", nargs="?", default="127.0.0.1")
-  parser.add_argument("--collector-port", help="Collector endpoint TCP port", nargs="?", default=5003)
-  parser.add_argument("--repo-address", help="Image repo endpoint IP address", nargs="?", default="127.0.0.1")
-  parser.add_argument("--repo-port", help="Image repo endpoint TCP port", nargs="?", default=5006)
-  parser.add_argument("-n", "--num-agents", help="Number of FogNodeAgents to spawn", type=int, nargs="?", default=1)
-  parser.add_argument("-l", "--limit-updates", help="Number of updates to send before quitting", type=int, nargs="?", default=0)
-  parser.add_argument("-i", "--update-interval", help="Update interval in seconds", type=int, nargs="?", default=10)
-  parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s)", action="store_true", default=False)
+  parser.add_argument("--collector-address", help="Collector endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+  parser.add_argument("--collector-port", help="Collector endpoint TCP port, dafault: 5003", nargs="?", default=5003)
+  parser.add_argument("--repo-address", help="Image repo endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+  parser.add_argument("--repo-port", help="Image repo endpoint TCP port, default: 5006", nargs="?", default=5006)
+  parser.add_argument("-n", "--num-agents", help="Number of FogNodeAgents to spawn, default: 1", type=int, nargs="?", default=1)
+  parser.add_argument("-l", "--limit-updates", help="Number of updates to send before quitting, default: 0 (infinite)", type=int, nargs="?", default=0)
+  parser.add_argument("-i", "--update-interval", help="Update interval in seconds, default: 10", type=int, nargs="?", default=10)
+  parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
   
   args = parser.parse_args()
   

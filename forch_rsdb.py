@@ -27,9 +27,9 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("address", help="Endpoint IP address")
 parser.add_argument("port", help="Endpoint TCP port")
-parser.add_argument("--db-json", help="Database JSON file", nargs="?", default="rsdb.json")
-parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address", nargs="?", default="127.0.0.1")
-parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port", nargs="?", default=5004)
+parser.add_argument("--db-json", help="Database JSON file, default: rsdb.json", nargs="?", default="rsdb.json")
+parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", nargs="?", default=5004)
 
 args = parser.parse_args()
 

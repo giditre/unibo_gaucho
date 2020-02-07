@@ -8,6 +8,8 @@ import random
 from time import sleep
 import os
 
+import docker
+
 ### Logging setup
 
 logger = logging.getLogger(os.path.basename(__file__))
@@ -24,15 +26,15 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("address", help="Endpoint IP address")
 parser.add_argument("port", help="Endpoint TCP port")
-parser.add_argument("--repo-address", help="Image repo endpoint IP address", nargs="?", default="127.0.0.1")
-parser.add_argument("--repo-port", help="Image repo endpoint TCP port", nargs="?", default=5006)
+#parser.add_argument("--repo-address", help="Image repo endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+#parser.add_argument("--repo-port", help="Image repo endpoint TCP port, default: 5006", nargs="?", default=5006)
 
 args = parser.parse_args()
 
 ep_address = args.address
 ep_port = args.port
-repo_address = args.repo_address
-repo_port = args.repo_port
+#repo_address = args.repo_address
+#repo_port = args.repo_port
 
 ### Resource definition
 
@@ -42,7 +44,9 @@ class Test(Resource):
 
 class ImageList(Resource):
   def get(self):
-    return requests.get("http://{}:{}/images".format(repo_address, repo_port)).json()
+    # TODO get list of allowed images from file and check that they exixt in the repo
+    image_list = {"images": ["httpd", "ubuntu", "alpine", "python3"]}
+    return images
 
 class FogApplication(Resource):
   def __init__(self):
@@ -95,7 +99,7 @@ api.add_resource(FogApplication, '/app')
 
 if __name__ == '__main__':
 
-  wait_for_remote_endpoint(repo_address, repo_port)
+  # wait_for_remote_endpoint(repo_address, repo_port)
 
   app.run(host=ep_address, port=ep_port, debug=True)
 
