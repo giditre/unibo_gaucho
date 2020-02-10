@@ -34,6 +34,12 @@ class FogApplication(Resource):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     image_uri = req_json["image_uri"]
+    command = ""
+    if "command" in req_json:
+      command = req_json["command"]
+    entrypoint = ""
+    if "entrypoint" in req_json:
+      entrypoint = req_json["entrypoint"]
 
     #logger.debug(f"{image_uri}")
     #resp_json = requests.get("http://{}:{}/image/{}".format(repo_address, repo_port, image_uri)).json()
@@ -42,12 +48,17 @@ class FogApplication(Resource):
     #self.fna.set_node_apps(resp_json["apps"])
 
     # here try to deploy image image_uri on this node
+
+    # TODO check if image is present on this node. If not, check if image is allowed. Is yes, pull it from repo.
     
     logger.debug("Deploying {}".format(image_uri))
 
-    cont_name = image_uri + "-" + '{0:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+    cont_name = image_uri.replace("/", "_") + "-" + '{0:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
 
-    docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3})
+    try:
+      docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
+    except docker.errors.ImageNotFound as e:
+      return {"message": str(e)}, 404
 
     container = docker_client.containers.get(cont_name)
 
