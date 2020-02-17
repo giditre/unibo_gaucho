@@ -162,6 +162,16 @@ class RSDB():
 
   def get_node_list(self):
     self.rsdb["nodes"] = self.collector.get_nodes()
+    # TODO maybe avoid asking nodes directly, but go through forch_iaas_mgmt
+    for node_id in self.rsdb["nodes"]:
+      self.rsdb["nodes"][node_id]["apps"] = []
+      try:
+        node_apps = requests.get("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"])).json()
+      except requests.exceptions.ConnectionError:
+        self.rsdb["nodes"][node_id]["available"] = "0"
+        continue
+      for app_id in node_apps["apps"]:
+        self.rsdb["nodes"][node_id]["apps"].append(app_id)
     return self.rsdb["nodes"]
 
   def get_node(self, node_id):
