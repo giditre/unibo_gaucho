@@ -24,12 +24,12 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("address", help="Endpoint IP address")
 parser.add_argument("port", help="Endpoint TCP port")
-parser.add_argument("--db-address", help="Database endpoint IP address", nargs="?", default="127.0.0.1")
-parser.add_argument("--db-port", help="Database endpoint TCP port", nargs="?", default=5003)
-parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address", nargs="?", default="127.0.0.1")
-parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port", nargs="?", default=5004)
-parser.add_argument("--repo-address", help="Image repo endpoint IP address", nargs="?", default="127.0.0.1")
-parser.add_argument("--repo-port", help="Image repo endpoint TCP port", nargs="?", default=5006)
+parser.add_argument("--db-address", help="Database endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+parser.add_argument("--db-port", help="Database endpoint TCP port, default: 5003", nargs="?", default=5003)
+parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", nargs="?", default=5004)
+#parser.add_argument("--repo-address", help="Image repo endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+#parser.add_argument("--repo-port", help="Image repo endpoint TCP port, default: 5006", nargs="?", default=5006)
 
 args = parser.parse_args()
 
@@ -39,8 +39,8 @@ db_address = args.db_address
 db_port = args.db_port
 iaas_mgmt_address = args.imgmt_address
 iaas_mgmt_port = args.imgmt_port
-repo_address = args.repo_address
-repo_port = args.repo_port
+#repo_address = args.repo_address
+#repo_port = args.repo_port
 
 ### Resource definition
 
@@ -154,7 +154,7 @@ if __name__ == '__main__':
 
   wait_for_remote_endpoint(db_address, db_port)
   wait_for_remote_endpoint(iaas_mgmt_address, iaas_mgmt_port)
-  wait_for_remote_endpoint(repo_address, repo_port)
+  #wait_for_remote_endpoint(repo_address, repo_port)
 
   app.run(host=ep_address, port=ep_port, debug=True)
 

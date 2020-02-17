@@ -45,7 +45,29 @@ class Test(Resource):
 class ImageList(Resource):
   def get(self):
     # TODO get list of allowed images from file and check that they exixt in the repo
-    image_list = {"images": ["httpd", "ubuntu", "alpine", "python3"]}
+    images = {
+      "fogimages": {
+        "Image01": {
+          "name": "alpine",
+          "descr": "Lightweight Ubuntu",
+          "uri": "alpine",
+          "apps": ["FA001"]
+        },
+        "Image02": {
+          "name": "httpd",
+          "descr": "Apache web server",
+          "uri": "httpd",
+          "apps": ["FA002"]
+        },
+        "Image03": {
+          "name": "python3",
+          "descr": "Python3 interactive shell",
+          "uri": "python3",
+          "apps": ["FA003"]
+        }
+      }
+    }
+
     return images
 
 class FogApplication(Resource):

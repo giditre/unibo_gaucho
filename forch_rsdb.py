@@ -11,6 +11,10 @@ from copy import deepcopy
 import requests
 import random
 
+import threading
+
+from pyzabbix import ZabbixAPI
+
 ### Logging setup
 
 logger = logging.getLogger(os.path.basename(__file__))
@@ -30,6 +34,7 @@ parser.add_argument("port", help="Endpoint TCP port")
 parser.add_argument("--db-json", help="Database JSON file, default: rsdb.json", nargs="?", default="rsdb.json")
 parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
 parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", nargs="?", default=5004)
+parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
 
 args = parser.parse_args()
 
@@ -38,6 +43,38 @@ ep_port = args.port
 db_fname = args.db_json
 iaas_mgmt_address = args.imgmt_address
 iaas_mgmt_port = args.imgmt_port
+wait_remote = args.wait_remote
+
+### Zabbix
+
+class Zabbix():
+
+  def __init__(self, url='http://localhost/zabbix/', user='Admin', password='zabbix'):
+    self.zapi = ZabbixAPI(url=url, user=user, password=password)
+    
+  def get_nodes(self, server_name = "Zabbix Server"):
+    fields = ["hostid", "name", "status", "available"]
+    nodes = { h["hostid"]: { f: h[f] for f in fields } for h in self.zapi.host.get(search={"name": server_name}, excludeSearch=True) }
+    interfaces = self.zapi.hostinterface.get()
+    for i in interfaces:
+      hostid = i["hostid"]
+      if hostid in nodes:
+        nodes[hostid]["ip"] = i["ip"]
+    return nodes
+
+  #def get_node(self, node_id):
+  #  hosts = self.zapi.host.get(filter={"hostid": node_id})
+  #  if hosts:
+  #    return hosts[0]
+  #  else:
+  #    return {"message": "Node {} not found.".format(node_id)}
+
+  def get_metrics(self, node_id=None, search_str=""):
+    fields = [ "hostid", "itemid", "name", "lastclock", "lastvalue", "units" ]
+    return { item["itemid"] : { f: item[f] for f in fields } for item in self.zapi.item.get(filter={"hostid": node_id}, search={"name": "*{}*".format(search_str)}, searchWildcardsEnabled=True) }
+
+  def get_utilization(self, node_id):
+    return self.get_items(node_id, "utilization")
 
 ### user functions
 
@@ -89,6 +126,8 @@ class RSDB():
 
     self.write_db = True
 
+    self.collector = Zabbix()
+
   def init_db(self):
     rsdb = { "nodes": {} }
 
@@ -122,12 +161,14 @@ class RSDB():
     return self.node_fields
 
   def get_node_list(self):
+    self.rsdb["nodes"] = self.collector.get_nodes()
     return self.rsdb["nodes"]
 
   def get_node(self, node_id):
-    if node_id not in self.rsdb["nodes"]:
-      abort(404, message="Node {} not found.".format(node_id))
-    return self.rsdb["nodes"][node_id]
+    if node_id in self.rsdb["nodes"]:
+      return self.rsdb["nodes"][node_id], 200
+    else:
+      return {"message": "Node {} not in database, update database by performing GET /nodes and try again".format(node_id)}, 404
 
   def put_node(self, node_json):
     response_code = -1
@@ -233,6 +274,10 @@ class FogNodeList(Resource):
     return rsdb.get_node_list()
 
   def post(self):
+
+    # TODO
+    #fognodes_dict = { h["hostid"] : h for h in zapi.host.get(search={"name": "Zabbix Server"}, excludeSearch=True) }
+
     json_data = request.get_json(force=True)
     node = {}
     for field in rsdb.get_node_fields():
@@ -262,7 +307,8 @@ class FogNodeList(Resource):
 
 class FogNode(Resource):
   def get(self, node_id):
-    return rsdb.get_node(node_id)
+    resp, resp_code = rsdb.get_node(node_id)
+    return resp, resp_code
 
 class FogApplicationCatalog(Resource):
   def get(self):
@@ -326,7 +372,8 @@ api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
 if __name__ == '__main__':
 
-  wait_for_remote_endpoint(iaas_mgmt_address, iaas_mgmt_port)
+  if wait_remote:
+    wait_for_remote_endpoint(iaas_mgmt_address, iaas_mgmt_port)
 
   app.run(host=ep_address, port=ep_port, debug=True)
 
