@@ -30,7 +30,7 @@ class FogApplication(Resource):
     super(FogApplication, self).__init__()
     self.fna = kwargs["fna"]
 
-  def post(self):
+  def post(self, app_id):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     image_uri = req_json["image_uri"]
@@ -53,12 +53,15 @@ class FogApplication(Resource):
     
     logger.debug("Deploying {}".format(image_uri))
 
-    cont_name = image_uri.replace("/", "_") + "-" + '{0:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+    cont_name = app_id + "-" + image_uri.replace("/", "_") + "-" + '{0:%Y%m%d_%H%M%S_%f}'.format(datetime.datetime.now())
 
     try:
       docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
     except docker.errors.ImageNotFound as e:
       return {"message": str(e)}, 404
+
+    with open("/tmp/{}.json".format(cont_name), "w") as f:
+      json.dump({"image": image_uri, "app": app_id}, f)
 
     container = docker_client.containers.get(cont_name)
 
@@ -165,14 +168,14 @@ if __name__ == '__main__':
   app = Flask(__name__)
   api = Api(app)
   api.add_resource(Test, '/test')
-  api.add_resource(FogApplication, '/app', resource_class_kwargs={"fna":fna})
+  api.add_resource(FogApplication, '/app/<app_id>', resource_class_kwargs={"fna":fna})
 
   #fnode_iaas = FogNodeIaaS(ep_address, ep_port, repo_address, repo_port, logger=logger)
   #fnode_iaas.start()
 
   #fna.start()
 
-  app.run(host=ep_address, port=ep_port, debug=False)
+  app.run(host=ep_address, port=ep_port, debug=True)
   
   #try:
   #  while True:
