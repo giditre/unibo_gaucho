@@ -54,6 +54,7 @@ class FogApplication(Resource):
 
   def get(self, app_id):
     # determine node id by choosing a node among the ones that implement this app (if any)
+    node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
     app_list = requests.get("http://{}:{}/apps".format(db_address, db_port)).json()
     if app_id not in app_list:
       # TODO understand why it returns 200 OK anyway (maybe check the return value(s) of abort)
@@ -72,7 +73,7 @@ class FogApplication(Resource):
       # this means this app is not implemented/deployed on any node
       # try installing image on a IaaS node to implement this app
       # get list of nodes and look for IaaS nodes
-      node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
+      #node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
       #iaas_nodes = [ node for node in node_list if node_list[node]["class"] == "I" ]    # TODO also check if node has resources available
       #if not iaas_nodes:
       #  return {"message": "App not deployed and no available IaaS node."}, 503
