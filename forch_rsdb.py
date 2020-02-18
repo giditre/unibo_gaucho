@@ -172,6 +172,14 @@ class RSDB():
         continue
       for app_id in node_apps["apps"]:
         self.rsdb["nodes"][node_id]["apps"].append(app_id)
+      # update apps database
+      for app in self.rsdb["nodes"][node_id]["apps"]:
+        if app in self.rsdb["apps"]:
+          if node_id not in self.rsdb["apps"][app]["nodes"]:
+            self.rsdb["apps"][app]["nodes"].append(node_id)
+        else:
+          self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
+          self.rsdb["apps"][app]["nodes"] = [node_id]
     return self.rsdb["nodes"]
 
   def get_node(self, node_id):

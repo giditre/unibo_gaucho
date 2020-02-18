@@ -76,19 +76,19 @@ class FogApplication(Resource):
     self.parser = reqparse.RequestParser()
     self.parser.add_argument('image', type=str, help='Image locator')
     self.parser.add_argument('node', type=str, help='Node locator')
-  def post(self):
+  def post(self, app_id):
     ## retrieve information from POST body
     #args = self.parser.parse_args()
     #image_id = args["image"]
     #node_url = args["node"]
     req_json = request.get_json(force=True)
     image_uri = req_json["image_uri"] 
-    node_url = req_json["node_url"]
+    #node_url = req_json["node_url"]
     node_ipv4 = req_json["node_ipv4"]
-    r = requests.post("http://{}:{}/app".format(node_ipv4, 5005), json={"image_uri": image_uri})
+    r = requests.post("http://{}:{}/app/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
     # logger.debug(f"{r}")
     resp_json = r.json()
-    resp_json["node_url"] = node_url
+    #resp_json["node_url"] = node_url
     return resp_json, r.status_code
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
@@ -111,11 +111,11 @@ def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
 app = Flask(__name__)
 api = Api(app)
 
-api.add_resource(Test, '/test')
+api.add_resource(Test, "/test")
 
-api.add_resource(ImageList, '/images')
+api.add_resource(ImageList, "/images")
 
-api.add_resource(FogApplication, '/app')
+api.add_resource(FogApplication, "/app/<app_id>")
 
 ### MAIN
 
