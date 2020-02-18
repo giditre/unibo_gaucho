@@ -71,11 +71,13 @@ class ImageList(Resource):
     return images
 
 class FogApplication(Resource):
+
   def __init__(self):
     super().__init__()
     self.parser = reqparse.RequestParser()
     self.parser.add_argument('image', type=str, help='Image locator')
     self.parser.add_argument('node', type=str, help='Node locator')
+
   def post(self, app_id):
     ## retrieve information from POST body
     #args = self.parser.parse_args()
@@ -85,7 +87,10 @@ class FogApplication(Resource):
     image_uri = req_json["image_uri"] 
     #node_url = req_json["node_url"]
     node_ipv4 = req_json["node_ipv4"]
-    r = requests.post("http://{}:{}/app/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
+    try:
+      r = requests.post("http://{}:{}/app/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
+    except requests.exceptions.ConnectionError:
+      return {"message": "Aborted: error in connecting to node {}".format(node_ipv4)}
     # logger.debug(f"{r}")
     resp_json = r.json()
     #resp_json["node_url"] = node_url
