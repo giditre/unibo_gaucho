@@ -62,7 +62,7 @@ class ImageList(Resource):
         "Image03": {
           "name": "python3",
           "descr": "Python3 interactive shell",
-          "uri": "python3",
+          "uri": "python",
           "apps": ["FA003"]
         }
       }
