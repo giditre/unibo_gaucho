@@ -9,6 +9,7 @@ from time import sleep
 import datetime
 import os
 import threading
+from collections import Counter
 
 import docker
 
@@ -24,6 +25,19 @@ class Test(Resource):
   def get(self):
     return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
 
+
+class FogApplicationList(Resource):
+  def get(self):
+    app_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("FA")])
+    return {"apps": dict(app_counter)}
+      
+  def delete(self):
+    for cont in docker_client.containers.list():
+      if cont.name.startswith("FA"):
+        cont.stop()
+    resp = docker_client.containers.prune()
+    return {"message": resp}, 200
+
 class FogApplication(Resource):
 
   def __init__(self, *args, **kwargs):
@@ -33,10 +47,18 @@ class FogApplication(Resource):
   def post(self, app_id):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
-    image_uri = req_json["image_uri"]
+    
+    image_uri = ""
+    if "image_uri" in req_json:
+      image_uri = req_json["image_uri"]
+    else:
+      # TODO: GET the image by app_id from forch_iaas_mgmt
+      pass
+
     command = ""
     if "command" in req_json:
       command = req_json["command"]
+
     entrypoint = ""
     if "entrypoint" in req_json:
       entrypoint = req_json["entrypoint"]
@@ -51,9 +73,9 @@ class FogApplication(Resource):
 
     # TODO check if image is present on this node. If not, check if image is allowed. Is yes, pull it from repo.
     
-    logger.debug("Deploying {}".format(image_uri))
+    logger.debug("Deploying app {} with image {}".format(app_id, image_uri))
 
-    cont_name = app_id + "-" + image_uri.replace("/", "_") + "-" + '{0:%Y%m%d_%H%M%S_%f}'.format(datetime.datetime.now())
+    cont_name = app_id + "_" + image_uri.replace("/", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
 
     try:
       docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
@@ -168,6 +190,7 @@ if __name__ == '__main__':
   app = Flask(__name__)
   api = Api(app)
   api.add_resource(Test, '/test')
+  api.add_resource(FogApplicationList, '/apps')
   api.add_resource(FogApplication, '/app/<app_id>', resource_class_kwargs={"fna":fna})
 
   #fnode_iaas = FogNodeIaaS(ep_address, ep_port, repo_address, repo_port, logger=logger)
