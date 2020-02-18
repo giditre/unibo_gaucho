@@ -90,7 +90,7 @@ class FogApplication(Resource):
     try:
       r = requests.post("http://{}:{}/app/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
     except requests.exceptions.ConnectionError:
-      return {"message": "Aborted: error in connecting to node {}".format(node_ipv4)}
+      return {"message": "Aborted: error in connecting to node {}".format(node_ipv4)}, 500
     # logger.debug(f"{r}")
     resp_json = r.json()
     #resp_json["node_url"] = node_url
