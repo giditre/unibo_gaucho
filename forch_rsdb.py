@@ -180,6 +180,10 @@ class RSDB():
         else:
           self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
           self.rsdb["apps"][app]["nodes"] = [node_id]
+      # remove node from app db if it does no longer offer that app
+      for app in self.rsdb["apps"]:
+        if app not in self.rsdb["nodes"][node_id]["apps"] and node_id in self.rsdb["apps"][app]["nodes"]:
+          self.rsdb["apps"][app]["nodes"].remove(node_id)
     return self.rsdb["nodes"]
 
   def get_node(self, node_id):
