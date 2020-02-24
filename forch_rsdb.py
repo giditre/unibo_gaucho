@@ -71,10 +71,10 @@ class Zabbix():
 
   def get_metrics(self, node_id=None, search_str=""):
     fields = [ "hostid", "itemid", "name", "lastclock", "lastvalue", "units" ]
-    return { item["itemid"] : { f: item[f] for f in fields } for item in self.zapi.item.get(filter={"hostid": node_id}, search={"name": "*{}*".format(search_str)}, searchWildcardsEnabled=True) }
+    metrics = [ { f: item[f] for f in fields } for item in self.zapi.item.get(filter={"hostid": node_id}, search={"name": "*{}*".format(search_str)}, searchWildcardsEnabled=True) ]
+    #print("METRICS", metrics)
+    return metrics
 
-  def get_utilization(self, node_id):
-    return self.get_items(node_id, "utilization")
 
 ### user functions
 
@@ -119,26 +119,28 @@ class RSDM():
   def monitor(self):
     # TODO check for new hosts
     # monitor utilization of resources
-    t = round(time.time())
+    t = round(time())
     with self.dict_lock:
       self.rsdm_dict[t] = {}
       for node_id in self.collector.get_nodes():
-        self.rsdm_dict[t][node_id] ={}
-        for item in zapi.item.get(filter={"hostid": node_id}, search={"name": "*utilization*"}, searchWildcardsEnabled=True):
-          lastclock = int(item["lastclock"])
-          if lastclock == 0:
-            continue
-          for k in ["hostid", "itemid", "name", "lastvalue", "units"]:
-            self.rsdm_dict[t][node_id][k] = item[k]
+        self.rsdm_dict[t][node_id] = {}
+        for item in self.collector.get_metrics(node_id=node_id, search_str="utilization"):
+          #lastclock = int(item["lastclock"])
+          #if lastclock == 0:
+          #  continue
+          self.rsdm_dict[t][node_id][item["itemid"]] = item
       # keep maximum size of dictionary limited to max_history
-      if len(self.rsdm_dict) > max_history:
+      if len(self.rsdm_dict) > self.max_history:
         oldest_t = min(self.rsdm_dict.keys())
         del self.rsdm_dict[oldest_t]
 
-    threading.Timer(self.interval, monitor).start()
+    print("DICT", self.rsdm_dict)
+
+    threading.Timer(self.interval, self.monitor).start()
 
   def get_resources(self, node_id):
     newest_t = max(self.rsdm_dict.keys())
+    print("RESOURCES", self.rsdm_dict[newest_t][node_id])
     return self.rsdm_dict[newest_t][node_id]
 
 ### manage database
@@ -216,7 +218,7 @@ class RSDB():
         for app_id in node_apps["apps"]:
           self.rsdb["nodes"][node_id]["apps"].append(app_id)
         # get monitoring information
-        self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_resources()
+        self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_resources(node_id)
         # update apps database
         for app in self.rsdb["nodes"][node_id]["apps"]:
           if app in self.rsdb["apps"]:
