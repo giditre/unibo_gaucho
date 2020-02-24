@@ -103,9 +103,49 @@ def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
     logger.warning("Remote endpoint ({}) not ready (reponse code {}), retrying soon...".format(url, resp_code))
     sleep(random.randint(5,15))
     
+### discovery and monitoring
+
+class RSDM():
+  """Resource and Service Discovery and Monitoring"""
+  
+  def __init__(self):
+    self.rsdm_dict = {}
+    self.collector = Zabbix()
+    self.interval = 20
+    self.max_history = 100
+    self.dict_lock = threading.Lock()
+    self.monitor()
+
+  def monitor(self):
+    # TODO check for new hosts
+    # monitor utilization of resources
+    t = round(time.time())
+    with self.dict_lock:
+      self.rsdm_dict[t] = {}
+      for node_id in self.collector.get_nodes():
+        self.rsdm_dict[t][node_id] ={}
+        for item in zapi.item.get(filter={"hostid": node_id}, search={"name": "*utilization*"}, searchWildcardsEnabled=True):
+          lastclock = int(item["lastclock"])
+          if lastclock == 0:
+            continue
+          for k in ["hostid", "itemid", "name", "lastvalue", "units"]:
+            self.rsdm_dict[t][node_id][k] = item[k]
+      # keep maximum size of dictionary limited to max_history
+      if len(self.rsdm_dict) > max_history:
+        oldest_t = min(self.rsdm_dict.keys())
+        del self.rsdm_dict[oldest_t]
+
+    threading.Timer(self.interval, monitor).start()
+
+  def get_resources(self, node_id):
+    newest_t = max(self.rsdm_dict.keys())
+    return self.rsdm_dict[newest_t][node_id]
+
 ### manage database
 
 class RSDB():
+
+  """ Resourcs and Services Database """
 
   def __init__(self):
     #with open("res_serv_database.json") as f:
@@ -127,6 +167,8 @@ class RSDB():
     self.write_db = True
 
     self.collector = Zabbix()
+
+    self.rsdm = RSDM()
 
   def init_db(self):
     rsdb = { "nodes": {} }
@@ -161,29 +203,33 @@ class RSDB():
     return self.node_fields
 
   def get_node_list(self):
-    self.rsdb["nodes"] = self.collector.get_nodes()
-    # TODO maybe avoid asking nodes directly, but go through forch_iaas_mgmt
-    for node_id in self.rsdb["nodes"]:
-      self.rsdb["nodes"][node_id]["apps"] = []
-      try:
-        node_apps = requests.get("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"])).json()
-      except requests.exceptions.ConnectionError:
-        self.rsdb["nodes"][node_id]["available"] = "0"
-        continue
-      for app_id in node_apps["apps"]:
-        self.rsdb["nodes"][node_id]["apps"].append(app_id)
-      # update apps database
-      for app in self.rsdb["nodes"][node_id]["apps"]:
-        if app in self.rsdb["apps"]:
-          if node_id not in self.rsdb["apps"][app]["nodes"]:
-            self.rsdb["apps"][app]["nodes"].append(node_id)
-        else:
-          self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
-          self.rsdb["apps"][app]["nodes"] = [node_id]
-      # remove node from app db if it does no longer offer that app
-      for app in self.rsdb["apps"]:
-        if app not in self.rsdb["nodes"][node_id]["apps"] and node_id in self.rsdb["apps"][app]["nodes"]:
-          self.rsdb["apps"][app]["nodes"].remove(node_id)
+    with self.db_lock:
+      self.rsdb["nodes"] = self.collector.get_nodes()
+      # TODO maybe avoid asking nodes directly, but go through forch_iaas_mgmt
+      for node_id in self.rsdb["nodes"]:
+        self.rsdb["nodes"][node_id]["apps"] = []
+        try:
+          node_apps = requests.get("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"])).json()
+        except requests.exceptions.ConnectionError:
+          self.rsdb["nodes"][node_id]["available"] = "0"
+          continue
+        for app_id in node_apps["apps"]:
+          self.rsdb["nodes"][node_id]["apps"].append(app_id)
+        # get monitoring information
+        self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_resources()
+        # update apps database
+        for app in self.rsdb["nodes"][node_id]["apps"]:
+          if app in self.rsdb["apps"]:
+            if node_id not in self.rsdb["apps"][app]["nodes"]:
+              self.rsdb["apps"][app]["nodes"].append(node_id)
+          else:
+            # get app structure from catalog
+            self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
+            self.rsdb["apps"][app]["nodes"] = [node_id]
+        # remove node from app db if it does no longer offer that app
+        for app in self.rsdb["apps"]:
+          if app not in self.rsdb["nodes"][node_id]["apps"] and node_id in self.rsdb["apps"][app]["nodes"]:
+            self.rsdb["apps"][app]["nodes"].remove(node_id)
     return self.rsdb["nodes"]
 
   def get_node(self, node_id):
