@@ -100,9 +100,9 @@ class FogApplication(Resource):
         logger.debug(port_map)
 
     return {"message": "Deployed image {}".format(image_uri),
-        "Name": cont_name,
-        "IPAddress": cont_ip,
-        "PortMappings": port_mappings
+        "name": cont_name,
+        "cont_ip": cont_ip,
+        "port_mappings": port_mappings
         }, 201
 
 def wait_for_remote_endpoint(ep_address, ep_port):
