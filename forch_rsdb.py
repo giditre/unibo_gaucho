@@ -69,11 +69,11 @@ class Zabbix():
   #  else:
   #    return {"message": "Node {} not found.".format(node_id)}
 
-  def get_metrics(self, node_id=None, search_str=""):
+  def get_measurements(self, node_id=None, search_str=""):
     fields = [ "hostid", "itemid", "name", "lastclock", "lastvalue", "units" ]
-    metrics = [ { f: item[f] for f in fields } for item in self.zapi.item.get(filter={"hostid": node_id}, search={"name": "*{}*".format(search_str)}, searchWildcardsEnabled=True) ]
-    #print("METRICS", metrics)
-    return metrics
+    measurements = [ { f: item[f] for f in fields } for item in self.zapi.item.get(filter={"hostid": node_id}, search={"name": "*{}*".format(search_str)}, searchWildcardsEnabled=True) ]
+    #logger.debug("MEASUREMENTS", measurements)
+    return measurements
 
 
 ### user functions
@@ -105,42 +105,57 @@ def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
     
 ### discovery and monitoring
 
-class RSDM():
+class RSDM(threading.Thread):
   """Resource and Service Discovery and Monitoring"""
   
   def __init__(self):
+    super().__init__()
     self.rsdm_dict = {}
     self.collector = Zabbix()
-    self.interval = 20
+    self.monitoring_interval = 20
     self.max_history = 100
     self.dict_lock = threading.Lock()
-    self.monitor()
+    self.monitor = threading.Event()
 
-  def monitor(self):
-    # TODO check for new hosts
+  def do_monitor(self):
+    logger.debug("Monitor is collecting measurements")
+    # TODO check for new hosts - or this in implicit in the length of the monitor list?
     # monitor utilization of resources
     t = round(time())
     with self.dict_lock:
       self.rsdm_dict[t] = {}
       for node_id in self.collector.get_nodes():
         self.rsdm_dict[t][node_id] = {}
-        for item in self.collector.get_metrics(node_id=node_id, search_str="utilization"):
+        for item in self.collector.get_measurements(node_id=node_id, search_str="utilization"):
           #lastclock = int(item["lastclock"])
           #if lastclock == 0:
           #  continue
           self.rsdm_dict[t][node_id][item["itemid"]] = item
-      # keep maximum size of dictionary limited to max_history
+      # keep maximum size of dictionary limited to max_history values
       if len(self.rsdm_dict) > self.max_history:
         oldest_t = min(self.rsdm_dict.keys())
         del self.rsdm_dict[oldest_t]
 
-    print("DICT", self.rsdm_dict)
+    #logger.debug("DICT", self.rsdm_dict)
 
-    threading.Timer(self.interval, self.monitor).start()
+  def run(self):
+    self.monitor.set()
+    while self.monitor.is_set():
+      self.do_monitor()
+      sleep(self.monitoring_interval)
 
-  def get_resources(self, node_id):
+  def start_monitoring(self):
+    self.start()
+
+  def stop_monitoring(self):
+    self.monitor.clear()
+
+  def get_all_measurements(self):
+    return self.rsdm_dict
+
+  def get_last_measurements(self, node_id):
     newest_t = max(self.rsdm_dict.keys())
-    print("RESOURCES", self.rsdm_dict[newest_t][node_id])
+    #logger.debug("RESOURCES", self.rsdm_dict[newest_t][node_id])
     return self.rsdm_dict[newest_t][node_id]
 
 ### manage database
@@ -150,27 +165,19 @@ class RSDB():
   """ Resourcs and Services Database """
 
   def __init__(self):
-    #with open("res_serv_database.json") as f:
-    #  self.rsdb = json.load(f)
-
     # initialize nodes and apps databases as empty dicts
     self.rsdb = self.init_db()
-
-    #self.known_services = [ self.rsdb["services"][s]["name"] for s in self.rsdb["services"] ]
-
     self.db_lock = threading.Lock()
   
     # write initial database
     #write_db_to_file(db_fname, self.rsdb, period=10)
-
-    # define fields we expect to find in a node update packet
-    self.node_fields = ["mac", "ipv4", "class", "apps", "SDPs", "FVEs", "av_res"]
 
     self.write_db = True
 
     self.collector = Zabbix()
 
     self.rsdm = RSDM()
+    self.rsdm.start()
 
   def init_db(self):
     rsdb = { "nodes": {} }
@@ -207,7 +214,7 @@ class RSDB():
   def get_node_list(self):
     with self.db_lock:
       self.rsdb["nodes"] = self.collector.get_nodes()
-      # TODO maybe avoid asking nodes directly, but go through forch_iaas_mgmt
+      # TODO avoid asking nodes directly, but go through forch_iaas_mgmt - but then what about non-IaaS nodes?
       for node_id in self.rsdb["nodes"]:
         self.rsdb["nodes"][node_id]["apps"] = []
         try:
@@ -218,7 +225,7 @@ class RSDB():
         for app_id in node_apps["apps"]:
           self.rsdb["nodes"][node_id]["apps"].append(app_id)
         # get monitoring information
-        self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_resources(node_id)
+        self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
         # update apps database
         for app in self.rsdb["nodes"][node_id]["apps"]:
           if app in self.rsdb["apps"]:
@@ -240,61 +247,8 @@ class RSDB():
     else:
       return {"message": "Node {} not in database, update database by performing GET /nodes and try again".format(node_id)}, 404
 
-  def put_node(self, node_json):
-    response_code = -1
-    # generate deterministic UUID based on MAC address of node
-    node_uuid = mac_to_uuid(node_json["mac"])
-    # acquire the lock for the whole sequence of operations on the database
-    with self.db_lock:
-      # check if there is an entry for this node (identified by MAC-based UUID)
-      if node_uuid not in self.rsdb["nodes"]:
-        response_code = 201
-        # create  entry
-        self.rsdb["nodes"][node_uuid] = { "uuid": node_uuid }
-        self.rsdb["nodes"][node_uuid]["name"] = "fn-{}".format(node_uuid[-4:])
-        self.rsdb["nodes"][node_uuid]["url"] = "{}.fog.net".format(self.rsdb["nodes"][node_uuid]["name"])
-        for field in self.node_fields:
-          self.rsdb["nodes"][node_uuid][field] = node_json[field]
-        # insert timestamp
-        self.rsdb["nodes"][node_uuid]["last_heard"] = int(time())
-      else:
-        response_code = 200
-        # update entry
-        for field in [ f for f in self.node_fields if f not in ["mac"] ]:
-          self.rsdb["nodes"][node_uuid][field] = node_json[field]
-        # insert timestamp
-        self.rsdb["nodes"][node_uuid]["last_heard"] = int(time())
-
-      # update apps database
-      for app in self.rsdb["nodes"][node_uuid]["apps"]:
-        if app in self.rsdb["apps"]:
-          if node_uuid not in self.rsdb["apps"][app]["nodes"]:
-            self.rsdb["apps"][app]["nodes"].append(node_uuid)
-        else:
-          self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
-          self.rsdb["apps"][app]["nodes"] = [node_uuid]
-
-      # update FVEs database
-      if self.rsdb["nodes"][node_uuid]["FVEs"]:
-        for fve in self.rsdb["nodes"][node_uuid]["FVEs"]:
-          if fve in self.rsdb["FVEs"]:
-            if node_uuid not in self.rsdb["FVEs"][fve]["nodes"]:
-              self.rsdb["FVEs"][fve]["nodes"].append(node_uuid)
-          else:
-            self.rsdb["FVEs"][fve] = deepcopy(self.rsdb["FVE_catalog"][fve])
-            self.rsdb["FVEs"][fve]["nodes"] = [node_uuid]
-
-      if self.write_db:
-        # update stored database
-        with open("debug_rsdb.json", "w") as f:
-          json.dump(self.rsdb, f)
-
-    return self.rsdb["nodes"][node_uuid]["name"], response_code
-
-  def flush_db(self):
-    with self.db_lock:
-      self.rsdb = self.init_db()
-    return 204
+  def get_measurements(self):
+    return self.rsdm.get_all_measurements()
 
   def get_app_catalog(self):
     return self.rsdb["app_catalog"]
@@ -329,6 +283,12 @@ class RSDB():
       abort(404, message="FVE {} not found.".format(fve_id))
     return self.rsdb["FVEs"][fve_id]
 
+  def flush_db(self):
+    with self.db_lock:
+      self.rsdb = self.init_db()
+    return 204
+
+
 # initialize database handler
 rsdb = RSDB()
 
@@ -343,42 +303,17 @@ class FogNodeList(Resource):
   def get(self):
     return rsdb.get_node_list()
 
-  def post(self):
-
-    # TODO
-    #fognodes_dict = { h["hostid"] : h for h in zapi.host.get(search={"name": "Zabbix Server"}, excludeSearch=True) }
-
-    json_data = request.get_json(force=True)
-    node = {}
-    for field in rsdb.get_node_fields():
-      try:
-        #if not json_data[field]:
-        #  raise ValueError
-        node[field] = json_data[field]
-      except KeyError:
-        print("Request does not specify required field {}.".format(field))
-        abort(400, message="Request does not specify required field {}.".format(field))
-      #except ValueError:
-      #  abort(400, message="Request does not specify value for required field {}.".format(field))
-    node_name, response_code = rsdb.put_node(node)
-    return {"name": node_name}, response_code
-
   def delete(self):
-    #json_data = request.get_json(force=True)
-    #field = "mac"
-    #try:
-    #  if not json_data[field]:
-    #    raise ValueError
-    #except KeyError:
-    #  abort(400, message="Request does not specify required field {}.".format(field))
-    #except ValueError:
-    #  abort(400, message="Request does not specify value for required field {}.".format(field))    
     return rsdb.flush_db()
 
 class FogNode(Resource):
   def get(self, node_id):
     resp, resp_code = rsdb.get_node(node_id)
     return resp, resp_code
+
+class FogMeasurements(Resource):
+  def get(self):
+    return rsdb.get_measurements()
 
 class FogApplicationCatalog(Resource):
   def get(self):
@@ -419,12 +354,19 @@ class FogVirtEngine(Resource):
 ### API definition
 
 app = Flask(__name__)
+
+#@app.teardown_appcontext
+#def shutdown_session(exception=None):
+#  print("TEARDOWN!")
+
 api = Api(app)
 
 api.add_resource(Test, '/test')
 
 api.add_resource(FogNodeList, '/nodes')
 api.add_resource(FogNode, '/node/<node_id>')
+
+api.add_resource(FogMeasurements, '/meas')
 
 api.add_resource(FogApplicationCatalog, '/appcat')
 api.add_resource(FogApplicationList, '/apps')
@@ -438,6 +380,7 @@ api.add_resource(FogVirtEngineCatalog, '/fvecat')
 api.add_resource(FogVirtEngineList, '/fves')
 api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
+
 ### MAIN
 
 if __name__ == '__main__':
@@ -445,5 +388,5 @@ if __name__ == '__main__':
   if wait_remote:
     wait_for_remote_endpoint(iaas_mgmt_address, iaas_mgmt_port)
 
-  app.run(host=ep_address, port=ep_port, debug=True)
+  app.run(host=ep_address, port=ep_port, debug=False)
 
