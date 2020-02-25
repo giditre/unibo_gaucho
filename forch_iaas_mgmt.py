@@ -80,21 +80,20 @@ class FogApplication(Resource):
 
   def post(self, app_id):
     ## retrieve information from POST body
-    #args = self.parser.parse_args()
-    #image_id = args["image"]
-    #node_url = args["node"]
     req_json = request.get_json(force=True)
     image_uri = req_json["image_uri"] 
-    #node_url = req_json["node_url"]
     node_ipv4 = req_json["node_ipv4"]
     try:
       r = requests.post("http://{}:{}/app/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
     except requests.exceptions.ConnectionError:
       return {"message": "Aborted: error in connecting to node {}".format(node_ipv4)}, 500
-    # logger.debug(f"{r}")
     resp_json = r.json()
-    #resp_json["node_url"] = node_url
-    return resp_json, r.status_code
+    #"0.0.0.0:32774->80/tcp"
+    return {
+      "message": "App {} successfully deployed".format(app_id),
+      "node_ip": node_ip,
+      "port_mappings": resp_json["port_mappings"] 
+      }, r.status_code
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)
