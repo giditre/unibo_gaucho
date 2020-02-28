@@ -1,16 +1,16 @@
 {
   "SDPs": {
     "SDP001": {
-      "name": "SoftwareDevelopmentPlatform1",
-      "descr": "Description of SDP SoftwareDevelopmentPlatform1"
+      "name": "python",
+      "descr": "Python3"
     },
     "SDP002": {
-      "name": "SoftwareDevelopmentPlatform2",
-      "descr": "Description of SDP SoftwareDevelopmentPlatform2"
+      "name": "alpine",
+      "descr": "Lightweight Ubuntu"
     },
     "SDP003": {
-      "name": "SoftwareDevelopmentPlatform3",
-      "descr": "Description of SDP SoftwareDevelopmentPlatform3"
+      "name": "progrium/stress",
+      "descr": "Stress"
     }
   }
 }

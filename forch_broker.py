@@ -81,7 +81,7 @@ class FogApplication(Resource):
           for item_id in node["resources"]:
             if node["resources"][item_id]["name"] == "CPU utilization":
               logger.debug("Node {} CPU {}%".format(h_id, node["resources"][item_id]["lastvalue"]))
-              if node["resources"][item_id]["lastvalue"] < "90":
+              if float(node["resources"][item_id]["lastvalue"]) < 90:
                 # we have found the node
                 node_id = h_id
                 break
