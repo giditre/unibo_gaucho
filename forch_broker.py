@@ -54,11 +54,11 @@ class FogApplication(Resource):
 
   def get(self, app_id):
     # determine node id by choosing a node among the ones that implement this app (if any)
-    node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
+    node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
     app_list = requests.get("http://{}:{}/apps".format(db_address, db_port)).json()
     if app_id not in app_list:
       # TODO understand why it returns 200 OK anyway (maybe check the return value(s) of abort)
-      abort(404, message="Application {} not found.".format(app_id))
+      return { "message": "Application {} not found.".format(app_id) }, 404
     app = app_list[app_id]
     app_node_list = app["nodes"]
     # check if this app is implemented on some node
@@ -72,16 +72,24 @@ class FogApplication(Resource):
     else:
       # this means this app is not implemented/deployed on any node
       # try installing image on a IaaS node to implement this app
-      # get list of nodes and look for IaaS nodes
-      #node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
-      #iaas_nodes = [ node for node in node_list if node_list[node]["class"] == "I" ]    # TODO also check if node has resources available
-      #if not iaas_nodes:
-      #  return {"message": "App not deployed and no available IaaS node."}, 503
-      # pick the first node on the list (TODO implement a better picking method)
-      #node_id = iaas_nodes[0]
-      node_id, node = next(iter(node_list.items()))
-      #node_url = node_list[node_id]["url"]
-      #node_ipv4 = node_list[node_id]["ipv4"]
+      # get list of nodes and pick the first available IaaS nodes having CPU utilization lower than a threshold
+      # TODO implement a better picking method
+      node_id = ""
+      for h_id in node_dict:
+        node = node_dict[h_id]
+        if node["available"] == "1":
+          for item_id in node["resources"]:
+            if node["resources"][item_id]["name"] == "CPU utilization":
+              logger.debug("Node {} CPU {}%".format(h_id, node["resources"][item_id]["lastvalue"]))
+              if node["resources"][item_id]["lastvalue"] < "90":
+                # we have found the node
+                node_id = h_id
+                break
+        if node_id:
+          break
+      if not node_id:
+        return {"message": "App not deployed and no available IaaS node."}, 503
+      logger.debug("Chosen node {}".format(node_id))
       node_ip = node["ip"]
       # get list of available images and look for image that offers the required app
       image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()

@@ -91,7 +91,7 @@ class FogApplication(Resource):
     #"0.0.0.0:32774->80/tcp"
     return {
       "message": "App {} successfully deployed".format(app_id),
-      "node_ip": node_ip,
+      "node_ip": node_ipv4,
       "port_mappings": resp_json["port_mappings"] 
       }, r.status_code
 

@@ -11,6 +11,10 @@
     "FA003": {
       "name": "python",
       "descr": "Python3 interactive shell"
+    },
+    "FA004": {
+      "name": "stress",
+      "descr": "Stress host"
     }
   }
 }
