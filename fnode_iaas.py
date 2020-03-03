@@ -67,13 +67,18 @@ class FogApplication(Resource):
 
     # TODO check if image is present on this node. If not, check if image is allowed. Is yes, pull it from repo.
     
-    logger.debug("Deploying app {} with image {}".format(app_id, image_uri))
-
     cont_name = app_id + "_" + image_uri.replace("/", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
 
     # TODO find a smarter way to implement command to stress
     if image_uri == "progrium/stress":
       command = "stress --cpu 1 --io 1 --vm 1 --vm-bytes 1G --timeout 3600s"
+
+    logger.debug("Deploying app {} in container {} with image {}{}".format(app_id,
+      image_uri,
+      cont_name,
+      " and command '{}'".format(command) if command else ""
+      )
+    )
 
     try:
       docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
