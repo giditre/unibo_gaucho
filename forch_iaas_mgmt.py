@@ -72,7 +72,7 @@ class ImageList(Resource):
           "name": "stress",
           "descr": "Stress",
           "uri": "progrium/stress",
-          "apps": ["FA004"],
+          "apps": ["FA002"],
           "sdps": ["SDP003"]
         }
       }
