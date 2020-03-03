@@ -63,12 +63,6 @@ class FogApplication(Resource):
     if "entrypoint" in req_json:
       entrypoint = req_json["entrypoint"]
 
-    #logger.debug(f"{image_uri}")
-    #resp_json = requests.get("http://{}:{}/image/{}".format(repo_address, repo_port, image_uri)).json()
-    #logger.debug("Deploying {}".format(resp_json["name"]))
-    #self.fna.set_node_class("S")
-    #self.fna.set_node_apps(resp_json["apps"])
-
     # here try to deploy image image_uri on this node
 
     # TODO check if image is present on this node. If not, check if image is allowed. Is yes, pull it from repo.
@@ -76,6 +70,10 @@ class FogApplication(Resource):
     logger.debug("Deploying app {} with image {}".format(app_id, image_uri))
 
     cont_name = app_id + "_" + image_uri.replace("/", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
+
+    # TODO find a smarter way to implement command to stress
+    if image_uri == "progrium/stress":
+      command = "stress --cpu 1 --io 1 --vm 1 --vm-bytes 1G --timeout 3600s"
 
     try:
       docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
