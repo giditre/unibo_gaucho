@@ -91,8 +91,19 @@ class FogApplication(Resource):
   def post(self, app_id):
     ## retrieve information from POST body
     req_json = request.get_json(force=True)
-    image_uri = req_json["image_uri"] 
+    image_name = req_json["image_name"] 
     node_ipv4 = req_json["node_ipv4"]
+
+    # find image URI based on name
+    image_uri = ""
+    image_dict = ImageList().get()
+    for image_id in image_dict["fogimages"]:
+      if image_dict["fogimages"][image_id]["name"] == image_name:
+        image_uri = image_dict["fogimages"][image_id]["uri"]
+        break
+    if not image_uri:
+      return {"message": "Aborted: no image found having name {}".format(image_name)}
+
     try:
       r = requests.post("http://{}:{}/app/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
     except requests.exceptions.ConnectionError:
