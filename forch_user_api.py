@@ -56,9 +56,21 @@ class FogApplication(Resource):
     r = requests.get("http://{}:{}/app/{}".format(broker_address, broker_port, app_id))
     return r.json(), r.status_code
 
+class SoftDevPlatformList(Resource):
+  def get(self):
+    # get SDP list from database
+    r = requests.get("http://{}:{}/sdpcat".format(db_address, db_port))
+    return r.json(), r.status_code
+
+class SoftDevPlatform(Resource):
+  def get(self, sdp_id):
+    # get node id from broker
+    r = requests.get("http://{}:{}/sdp/{}".format(broker_address, broker_port, sdp_id))
+    return r.json(), r.status_code
+
 class FogVirtEngineList(Resource):
   def get(self):
-    # get app list from database
+    # get fve list from database
     r = requests.get("http://{}:{}/fvecat".format(db_address, db_port))
     return r.json(), r.status_code
 
@@ -92,6 +104,9 @@ api.add_resource(Test, '/test')
 
 api.add_resource(FogApplicationList, '/apps')
 api.add_resource(FogApplication, '/app/<app_id>')
+
+api.add_resource(SoftDevPlatformList, '/sdps')
+api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
 
 api.add_resource(FogVirtEngineList, '/fves')
 api.add_resource(FogVirtEngine, '/fve/<fve_id>')

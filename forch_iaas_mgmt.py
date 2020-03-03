@@ -51,19 +51,29 @@ class ImageList(Resource):
           "name": "alpine",
           "descr": "Lightweight Ubuntu",
           "uri": "alpine",
-          "apps": ["FA001"]
+          "apps": [],
+          "sdps": ["SDP002"]
         },
         "Image02": {
           "name": "httpd",
           "descr": "Apache web server",
           "uri": "httpd",
-          "apps": ["FA002"]
+          "apps": ["FA001"],
+          "sdps": []
         },
         "Image03": {
           "name": "python3",
           "descr": "Python3 interactive shell",
           "uri": "python",
-          "apps": ["FA003"]
+          "apps": [],
+          "sdps": ["SDP001"]
+        },
+        "Image04": {
+          "name": "stress",
+          "descr": "Stress",
+          "uri": "progrium/stress",
+          "apps": ["FA004"],
+          "sdps": ["SDP003"]
         }
       }
     }
