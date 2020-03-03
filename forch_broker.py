@@ -98,10 +98,8 @@ class FogApplication(Resource):
         return {"message": "App not deployed and not provided by any available image."}, 503
       # pick the first image on the list (TODO implement a better picking method)
       image_id = app_image_list[0]
-      image_uri = image_list["fogimages"][image_id]["uri"]
-      #logger.debug(image_uri)
-      #logger.debug(node_url) 
-      r = requests.post("http://{}:{}/app/{}".format(iaas_mgmt_address, iaas_mgmt_port, app_id), json={"image_uri": image_uri, "node_ipv4": node_ip})
+      image_name = image_list["fogimages"][image_id]["name"]
+      r = requests.post("http://{}:{}/app/{}".format(iaas_mgmt_address, iaas_mgmt_port, app_id), json={"image_name": image_name, "node_ipv4": node_ip})
       return r.json(), r.status_code
     
   def post(self):
