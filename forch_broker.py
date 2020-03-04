@@ -61,6 +61,10 @@ class FogApplication(Resource):
       return { "message": "Application {} not found.".format(app_id) }, 404
     app = app_list[app_id]
     app_node_list = app["nodes"]
+
+    # TODO IMPORTANT implement a mechanism to avoid sharing apps among different requests
+    app_node_list = []
+
     # check if this app is implemented on some node
     if app_node_list:
       # if we get here, there are active nodes that implement this app
