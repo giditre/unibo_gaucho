@@ -75,7 +75,6 @@ class Zabbix():
     #logger.debug("MEASUREMENTS", measurements)
     return measurements
 
-
 ### user functions
 
 def mac_to_uuid(mac):
@@ -258,7 +257,7 @@ class RSDB():
 
   def get_app(self, app_id):
     if app_id not in self.rsdb["apps"]:
-      abort(404, message="Application {} not found.".format(app_id))
+      return {"message": "Application {} not found.".format(app_id)}, 404
     return self.rsdb["apps"][app_id]
 
   def get_sdp_catalog(self):
@@ -286,7 +285,18 @@ class RSDB():
   def flush_db(self):
     with self.db_lock:
       self.rsdb = self.init_db()
-    return 204
+    return {"message": "Database re-initialized."}, 204
+
+  def delete_apps(self):
+    for node_id in self.rsdb["nodes"]:
+      try:
+        resp, resp_code = requests.delete("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"]))
+      except requests.exceptions.ConnectionError as e:
+        # TODO handle error
+        logger.debug(str(e))
+        continue
+    # TODO do something with resp and resp_code if needed
+    return {"message": "Apps deleted on all nodes."}, 204
 
 
 # initialize database handler
@@ -304,7 +314,9 @@ class FogNodeList(Resource):
     return rsdb.get_node_list()
 
   def delete(self):
-    return rsdb.flush_db()
+    rsdb.delete_apps()
+    rsdb.flush_db()
+    return {"message": "Apps deleted and database re-initialized"}, 204
 
 class FogNode(Resource):
   def get(self, node_id):
@@ -322,6 +334,9 @@ class FogApplicationCatalog(Resource):
 class FogApplicationList(Resource):
   def get(self):
     return rsdb.get_app_list()
+
+  def delete(self):
+    return rsdb.delete_apps()
 
 class FogApplication(Resource):
   def get(self, app_id):
