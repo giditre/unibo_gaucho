@@ -30,11 +30,13 @@ logger.addHandler(ch)
 parser = argparse.ArgumentParser()
 
 parser.add_argument("address", help="Endpoint IP address")
-parser.add_argument("port", help="Endpoint TCP port")
+parser.add_argument("port", type=int, help="Endpoint TCP port")
 parser.add_argument("--db-json", help="Database JSON file, default: rsdb.json", nargs="?", default="rsdb.json")
 parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", nargs="?", default=5004)
+parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", type=int, nargs="?", default=5004)
 parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
+parser.add_argument("--mon-history", help="Number of monitoring elements to keep in memory, default: 300", type=int, nargs="?", default=300)
+parser.add_argument("--mon-period", help="Monitoring period in seconds, default: 10", type=int, nargs="?", default=10)
 
 args = parser.parse_args()
 
@@ -44,6 +46,8 @@ db_fname = args.db_json
 iaas_mgmt_address = args.imgmt_address
 iaas_mgmt_port = args.imgmt_port
 wait_remote = args.wait_remote
+monitor_history = args.mon_history
+monitor_period = args.mon_period
 
 ### Zabbix
 
@@ -111,8 +115,8 @@ class RSDM(threading.Thread):
     super().__init__()
     self.rsdm_dict = {}
     self.collector = Zabbix()
-    self.monitoring_interval = 20
-    self.max_history = 100
+    self.monitoring_interval = monitor_period
+    self.max_history = monitor_history
     self.dict_lock = threading.Lock()
     self.monitor = threading.Event()
 
@@ -140,8 +144,13 @@ class RSDM(threading.Thread):
   def run(self):
     self.monitor.set()
     while self.monitor.is_set():
+      curr_time = time()
+      next_time = curr_time - (curr_time%1.0) + self.monitoring_interval
+
       self.do_monitor()
-      sleep(self.monitoring_interval)
+
+      sec_to_next_time = next_time - time()
+      sleep(next_time - time())
 
   def start_monitoring(self):
     self.start()
@@ -285,18 +294,18 @@ class RSDB():
   def flush_db(self):
     with self.db_lock:
       self.rsdb = self.init_db()
-    return {"message": "Database re-initialized."}, 204
+    return {"message": "Database re-initialized."}, 200
 
   def delete_apps(self):
     for node_id in self.rsdb["nodes"]:
       try:
-        resp, resp_code = requests.delete("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"]))
+        r = requests.delete("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"]))
       except requests.exceptions.ConnectionError as e:
         # TODO handle error
         logger.debug(str(e))
         continue
-    # TODO do something with resp and resp_code if needed
-    return {"message": "Apps deleted on all nodes."}, 204
+    # TODO do something with r if needed
+    return {"message": "Apps deleted on all nodes."}, 200
 
 
 # initialize database handler
@@ -316,7 +325,7 @@ class FogNodeList(Resource):
   def delete(self):
     rsdb.delete_apps()
     rsdb.flush_db()
-    return {"message": "Apps deleted and database re-initialized"}, 204
+    return {"message": "Apps deleted and database re-initialized"}, 200
 
 class FogNode(Resource):
   def get(self, node_id):
