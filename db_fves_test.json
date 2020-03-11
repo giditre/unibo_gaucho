@@ -1,0 +1,16 @@
+{
+  "FVEs": {
+    "FVE001": {
+      "name": "FogVirtualizationEngine1",
+      "descr": "Description of FVE FogVirtualizationEngine1"
+    },
+    "FVE002": {
+      "name": "FogVirtualizationEngine2",
+      "descr": "Description of FVE FogVirtualizationEngine2"
+    },
+    "FVE003": {
+      "name": "FogVirtualizationEngine3",
+      "descr": "Description of FVE FogVirtualizationEngine3"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "SDPs": {
+    "SDP001": {
+      "name": "SoftwareDevelopmentPlatform1",
+      "descr": "Description of SDP SoftwareDevelopmentPlatform1"
+    },
+    "SDP002": {
+      "name": "SoftwareDevelopmentPlatform2",
+      "descr": "Description of SDP SoftwareDevelopmentPlatform2"
+    },
+    "SDP003": {
+      "name": "SoftwareDevelopmentPlatform3",
+      "descr": "Description of SDP SoftwareDevelopmentPlatform3"
+    }
+  }
+}
