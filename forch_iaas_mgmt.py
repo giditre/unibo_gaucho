@@ -138,8 +138,6 @@ api = Api(app)
 
 api.add_resource(Test, "/test")
 
-api.add_resource(FogNodeInfo, "/info")
-
 api.add_resource(ImageList, "/images")
 
 api.add_resource(FogApplication, "/app/<app_id>")
