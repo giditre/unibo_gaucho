@@ -59,7 +59,7 @@ class FogApplicationList(Resource):
     # TODO make it not hardcoded but get the identifier somewhere
     # TODO coount the instances of each app currently running on this node
     apps = {"FA002": 1}
-    return {"apps": app_counter}
+    return {"apps": apps}
       
   def delete(self):
     # TODO remove instances of running apps if possible
