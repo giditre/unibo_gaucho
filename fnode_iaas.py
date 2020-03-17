@@ -25,6 +25,9 @@ class Test(Resource):
   def get(self):
     return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
 
+class FogNodeInfo(Resource):
+  def get(self):
+    return {"class": "I"}
 
 class FogApplicationList(Resource):
   def get(self):
