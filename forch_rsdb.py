@@ -226,10 +226,12 @@ class RSDB():
       for node_id in self.rsdb["nodes"]:
         self.rsdb["nodes"][node_id]["apps"] = []
         try:
+          node_info = requests.get("http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])).json()
           node_apps = requests.get("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"])).json()
         except requests.exceptions.ConnectionError:
           self.rsdb["nodes"][node_id]["available"] = "0"
           continue
+        self.rsdb["nodes"][node_id]["class"] = node_info["class"]
         for app_id in node_apps["apps"]:
           self.rsdb["nodes"][node_id]["apps"].append(app_id)
         # get monitoring information

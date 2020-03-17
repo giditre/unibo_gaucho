@@ -81,7 +81,7 @@ class FogApplication(Resource):
       node_id = ""
       for h_id in node_dict:
         node = node_dict[h_id]
-        if node["available"] == "1":
+        if node["available"] == "1" and node["class"] == "I":
           for item_id in node["resources"]:
             if node["resources"][item_id]["name"] == "CPU utilization":
               logger.debug("Node {} CPU {}%".format(h_id, node["resources"][item_id]["lastvalue"]))
