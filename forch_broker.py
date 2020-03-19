@@ -63,25 +63,16 @@ class FogApplication(Resource):
     app_node_list = app["nodes"]
 
     # TODO IMPORTANT implement a mechanism to avoid sharing apps among different requests
-    app_node_list = []
+    #app_node_list = []
 
     # check if this app is implemented on some node
     if app_node_list:
       # if we get here, there are active nodes that implement this app
-      # pick the first node on the list (TODO implement a better picking method)
-      node_id = app_node_list[0]
-      node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
-      node_ip = node["ip"]
-      return {"message": "App {} available".format(app_id), "node_id": node_id, "node_ip": node_ip}
-    else:
-      # this means this app is not implemented/deployed on any node
-      # try installing image on a IaaS node to implement this app
-      # get list of nodes and pick the first available IaaS nodes having CPU utilization lower than a threshold
-      # TODO implement a better picking method
+      # check if any of those has CPU usage lower than a threshold
       node_id = ""
       for h_id in node_dict:
         node = node_dict[h_id]
-        if node["available"] == "1" and node["class"] == "I":
+        if node["available"] == "1" and node["class"] == "S":
           for item_id in node["resources"]:
             if node["resources"][item_id]["name"] == "CPU utilization":
               logger.debug("Node {} CPU {}%".format(h_id, node["resources"][item_id]["lastvalue"]))
@@ -90,21 +81,46 @@ class FogApplication(Resource):
                 node_id = h_id
                 break
         if node_id:
+          logger.debug("Picked node {}".format(node_id))
           break
-      if not node_id:
-        return {"message": "App not deployed and no available IaaS node."}, 503
-      logger.debug("Chosen node {}".format(node_id))
-      node_ip = node["ip"]
-      # get list of available images and look for image that offers the required app
-      image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()
-      app_image_list = [ image for image in image_list["fogimages"] if app_id in image_list["fogimages"][image]["apps"] ]
-      if not app_image_list:
-        return {"message": "App not deployed and not provided by any available image."}, 503
-      # pick the first image on the list (TODO implement a better picking method)
-      image_id = app_image_list[0]
-      image_name = image_list["fogimages"][image_id]["name"]
-      r = requests.post("http://{}:{}/app/{}".format(iaas_mgmt_address, iaas_mgmt_port, app_id), json={"image_name": image_name, "node_ipv4": node_ip})
-      return r.json(), r.status_code
+      if node_id:
+        node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
+        node_ip = node["ip"]
+        return {"message": "App {} available".format(app_id), "node_id": node_id, "node_ip": node_ip}
+      else:
+        loger.debug("Already available SaaS node not found")
+
+    # getting here means this app is not implemented/deployed on any node
+    # try installing image on a IaaS node to implement this app
+    # get list of nodes and pick the first available IaaS nodes having CPU utilization lower than a threshold
+    # TODO implement a better picking method
+    node_id = ""
+    for h_id in node_dict:
+      node = node_dict[h_id]
+      if node["available"] == "1" and node["class"] == "I":
+        for item_id in node["resources"]:
+          if node["resources"][item_id]["name"] == "CPU utilization":
+            logger.debug("Node {} CPU {}%".format(h_id, node["resources"][item_id]["lastvalue"]))
+            if float(node["resources"][item_id]["lastvalue"]) < 90:
+              # we have found the node
+              node_id = h_id
+              break
+      if node_id:
+        break
+    if not node_id:
+      return {"message": "App not deployed anywhere and no available IaaS node."}, 503
+    logger.debug("Chosen node {}".format(node_id))
+    node_ip = node["ip"]
+    # get list of available images and look for image that offers the required app
+    image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()
+    app_image_list = [ image for image in image_list["fogimages"] if app_id in image_list["fogimages"][image]["apps"] ]
+    if not app_image_list:
+      return {"message": "App not deployed and not provided by any available image."}, 503
+    # pick the first image on the list (TODO implement a better picking method)
+    image_id = app_image_list[0]
+    image_name = image_list["fogimages"][image_id]["name"]
+    r = requests.post("http://{}:{}/app/{}".format(iaas_mgmt_address, iaas_mgmt_port, app_id), json={"image_name": image_name, "node_ipv4": node_ip})
+    return r.json(), r.status_code
     
   def post(self):
     # retrieve information from POST body
