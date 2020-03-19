@@ -10,6 +10,7 @@ import datetime
 import os
 import threading
 from collections import Counter
+import socket
 
 import docker
 
@@ -57,7 +58,7 @@ class FogNodeInfo(Resource):
 class FogApplicationList(Resource):
   def get(self):
     # TODO make it not hardcoded but get the identifier somewhere
-    # TODO coount the instances of each app currently running on this node
+    # TODO count the instances of each app currently running on this node
     apps = {"FA002": 1}
     return {"apps": apps}
       
@@ -77,7 +78,10 @@ class FogApplication(Resource):
     t = StressThread(**req_json)
     t.start()
 
-    return {"message": "Running app {}".format(app_id)}, 201
+    return {
+      "message": "Running app {}".format(app_id),
+      "hostname": socket.gethostname()
+    }, 201
 
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
