@@ -32,7 +32,7 @@ docker_client = docker.from_env()
 class StressThread(threading.Thread):
   def __init__(self, *args, **kwargs):
     super().__init__()
-    _handled_parameters = [ "cpu" ]
+    _handled_parameters = [ "timeout", "cpu" ]
     self.parameters_dict = {}
     for p in _handled_parameters:
       if p in kwargs:
@@ -106,7 +106,7 @@ if __name__ == '__main__':
   parser.add_argument("address", help="Endpoint IP address")
   parser.add_argument("port", help="Endpoint TCP port")
   parser.add_argument("--collector-address", help="Collector endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-  parser.add_argument("--collector-port", help="Collector endpoint TCP port, dafault: 5003", nargs="?", default=5003)
+  parser.add_argument("--collector-port", help="Collector endpoint TCP port, default: 5003", nargs="?", default=5003)
   parser.add_argument("--repo-address", help="Image repo endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
   parser.add_argument("--repo-port", help="Image repo endpoint TCP port, default: 5006", nargs="?", default=5006)
   parser.add_argument("-n", "--num-agents", help="Number of FogNodeAgents to spawn, default: 1", type=int, nargs="?", default=1)
