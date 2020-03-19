@@ -30,6 +30,16 @@ docker_client = docker.from_env()
 
 ###
 
+thread_list = []
+
+###
+
+def shell_command(cmd, track_pid=False, pid_dir="/tmp"):
+  logger.debug("Shell cmd: {}".format(cmd))
+  os.system(cmd)
+
+###
+
 class StressThread(threading.Thread):
   def __init__(self, *args, **kwargs):
     super().__init__()
@@ -42,8 +52,11 @@ class StressThread(threading.Thread):
   def run(self):
     # Example: stress --cpu 8 --io 4 --vm 2 --vm-bytes 128M --timeout 10s
     cmd = "stress " +  " ".join( [ "--{} {}".format(k, v) for k, v in self.parameters_dict.items() ] )
-    logger.debug("Shell cmd: {}".format(cmd))
-    os.system(cmd)
+    shell_command(cmd)
+
+  def stop(self):
+    cmd = "killall stress"
+    shell_command(cmd)
 
 ### Resource definition
 
@@ -63,8 +76,11 @@ class FogApplicationList(Resource):
     return {"apps": apps}
       
   def delete(self):
-    # TODO remove instances of running apps if possible
-    resp = "Delete not yet implemented"
+    # remove instances of running apps if possible
+    global thread_list
+    for t in thread_list:
+      t.stop()
+    resp = "Stopped all apps."
     return {"message": resp}, 200
 
 class FogApplication(Resource):
@@ -75,8 +91,10 @@ class FogApplication(Resource):
     
     logger.debug("Running app {} with parameters '{}'".format(app_id, req_json))
 
-    t = StressThread(**req_json)
-    t.start()
+    if app_id == "FA002":
+      t = StressThread(**req_json)
+      t.start()
+      thread_list.append(t)
 
     return {
       "message": "Running app {}".format(app_id),
