@@ -9,12 +9,11 @@ RUN ln -s stress-ng stress
 
 WORKDIR /root
 
-COPY fnode_saas.py .
 COPY requirements.txt .
-COPY .screenrc .
-COPY run.sh .
-
 RUN pip3 install -r requirements.txt
+
+COPY fnode_saas.py .
+COPY run.sh .
 
 EXPOSE 5100
 
