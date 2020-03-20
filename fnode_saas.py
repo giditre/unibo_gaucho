@@ -135,6 +135,7 @@ if __name__ == '__main__':
   parser.add_argument("-l", "--limit-updates", help="Number of updates to send before quitting, default: 0 (infinite)", type=int, nargs="?", default=0)
   parser.add_argument("-i", "--update-interval", help="Update interval in seconds, default: 10", type=int, nargs="?", default=10)
   parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
+  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   
   args = parser.parse_args()
   
@@ -148,6 +149,7 @@ if __name__ == '__main__':
   lim_updates = args.limit_updates
   interval = args.update_interval
   wait_remote = args.wait_remote
+  debug = args.debug
 
   if wait_remote:
     wait_for_remote_endpoint(collector_address, collector_port)
@@ -164,7 +166,7 @@ if __name__ == '__main__':
   #fnode_iaas = FogNodeIaaS(ep_address, ep_port, repo_address, repo_port, logger=logger)
   #fnode_iaas.start()
 
-  app.run(host=ep_address, port=ep_port, debug=True)
+  app.run(host=ep_address, port=ep_port, debug=debug)
   
   #try:
   #  while True:
