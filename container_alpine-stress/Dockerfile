@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 RUN apk update
-RUN apk add python3 python3-dev screen stress-ng
+RUN apk add python3 python3-dev stress-ng
 RUN pip3 install --upgrade pip
 
 WORKDIR /usr/bin
@@ -12,7 +12,7 @@ WORKDIR /root
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-COPY fnode_saas.py .
+COPY fnode_stress.py .
 COPY run.sh .
 
 EXPOSE 5100
