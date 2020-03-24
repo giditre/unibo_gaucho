@@ -1,18 +1,13 @@
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse, abort
-import json
 import argparse
 import requests
 import logging
 import random
 from time import sleep
-import datetime
 import os
 import threading
-from collections import Counter
 import socket
-
-import docker
 
 ### Logging setup
   
@@ -24,10 +19,6 @@ formatter = logging.Formatter('[ %(asctime)s ][ %(levelname)s ] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
  
-### Docker
-
-docker_client = docker.from_env()
-
 ###
 
 thread_list = []
@@ -37,26 +28,6 @@ thread_list = []
 def shell_command(cmd, track_pid=False, pid_dir="/tmp"):
   logger.debug("Shell cmd: {}".format(cmd))
   os.system(cmd)
-
-###
-
-class StressThread(threading.Thread):
-  def __init__(self, *args, **kwargs):
-    super().__init__()
-    _handled_parameters = [ "timeout", "cpu" ]
-    self.parameters_dict = {}
-    for p in _handled_parameters:
-      if p in kwargs:
-        self.parameters_dict[p] = kwargs[p]
-
-  def run(self):
-    # Example: stress --cpu 8 --io 4 --vm 2 --vm-bytes 128M --timeout 10s
-    cmd = "stress " +  " ".join( [ "--{} {}".format(k, v) for k, v in self.parameters_dict.items() ] )
-    shell_command(cmd)
-
-  def stop(self):
-    cmd = "killall stress"
-    shell_command(cmd)
 
 ### Resource definition
 
@@ -89,17 +60,24 @@ class FogApplication(Resource):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     
-    logger.debug("Running app {} with parameters '{}'".format(app_id, req_json))
-
     if app_id == "FA002":
+      
+      msg = "Deployed app {}".format(app_id, req_json)
+      logger.debug(msg)
+      
       t = StressThread(**req_json)
       t.start()
       thread_list.append(t)
 
-    return {
-      "message": "Running app {}".format(app_id),
-      "hostname": socket.gethostname()
-    }, 201
+      return {
+        "message": msg,
+        "hostname": socket.gethostname(),
+        "port": t.get_port()
+      }, 201
+
+    else:
+      msg = "Unrecognized app {}".format(app_id)
+      return {"message": msg}, 404
 
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
@@ -115,6 +93,36 @@ def wait_for_remote_endpoint(ep_address, ep_port):
     logger.warning("Remote endpoint not ready (reponse code {}), retrying soon...".format(resp_code))
     sleep(random.randint(5,15))
 
+###
+
+class StressThread(threading.Thread):
+  def __init__(self, *args, **kwargs):
+    super().__init__()
+    _handled_parameters = [ "timeout", "cpu" ]
+    self.parameters_dict = {}
+    for p in _handled_parameters:
+      if p in kwargs:
+        self.parameters_dict[p] = kwargs[p]
+
+    # select random port
+    self.port = random.randint(30000, 40000)
+    # check if port is in use and keep selecting new port until free port found
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+      while s.connect_ex(('localhost', self.port)) == 0:
+        self.port = random.randint(30000, 40000)
+          
+    # TODO find better way of running a separate thread offering its own API
+    self.cmd = "python3 fnode_stress.py 0.0.0.0 {}".format(self.port) 
+
+  def run(self):
+    shell_command(self.cmd)
+
+  def stop(self):
+    # TODO implement stop
+    pass
+
+  def get_port(self):
+    return self.port
 
 ### MAIN
 
@@ -131,9 +139,6 @@ if __name__ == '__main__':
   parser.add_argument("--collector-port", help="Collector endpoint TCP port, default: 5003", nargs="?", default=5003)
   parser.add_argument("--repo-address", help="Image repo endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
   parser.add_argument("--repo-port", help="Image repo endpoint TCP port, default: 5006", nargs="?", default=5006)
-  parser.add_argument("-n", "--num-agents", help="Number of FogNodeAgents to spawn, default: 1", type=int, nargs="?", default=1)
-  parser.add_argument("-l", "--limit-updates", help="Number of updates to send before quitting, default: 0 (infinite)", type=int, nargs="?", default=0)
-  parser.add_argument("-i", "--update-interval", help="Update interval in seconds, default: 10", type=int, nargs="?", default=10)
   parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
   parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   
@@ -145,9 +150,6 @@ if __name__ == '__main__':
   collector_port = args.collector_port
   repo_address = args.repo_address
   repo_port = args.repo_port
-  n_agents = args.num_agents
-  lim_updates = args.limit_updates
-  interval = args.update_interval
   wait_remote = args.wait_remote
   debug = args.debug
 
@@ -163,16 +165,5 @@ if __name__ == '__main__':
   api.add_resource(FogApplicationList, '/apps')
   api.add_resource(FogApplication, '/app/<app_id>')
 
-  #fnode_iaas = FogNodeIaaS(ep_address, ep_port, repo_address, repo_port, logger=logger)
-  #fnode_iaas.start()
-
   app.run(host=ep_address, port=ep_port, debug=debug)
   
-  #try:
-  #  while True:
-  #    sleep(1)
-  #except KeyboardInterrupt:
-  #  docker_client.containers.get("apache").stop()
-  #  docker_client.containers.prune()
-    
-
