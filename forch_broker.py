@@ -157,6 +157,7 @@ if __name__ == '__main__':
   parser.add_argument("--db-port", help="Database endpoint TCP port, default: 5003", nargs="?", default=5003)
   parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
   parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", nargs="?", default=5004)
+  parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
   parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   
   args = parser.parse_args()
@@ -167,10 +168,12 @@ if __name__ == '__main__':
   db_port = args.db_port
   iaas_mgmt_address = args.imgmt_address
   iaas_mgmt_port = args.imgmt_port
+  wait_remote = args.wait_remote
   debug = args.debug
 
-  wait_for_remote_endpoint(db_address, db_port)
-  wait_for_remote_endpoint(iaas_mgmt_address, iaas_mgmt_port)
+  if wait_remote:
+    wait_for_remote_endpoint(db_address, db_port)
+    wait_for_remote_endpoint(iaas_mgmt_address, iaas_mgmt_port)
 
   ### API definition
   

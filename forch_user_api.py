@@ -18,26 +18,6 @@ formatter = logging.Formatter('[ %(asctime)s ][ %(levelname)s ] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-### Command line argument parsing
-
-parser = argparse.ArgumentParser()
-
-parser.add_argument("address", help="Endpoint IP address")
-parser.add_argument("port", help="Endpoint TCP port")
-parser.add_argument("--db-address", help="Database endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-parser.add_argument("--db-port", help="Database endpoint TCP port, default: 5003", nargs="?", default=5003)
-parser.add_argument("--broker-address", help="Broker endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-parser.add_argument("--broker-port", help="Broker endpoint TCP port, default: 5002", nargs="?", default=5002)
-
-args = parser.parse_args()
-
-ep_address = args.address
-ep_port = args.port
-db_address = args.db_address
-db_port = args.db_port
-broker_address = args.broker_address
-broker_port = args.broker_port
-
 ### Resource definition
 
 class Test(Resource):
@@ -115,8 +95,33 @@ api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
 if __name__ == '__main__':
 
-  wait_for_remote_endpoint(db_address, db_port)
-  wait_for_remote_endpoint(broker_address, broker_port)
+  ### Command line argument parsing
+  
+  parser = argparse.ArgumentParser()
+  
+  parser.add_argument("address", help="Endpoint IP address")
+  parser.add_argument("port", help="Endpoint TCP port")
+  parser.add_argument("--db-address", help="Database endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+  parser.add_argument("--db-port", help="Database endpoint TCP port, default: 5003", nargs="?", default=5003)
+  parser.add_argument("--broker-address", help="Broker endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+  parser.add_argument("--broker-port", help="Broker endpoint TCP port, default: 5002", nargs="?", default=5002)
+  parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
+  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
+  
+  args = parser.parse_args()
+  
+  ep_address = args.address
+  ep_port = args.port
+  db_address = args.db_address
+  db_port = args.db_port
+  broker_address = args.broker_address
+  broker_port = args.broker_port
+  wait_remote = args.wait_remote
+  debug = args.debug
+
+  if wait_remote:
+    wait_for_remote_endpoint(db_address, db_port)
+    wait_for_remote_endpoint(broker_address, broker_port)
 
   app.run(host=ep_address, port=ep_port, debug=True)
 
