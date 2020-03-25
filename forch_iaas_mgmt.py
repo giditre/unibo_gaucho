@@ -20,22 +20,6 @@ formatter = logging.Formatter('[ %(asctime)s ][ %(levelname)s ] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-### Command line argument parsing
-
-parser = argparse.ArgumentParser()
-
-parser.add_argument("address", help="Endpoint IP address")
-parser.add_argument("port", help="Endpoint TCP port")
-#parser.add_argument("--repo-address", help="Image repo endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-#parser.add_argument("--repo-port", help="Image repo endpoint TCP port, default: 5006", nargs="?", default=5006)
-
-args = parser.parse_args()
-
-ep_address = args.address
-ep_port = args.port
-#repo_address = args.repo_address
-#repo_port = args.repo_port
-
 ### Resource definition
 
 class Test(Resource):
@@ -131,22 +115,32 @@ def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
     logger.warning("Remote endpoint ({}) not ready (reponse code {}), retrying soon...".format(url, resp_code))
     sleep(random.randint(5,15))
 
-### API definition
-
-app = Flask(__name__)
-api = Api(app)
-
-api.add_resource(Test, "/test")
-
-api.add_resource(ImageList, "/images")
-
-api.add_resource(FogApplication, "/app/<app_id>")
-
 ### MAIN
 
 if __name__ == '__main__':
 
-  # wait_for_remote_endpoint(repo_address, repo_port)
+  ### Command line argument parsing
+  
+  parser = argparse.ArgumentParser()
+  
+  parser.add_argument("address", help="Endpoint IP address")
+  parser.add_argument("port", help="Endpoint TCP port")
+  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
+  
+  args = parser.parse_args()
+  
+  ep_address = args.address
+  ep_port = args.port
+  debug = args.debug
 
-  app.run(host=ep_address, port=ep_port, debug=True)
+  ### API definition
+  
+  app = Flask(__name__)
+  api = Api(app)
+  
+  api.add_resource(Test, "/test")
+  api.add_resource(ImageList, "/images")
+  api.add_resource(FogApplication, "/app/<app_id>")
+
+  app.run(host=ep_address, port=ep_port, debug=debug)
 

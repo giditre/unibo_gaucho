@@ -18,30 +18,6 @@ formatter = logging.Formatter('[ %(asctime)s ][ %(levelname)s ] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-### Command line argument parsing
-
-parser = argparse.ArgumentParser()
-
-parser.add_argument("address", help="Endpoint IP address")
-parser.add_argument("port", help="Endpoint TCP port")
-parser.add_argument("--db-address", help="Database endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-parser.add_argument("--db-port", help="Database endpoint TCP port, default: 5003", nargs="?", default=5003)
-parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", nargs="?", default=5004)
-#parser.add_argument("--repo-address", help="Image repo endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-#parser.add_argument("--repo-port", help="Image repo endpoint TCP port, default: 5006", nargs="?", default=5006)
-
-args = parser.parse_args()
-
-ep_address = args.address
-ep_port = args.port
-db_address = args.db_address
-db_port = args.db_port
-iaas_mgmt_address = args.imgmt_address
-iaas_mgmt_port = args.imgmt_port
-#repo_address = args.repo_address
-#repo_port = args.repo_port
-
 ### Resource definition
 
 class Test(Resource):
@@ -167,24 +143,43 @@ def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
     logger.warning("Remote endpoint ({}) not ready (reponse code {}), retrying soon...".format(url, resp_code))
     sleep(random.randint(5,15))
 
-### API definition
-
-app = Flask(__name__)
-api = Api(app)
-
-api.add_resource(Test, '/test')
-
-api.add_resource(FogApplication, '/app/<app_id>')
-
-api.add_resource(FogVirtEngine, '/fve/<fve_id>')
-
 ### MAIN
 
 if __name__ == '__main__':
 
+  ### Command line argument parsing
+  
+  parser = argparse.ArgumentParser()
+  
+  parser.add_argument("address", help="Endpoint IP address")
+  parser.add_argument("port", help="Endpoint TCP port")
+  parser.add_argument("--db-address", help="Database endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+  parser.add_argument("--db-port", help="Database endpoint TCP port, default: 5003", nargs="?", default=5003)
+  parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+  parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", nargs="?", default=5004)
+  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
+  
+  args = parser.parse_args()
+  
+  ep_address = args.address
+  ep_port = args.port
+  db_address = args.db_address
+  db_port = args.db_port
+  iaas_mgmt_address = args.imgmt_address
+  iaas_mgmt_port = args.imgmt_port
+  debug = args.debug
+
   wait_for_remote_endpoint(db_address, db_port)
   wait_for_remote_endpoint(iaas_mgmt_address, iaas_mgmt_port)
-  #wait_for_remote_endpoint(repo_address, repo_port)
 
-  app.run(host=ep_address, port=ep_port, debug=True)
+  ### API definition
+  
+  app = Flask(__name__)
+  api = Api(app)
+  
+  api.add_resource(Test, '/test')
+  api.add_resource(FogApplication, '/app/<app_id>')
+  api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+
+  app.run(host=ep_address, port=ep_port, debug=debug)
 

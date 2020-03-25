@@ -37,6 +37,7 @@ parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, def
 parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
 parser.add_argument("--mon-history", help="Number of monitoring elements to keep in memory, default: 300", type=int, nargs="?", default=300)
 parser.add_argument("--mon-period", help="Monitoring period in seconds, default: 10", type=int, nargs="?", default=10)
+parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
 
 args = parser.parse_args()
 
@@ -48,6 +49,7 @@ iaas_mgmt_port = args.imgmt_port
 wait_remote = args.wait_remote
 monitor_history = args.mon_history
 monitor_period = args.mon_period
+debug = args.debug
 
 ### Zabbix
 
@@ -377,36 +379,6 @@ class FogVirtEngine(Resource):
   def get(self, fve_id):
     return rsdb.get_fve(fve_id)
 
-### API definition
-
-app = Flask(__name__)
-
-#@app.teardown_appcontext
-#def shutdown_session(exception=None):
-#  print("TEARDOWN!")
-
-api = Api(app)
-
-api.add_resource(Test, '/test')
-
-api.add_resource(FogNodeList, '/nodes')
-api.add_resource(FogNode, '/node/<node_id>')
-
-api.add_resource(FogMeasurements, '/meas')
-
-api.add_resource(FogApplicationCatalog, '/appcat')
-api.add_resource(FogApplicationList, '/apps')
-api.add_resource(FogApplication, '/app/<app_id>')
-
-api.add_resource(SoftDevPlatformCatalog, '/sdpcat')
-api.add_resource(SoftDevPlatformList, '/sdps')
-api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
-
-api.add_resource(FogVirtEngineCatalog, '/fvecat')
-api.add_resource(FogVirtEngineList, '/fves')
-api.add_resource(FogVirtEngine, '/fve/<fve_id>')
-
-
 ### MAIN
 
 if __name__ == '__main__':
@@ -414,5 +386,34 @@ if __name__ == '__main__':
   if wait_remote:
     wait_for_remote_endpoint(iaas_mgmt_address, iaas_mgmt_port)
 
-  app.run(host=ep_address, port=ep_port, debug=False)
+  ### API definition
+  
+  app = Flask(__name__)
+  
+  #@app.teardown_appcontext
+  #def shutdown_session(exception=None):
+  #  print("TEARDOWN!")
+  
+  api = Api(app)
+  
+  api.add_resource(Test, '/test')
+  
+  api.add_resource(FogNodeList, '/nodes')
+  api.add_resource(FogNode, '/node/<node_id>')
+  
+  api.add_resource(FogMeasurements, '/meas')
+  
+  api.add_resource(FogApplicationCatalog, '/appcat')
+  api.add_resource(FogApplicationList, '/apps')
+  api.add_resource(FogApplication, '/app/<app_id>')
+  
+  api.add_resource(SoftDevPlatformCatalog, '/sdpcat')
+  api.add_resource(SoftDevPlatformList, '/sdps')
+  api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
+  
+  api.add_resource(FogVirtEngineCatalog, '/fvecat')
+  api.add_resource(FogVirtEngineList, '/fves')
+  api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+
+  app.run(host=ep_address, port=ep_port, debug=debug)
 
