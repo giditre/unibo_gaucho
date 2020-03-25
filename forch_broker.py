@@ -88,7 +88,7 @@ class FogApplication(Resource):
         node_ip = node["ip"]
         return {"message": "App {} available".format(app_id), "node_id": node_id, "node_ip": node_ip}
       else:
-        loger.debug("Already available SaaS node not found")
+        logger.debug("Already available SaaS node not found")
 
     # getting here means this app is not implemented/deployed on any node
     # try installing image on a IaaS node to implement this app

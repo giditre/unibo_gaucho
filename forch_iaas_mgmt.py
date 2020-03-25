@@ -71,7 +71,7 @@ class ImageList(Resource):
         "Image04": {
           "name": "stress",
           "descr": "Stress",
-          "uri": "progrium/stress",
+          "uri": "giditre/gaucho-stress",
           "apps": ["FA002"],
           "sdps": ["SDP003"]
         }
