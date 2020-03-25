@@ -12,6 +12,7 @@ import requests
 import random
 
 import threading
+from multiprocessing import Process
 
 from pyzabbix import ZabbixAPI
 
