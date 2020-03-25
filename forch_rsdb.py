@@ -25,6 +25,32 @@ formatter = logging.Formatter('[ %(asctime)s ][ %(levelname)s ] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
+### Command line argument parser
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("address", help="Endpoint IP address")
+parser.add_argument("port", type=int, help="Endpoint TCP port")
+parser.add_argument("--db-json", help="Database JSON file, default: rsdb.json", nargs="?", default="rsdb.json")
+parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
+parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", type=int, nargs="?", default=5004)
+parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
+parser.add_argument("--mon-history", help="Number of monitoring elements to keep in memory, default: 300", type=int, nargs="?", default=300)
+parser.add_argument("--mon-period", help="Monitoring period in seconds, default: 10", type=int, nargs="?", default=10)
+parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
+
+args = parser.parse_args()
+
+ep_address = args.address
+ep_port = args.port
+db_fname = args.db_json
+iaas_mgmt_address = args.imgmt_address
+iaas_mgmt_port = args.imgmt_port
+wait_remote = args.wait_remote
+monitor_history = args.mon_history
+monitor_period = args.mon_period
+debug = args.debug
+
 ### Zabbix
 
 class Zabbix():
@@ -274,15 +300,22 @@ class RSDB():
       self.rsdb = self.init_db()
     return {"message": "Database re-initialized."}, 200
 
+  def delete_apps_node(self, node_id):
+    node_ip = self.rsdb["nodes"][node_id]["ip"]
+    try:
+      r = requests.delete("http://{}:5005/apps".format(node_ip))
+    except requests.exceptions.ConnectionError as e:
+      # TODO handle error
+      logger.debug(str(e))
+
   def delete_apps(self):
+    process_list = []
     for node_id in self.rsdb["nodes"]:
-      try:
-        r = requests.delete("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"]))
-      except requests.exceptions.ConnectionError as e:
-        # TODO handle error
-        logger.debug(str(e))
-        continue
-    # TODO do something with r if needed
+      p = Process(target=self.delete_apps_node, args=(node_id,))
+      p.start()
+      process_list.append(p)
+    for p in process_list:
+      p.join()
     return {"message": "Apps deleted on all nodes."}, 200
 
 
@@ -356,32 +389,6 @@ class FogVirtEngine(Resource):
 ### MAIN
 
 if __name__ == '__main__':
-
-  ### Command line argument parser
-  
-  parser = argparse.ArgumentParser()
-  
-  parser.add_argument("address", help="Endpoint IP address")
-  parser.add_argument("port", type=int, help="Endpoint TCP port")
-  parser.add_argument("--db-json", help="Database JSON file, default: rsdb.json", nargs="?", default="rsdb.json")
-  parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-  parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", type=int, nargs="?", default=5004)
-  parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
-  parser.add_argument("--mon-history", help="Number of monitoring elements to keep in memory, default: 300", type=int, nargs="?", default=300)
-  parser.add_argument("--mon-period", help="Monitoring period in seconds, default: 10", type=int, nargs="?", default=10)
-  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
-  
-  args = parser.parse_args()
-  
-  ep_address = args.address
-  ep_port = args.port
-  db_fname = args.db_json
-  iaas_mgmt_address = args.imgmt_address
-  iaas_mgmt_port = args.imgmt_port
-  wait_remote = args.wait_remote
-  monitor_history = args.mon_history
-  monitor_period = args.mon_period
-  debug = args.debug
 
   if wait_remote:
     wait_for_remote_endpoint(iaas_mgmt_address, iaas_mgmt_port)

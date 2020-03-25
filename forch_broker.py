@@ -62,7 +62,10 @@ class FogApplication(Resource):
       if node_id:
         node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
         node_ip = node["ip"]
-        return {"message": "App {} available".format(app_id), "node_id": node_id, "node_ip": node_ip}
+        r = requests.post("http://{}:{}/app/{}".format(node_ip, 5005, app_id), json={"test": "dummy"})
+        resp_json = r.json()
+        port = resp_json["port"]
+        return {"message": "App {} available".format(app_id), "node_id": node_id, "node_ip": node_ip, "port": port}
       else:
         logger.debug("Already available SaaS node not found")
 
