@@ -50,7 +50,7 @@ class FogApplicationList(Resource):
     # remove instances of running apps if possible
     global thread_list
     for t in thread_list:
-      resp = requests.delete("http://127.0.0.1:{}/app/{}".format(t.get_port(), t.get_app_id())
+      r = requests.delete("http://127.0.0.1:{}/app/{}".format(t.get_port(), t.get_app_id()))
     resp = "Stopped all apps."
     return {"message": resp}, 200
 
