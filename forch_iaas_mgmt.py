@@ -125,12 +125,14 @@ if __name__ == '__main__':
   
   parser.add_argument("address", help="Endpoint IP address")
   parser.add_argument("port", help="Endpoint TCP port")
+  parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
   parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   
   args = parser.parse_args()
   
   ep_address = args.address
   ep_port = args.port
+  wait_remote = args.wait_remote
   debug = args.debug
 
   ### API definition
