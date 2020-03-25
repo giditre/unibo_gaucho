@@ -147,6 +147,7 @@ if __name__ == '__main__':
   parser.add_argument("--repo-address", help="Image repo endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
   parser.add_argument("--repo-port", help="Image repo endpoint TCP port, default: 5006", nargs="?", default=5006)
   parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
+  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   
   args = parser.parse_args()
   
@@ -157,6 +158,7 @@ if __name__ == '__main__':
   repo_address = args.repo_address
   repo_port = args.repo_port
   wait_remote = args.wait_remote
+  debug = args.debug
 
   if wait_remote:
     wait_for_remote_endpoint(collector_address, collector_port)
@@ -171,5 +173,5 @@ if __name__ == '__main__':
   api.add_resource(FogApplicationList, '/apps')
   api.add_resource(FogApplication, '/app/<app_id>')
 
-  app.run(host=ep_address, port=ep_port, debug=True)
+  app.run(host=ep_address, port=ep_port, debug=debug)
   
