@@ -65,7 +65,7 @@ class FogApplication(Resource):
         r = requests.post("http://{}:{}/app/{}".format(node_ip, 5005, app_id), json={"test": "dummy"})
         resp_json = r.json()
         port = resp_json["port"]
-        return {"message": "App {} available".format(app_id), "node_id": node_id, "node_ip": node_ip, "port": port}
+        return {"message": "App {} allocated".format(app_id), "node_class": "S", "node_id": node_id, "node_ip": node_ip, "service_port": port}
       else:
         logger.debug("Already available SaaS node not found")
 
@@ -99,7 +99,13 @@ class FogApplication(Resource):
     image_id = app_image_list[0]
     image_name = image_list["fogimages"][image_id]["name"]
     r = requests.post("http://{}:{}/app/{}".format(iaas_mgmt_address, iaas_mgmt_port, app_id), json={"image_name": image_name, "node_ipv4": node_ip})
-    return r.json(), r.status_code
+    if r.status_code == 200:
+      r_json = r.json()
+      # "0.0.0.0:32809->5100/tcp"
+      port = r_json["port_mappings"][0].split(":")[1].split("-")[0]
+      resp_json = {"message": "App {} allocated".format(app_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+    else:
+      return r.json(), r.status_code
     
   def post(self):
     # retrieve information from POST body
