@@ -68,10 +68,10 @@ class FogApplication(Resource):
     
     cont_name = app_id + "_" + image_uri.replace("/", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
 
-    # TODO IMPORTANT find a smarter way to implement command to stress
-    if image_uri == "progrium/stress":
-      #command = "stress --cpu 1 --io 1 --vm 1 --vm-bytes 1G --timeout 36000s"
-      command = "stress --cpu 1 --timeout 36000s"
+    ## TODO IMPORTANT find a smarter way to implement command to stress
+    #if image_uri == "progrium/stress":
+    #  #command = "stress --cpu 1 --io 1 --vm 1 --vm-bytes 1G --timeout 36000s"
+    #  command = "stress --cpu 1 --timeout 36000s"
 
     logger.debug("Deploying app {} in container {} with image {}{}".format(app_id,
       image_uri,
