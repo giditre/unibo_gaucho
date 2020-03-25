@@ -50,7 +50,7 @@ class FogApplicationList(Resource):
     # remove instances of running apps if possible
     global thread_list
     for t in thread_list:
-      t.stop()
+      resp = requests.delete("http://127.0.0.1:{}/app/{}".format(t.get_port(), t.get_app_id())
     resp = "Stopped all apps."
     return {"message": resp}, 200
 
@@ -65,7 +65,7 @@ class FogApplication(Resource):
       msg = "Deployed app {}".format(app_id, req_json)
       logger.debug(msg)
       
-      t = StressThread(**req_json)
+      t = StressThread(app_id, **req_json)
       t.start()
       thread_list.append(t)
 
@@ -96,13 +96,17 @@ def wait_for_remote_endpoint(ep_address, ep_port):
 ###
 
 class StressThread(threading.Thread):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, app_id, *args, **kwargs):
     super().__init__()
+
+    # parse handled parameters (application specific)
     _handled_parameters = [ "timeout", "cpu" ]
     self.parameters_dict = {}
     for p in _handled_parameters:
       if p in kwargs:
         self.parameters_dict[p] = kwargs[p]
+
+    self.app_id = app_id
 
     # select random port
     self.port = random.randint(30000, 40000)
@@ -117,9 +121,8 @@ class StressThread(threading.Thread):
   def run(self):
     shell_command(self.cmd)
 
-  def stop(self):
-    # TODO implement stop
-    pass
+  def get_app_id(self):
+    return self.app_id
 
   def get_port(self):
     return self.port

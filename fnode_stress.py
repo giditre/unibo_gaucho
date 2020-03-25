@@ -79,7 +79,8 @@ class FogApplication(Resource):
     for t in thread_list:
       t.stop()
     return {
-      "message": "Stopped all threads",
+      "message": "Stopped app {}".format(app_id),
+      "hostname": socket.gethostname()
     }, 200
 
 ### MAIN
