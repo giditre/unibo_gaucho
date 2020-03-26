@@ -2,6 +2,16 @@ import time
 import requests
 import json
 import datetime
+import argparse
+
+#parser = argparse.ArgumentParser()
+#  
+#parser.add_argument("mand-arg", help="Mandatory positional argument.")
+#parser.add_argument("-a", "--opt-arg-a", help="Optional string argument, default: foo", nargs="?", default="foo")
+#parser.add_argument("-b", "--opt-arg-b", help="Optional string argument, default: 3", type=int, nargs="?", default=3)
+#parser.add_argument("-c", "--opt-arg-c", help="Optional boolean argument, default: False", action=store_true, default=False)
+#
+#args = parser.parse_args()
 
 def print_flush(*args, **kwargs):
   kwargs["flush"] = True
@@ -32,7 +42,7 @@ while r.status_code in [200, 201]:
 
   # start new service
   url = "http://{}:{}/app/FA002".format(node_ip, serv_port)
-  data_json = {"timeout":10000, "cpu":1}
+  data_json = {"timeout":10000, "cpu":2}
   print_flush("POST", data_json, url)
   r = requests.post(url, json=data_json)
   resp_json = r.json()
