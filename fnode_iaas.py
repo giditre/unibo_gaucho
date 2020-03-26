@@ -74,8 +74,8 @@ class FogApplication(Resource):
     #  command = "stress --cpu 1 --timeout 36000s"
 
     logger.debug("Deploying app {} in container {} with image {}{}".format(app_id,
-      image_uri,
       cont_name,
+      image_uri,
       " and command '{}'".format(command) if command else ""
       )
     )
