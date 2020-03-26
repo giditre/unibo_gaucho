@@ -306,8 +306,9 @@ class RSDB():
     try:
       r = requests.delete("http://{}:5005/apps".format(node_ip))
     except requests.exceptions.ConnectionError as e:
-      # TODO handle error
-      logger.debug(str(e))
+      # handle error
+      #logger.debug(str(e))
+      logger.info("Node {} at {} not available for DELETE".format(node_id, node_ip))
 
   def delete_apps(self):
     process_list = []
