@@ -57,7 +57,7 @@ while r.status_code in [200, 201]:
   r = requests.get("http://192.168.10.117:5001/app/FA002")
   resp_json = r.json()
   print_flush(json.dumps(resp_json, indent=2))
-  time.sleep(1)
+  time.sleep(10)
 
 print_flush("Sleep for 240 seconds")
 time.sleep(240)
@@ -69,8 +69,8 @@ time.sleep(1)
 with open("../gauchotest/get_meas_test_{0:%Y%m%d_%H%M%S}.json".format(datetime.datetime.now()), "w") as f:
   json.dump(r.json(), f)
 
-#curl -X DELETE http://127.0.0.1:5003/nodes
-print_flush("DELETE", "http://127.0.0.1:5003/nodes")
-r = requests.delete("http://127.0.0.1:5003/nodes")
-time.sleep(1)
-
+##curl -X DELETE http://127.0.0.1:5003/nodes
+#print_flush("DELETE", "http://127.0.0.1:5003/nodes")
+#r = requests.delete("http://127.0.0.1:5003/nodes")
+#time.sleep(1)
+#
