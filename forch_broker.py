@@ -96,7 +96,8 @@ class FogApplication(Resource):
     if not node_id:
       return {"message": "Application not deployed and no available IaaS node."}, 503
 
-    logger.debug("Chosen node {}".format(node_id))
+    node = node_dict[node_id]
+    logger.debug("Chosen node: {}".format(node_id, node))
     node_ip = node["ip"]
     # get list of available images and look for image that offers the required app
     image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()
