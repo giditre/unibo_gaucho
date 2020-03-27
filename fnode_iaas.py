@@ -65,7 +65,14 @@ class FogApplication(Resource):
     # here try to deploy image image_uri on this node
 
     # check if image is present on this node. If not, TODO check if image is allowed. Is yes, pull it from repo.
-    if not docker_client.images.list(name="{}:latest".format(image_uri)):
+    # TODO raise and handle error architecture not supported
+    node_arch = docker_client.info()["Architecture"]
+    if "64" in node_arch:
+      node_arch = "amd64"
+    elif "arm" in node_arch:
+      node_arch = "arm"
+
+    if not docker_client.images.list(name="{}".format(image_uri)):
       docker_client.images.pull("{}:latest".format(image_uri))
     
     cont_name = app_id + "_" + image_uri.replace("/", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
