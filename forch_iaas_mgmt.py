@@ -93,6 +93,7 @@ class FogApplication(Resource):
     except requests.exceptions.ConnectionError:
       return {"message": "Aborted: error in connecting to node {}".format(node_ipv4)}, 500
     resp_json = r.json()
+    logger.debug("Response from node: {}".format(resp_json))
     #"0.0.0.0:32774->80/tcp"
     return {
       "message": "App {} successfully deployed".format(app_id),
