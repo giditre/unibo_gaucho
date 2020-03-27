@@ -4,18 +4,20 @@ import json
 import datetime
 import argparse
 
-#parser = argparse.ArgumentParser()
-#  
-#parser.add_argument("mand-arg", help="Mandatory positional argument.")
-#parser.add_argument("-a", "--opt-arg-a", help="Optional string argument, default: foo", nargs="?", default="foo")
-#parser.add_argument("-b", "--opt-arg-b", help="Optional string argument, default: 3", type=int, nargs="?", default=3)
-#parser.add_argument("-c", "--opt-arg-c", help="Optional boolean argument, default: False", action=store_true, default=False)
-#
-#args = parser.parse_args()
-
 def print_flush(*args, **kwargs):
   kwargs["flush"] = True
   print(*args, **kwargs)
+
+parser = argparse.ArgumentParser()
+  
+#parser.add_argument("-a", "--app-id", help="Fog Application ID, default: FA002", type=int, nargs="?", default=3)
+parser.add_argument("--delete", help="DELETE after gathering measurements, default: False", action="store_true", default=False)
+
+args = parser.parse_args()
+print_flush("CLI args: {}".format(vars(args)))
+
+#app_id = args.app_id
+delete = args.delete
 
 #curl -X DELETE http://127.0.0.1:5003/nodes
 print_flush("DELETE", "http://127.0.0.1:5003/nodes")
@@ -69,8 +71,9 @@ time.sleep(1)
 with open("../gauchotest/get_meas_test_{0:%Y%m%d_%H%M%S}.json".format(datetime.datetime.now()), "w") as f:
   json.dump(r.json(), f)
 
-##curl -X DELETE http://127.0.0.1:5003/nodes
-#print_flush("DELETE", "http://127.0.0.1:5003/nodes")
-#r = requests.delete("http://127.0.0.1:5003/nodes")
-#time.sleep(1)
-#
+if delete:
+  #curl -X DELETE http://127.0.0.1:5003/nodes
+  print_flush("DELETE", "http://127.0.0.1:5003/nodes")
+  r = requests.delete("http://127.0.0.1:5003/nodes")
+  time.sleep(1)
+
