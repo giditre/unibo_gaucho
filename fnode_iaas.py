@@ -72,10 +72,13 @@ class FogApplication(Resource):
     elif "arm" in node_arch:
       node_arch = "arm"
 
-    if not docker_client.images.list(name="{}:{}".format(image_uri, node_arch)):
-      docker_client.images.pull("{}:{}".format(image_uri, node_arch))
+    image_uri = "{}:{}".format(image_uri, node_arch)
+
+    if not docker_client.images.list(name=image_uri):
+      logger.debug("Image {} not found on this node, pulling it...".format(image_uri))
+      docker_client.images.pull(image_uri)
     
-    cont_name = app_id + "_" + image_uri.replace("/", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
+    cont_name = app_id + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
 
     ## TODO IMPORTANT find a smarter way to implement command to stress
     #if image_uri == "progrium/stress":
