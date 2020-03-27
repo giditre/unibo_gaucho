@@ -91,12 +91,13 @@ class FogApplication(Resource):
     try:
       r = requests.post("http://{}:{}/app/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
     except requests.exceptions.ConnectionError:
-      return {"message": "Aborted: error in connecting to node {}".format(node_ipv4)}, 500
+      msg = "Aborted: error in connecting to node {}".format(node_ipv4)
+      return {"message": msg}, 500
     resp_json = r.json()
     logger.debug("Response from node {}: {}".format(node_ipv4, resp_json))
     #"0.0.0.0:32774->80/tcp"
     return {
-      "message": "App {} successfully deployed".format(app_id),
+      "message": "Application {} successfully deployed".format(app_id),
       "node_ip": node_ipv4,
       "port_mappings": resp_json["port_mappings"] 
       }, r.status_code

@@ -11,19 +11,22 @@ def print_flush(*args, **kwargs):
 parser = argparse.ArgumentParser()
   
 #parser.add_argument("-a", "--app-id", help="Fog Application ID, default: FA002", type=int, nargs="?", default=3)
-parser.add_argument("--delete", help="DELETE after gathering measurements, default: False", action="store_true", default=False)
+parser.add_argument("--pre-delete", help="DELETE before starting allocatio, default: False", action="store_true", default=False)
+parser.add_argument("--post-delete", help="DELETE after gathering measurements, default: False", action="store_true", default=False)
 
 args = parser.parse_args()
 print_flush("CLI args: {}".format(vars(args)))
 
 #app_id = args.app_id
-delete = args.delete
+pre_delete = args.pre_delete
+post_delete = args.post_delete
 
-#curl -X DELETE http://127.0.0.1:5003/nodes
-print_flush("DELETE", "http://127.0.0.1:5003/nodes")
-r = requests.delete("http://127.0.0.1:5003/nodes")
-print_flush("Sleep for 240 seconds")
-time.sleep(240)
+if pre_delete:
+  #curl -X DELETE http://127.0.0.1:5003/nodes
+  print_flush("DELETE", "http://127.0.0.1:5003/nodes")
+  r = requests.delete("http://127.0.0.1:5003/nodes")
+  print_flush("Sleep for 240 seconds")
+  time.sleep(240)
 
 #curl http://192.168.10.117:5001/apps
 print_flush("GET", "http://192.168.10.117:5001/nodes")
@@ -71,7 +74,7 @@ time.sleep(1)
 with open("../gauchotest/get_meas_test_{0:%Y%m%d_%H%M%S}.json".format(datetime.datetime.now()), "w") as f:
   json.dump(r.json(), f)
 
-if delete:
+if post_delete:
   #curl -X DELETE http://127.0.0.1:5003/nodes
   print_flush("DELETE", "http://127.0.0.1:5003/nodes")
   r = requests.delete("http://127.0.0.1:5003/nodes")
