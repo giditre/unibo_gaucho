@@ -72,8 +72,8 @@ class FogApplication(Resource):
     elif "arm" in node_arch:
       node_arch = "arm"
 
-    if not docker_client.images.list(name="{}".format(image_uri)):
-      docker_client.images.pull("{}:latest".format(image_uri))
+    if not docker_client.images.list(name="{}:{}".format(image_uri, node_arch)):
+      docker_client.images.pull("{}:{}".format(image_uri, node_arch))
     
     cont_name = app_id + "_" + image_uri.replace("/", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
 
