@@ -10,7 +10,7 @@ def print_flush(*args, **kwargs):
 
 parser = argparse.ArgumentParser()
   
-#parser.add_argument("-a", "--app-id", help="Fog Application ID, default: FA002", type=int, nargs="?", default=3)
+parser.add_argument("--service-data", help="Service data to be passed to the request starting the service, default: {}", nargs="?", default="{}")
 parser.add_argument("--pre-delete", help="DELETE before starting allocatio, default: False", action="store_true", default=False)
 parser.add_argument("--post-delete", help="DELETE after gathering measurements, default: False", action="store_true", default=False)
 
@@ -20,6 +20,7 @@ print_flush("CLI args: {}".format(vars(args)))
 #app_id = args.app_id
 pre_delete = args.pre_delete
 post_delete = args.post_delete
+service_data_json = json.loads(args.service_data)
 
 if pre_delete:
   #curl -X DELETE http://127.0.0.1:5003/nodes
@@ -47,7 +48,7 @@ while r.status_code in [200, 201]:
 
   # start new service
   url = "http://{}:{}/app/FA002".format(node_ip, serv_port)
-  data_json = {"timeout":10000, "cpu":2}
+  data_json = service_data_json
   print_flush("POST", data_json, url)
   r = requests.post(url, json=data_json)
   resp_json = r.json()
