@@ -5,7 +5,6 @@ import logging
 import os
 import threading
 import socket
-import multiprocessing
 
 ### Logging setup
   
@@ -19,7 +18,7 @@ logger.addHandler(ch)
  
 ###
 
-app_process = None
+thread_list = []
 
 ###
 
@@ -29,47 +28,23 @@ def shell_command(cmd, track_pid=False, pid_dir="/tmp"):
 
 ###
 
-#class StressThread(threading.Thread):
-#  def __init__(self, *args, **kwargs):
-#    super().__init__()
-#    _handled_parameters = [ "timeout", "cpu" ]
-#    self.parameters_dict = {}
-#    for p in _handled_parameters:
-#      if p in kwargs:
-#        self.parameters_dict[p] = kwargs[p]
-#
-#  def run(self):
-#    # Example: stress --cpu 8 --io 4 --vm 2 --vm-bytes 128M --timeout 10s
-#    cmd = "stress " +  " ".join( [ "--{} {}".format(k, v) for k, v in self.parameters_dict.items() ] )
-#    shell_command(cmd)
-#
-#  def stop(self):
-#    cmd = "killall stress"
-#    shell_command(cmd)
-
-class StressApp():
+class StressThread(threading.Thread):
   def __init__(self, *args, **kwargs):
-    self.output = []
-    self.done = False
+    super().__init__()
+    _handled_parameters = [ "timeout", "cpu" ]
+    self.parameters_dict = {}
+    for p in _handled_parameters:
+      if p in kwargs:
+        self.parameters_dict[p] = kwargs[p]
 
-  def run_stress(self, params_dict):
-    cmd = "stress " +  " ".join( [ "--{} {}".format(k, v) for k, v in params_dict.items() ] )
-    #print(run_stress, cmd)
+  def run(self):
+    # Example: stress --cpu 8 --io 4 --vm 2 --vm-bytes 128M --timeout 10s
+    cmd = "stress " +  " ".join( [ "--{} {}".format(k, v) for k, v in self.parameters_dict.items() ] )
     shell_command(cmd)
 
-def stress_app_target(app, out_q, *args, **kwargs):
-  handled_parameters = [ "timeout", "cpu" ]
-  parameters_dict = {}
-  for p in handled_parameters:
-    if p in kwargs:
-      parameters_dict[p] = kwargs[p]
-
-  #print(parameters_dict)
-
-  #parameters_str = " ".join( [ "--{} {}".format(k, v) for k, v in params_dict.items() ]
-
-  app.run_stress(parameters_dict)
-  out_q.put(app)
+  def stop(self):
+    cmd = "killall stress"
+    shell_command(cmd)
 
 ### Resource definition
 
@@ -84,15 +59,6 @@ class FogNodeInfo(Resource):
 class FogApplication(Resource):
 
   def post(self, app_id):
-
-    global app_process
-
-    if app_process and app_process.is_alive():
-      return {
-        "message": "Busy",
-        "hostname": socket.gethostname()
-      }, 503
-
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     
@@ -100,18 +66,9 @@ class FogApplication(Resource):
 
     logger.debug(msg)
 
-    app = StressApp()
-
-    q = multiprocessing.Queue()
-
-    #print(app, q)
-
-    app_process = multiprocessing.Process(target=stress_app_target, args=(app, q), kwargs=req_json)
-    app_process.start()
-
-    #t = StressThread(**req_json)
-    #t.start()
-    #thread_list.append(t)
+    t = StressThread(**req_json)
+    t.start()
+    thread_list.append(t)
 
     return {
       "message": msg,
@@ -119,15 +76,10 @@ class FogApplication(Resource):
     }, 201
 
   def delete(self, app_id):
-    if app_process:
-      app_process.terminate()
-      # TODO find a way to avoid using this
-      shell_command("killall stress")
-      msg = "App {} terminated".format(app_id)
-    else:
-      msg = "No app process to terminate"
+    for t in thread_list:
+      t.stop()
     return {
-      "message": msg,
+      "message": "Stopped app {}".format(app_id),
       "hostname": socket.gethostname()
     }, 200
 

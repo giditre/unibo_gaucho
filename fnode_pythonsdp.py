@@ -75,7 +75,7 @@ class SoftDevPlatform(Resource):
       return {
         "message": "Busy",
         "hostname": socket.gethostname()
-      }, 400
+      }, 503
 
     # retrieve information from POST body
     req_json = request.get_json(force=True)
@@ -107,9 +107,13 @@ class SoftDevPlatform(Resource):
     }, 201  
 
   def delete(self, sdp_id):
-    sdp_process.terminate()
+    if sdp_process:
+      sdp_process.terminate()
+      msg = "SDP {} terminated".format(sdp_id)
+    else:
+      msg = "No running SDP to terminate"
     return {
-      "message": "Stopped sdp {}".format(sdp_id),
+      "message": msg,
       "hostname": socket.gethostname()
     }, 200
 
