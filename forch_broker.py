@@ -126,16 +126,35 @@ class FogApplication(Resource):
     #logger.debug(f"{r}")
     return '', 201
 
+class SoftDevPlatform(Resource):
+  def __init__(self):
+    super().__init__()
+
+  def get(self, sdp_id):
+    # determine node id by choosing node among the ones offering this SDP (if any)
+    sdp_list = requests.get("http://{}:{}/sdps".format(db_address, db_port)).json()
+    if sdp_id not in sdp_list:
+      return { "message": "SDP {} not found".format(sdp_id) }, 404
+    sdp = sdp_list[sdp_id]
+    sdp_node_list = sdp["nodes"]
+    if sdp_node_list:
+      # there is a node offering this SDP
+      # pick the first node on the list (TODO implement a better picking method)
+      node_id = sdp_node_list[0]
+      node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
+      return {"message": "SDP {} available.".format(sdp_id), "node_url": node["url"]}
+    else:
+      return {"message": "SDP {} not available on any node.".format(sdp_id)}, 503
+
 class FogVirtEngine(Resource):
   def __init__(self):
     super().__init__()
 
   def get(self, fve_id):
-    # determine node id by choosing node amons the ones offering this FVE (if any)
+    # determine node id by choosing node among the ones offering this FVE (if any)
     fve_list = requests.get("http://{}:{}/fves".format(db_address, db_port)).json()
     if fve_id not in fve_list:
-      # TODO understand why it returns 200 OK anyway (maybe check the return value(s) of abort)
-      abort(404, message="Fog Virtualization Engine {} not found.".format(fve_id))
+      return { "message": "FVE {} not found".format(fve_id) }, 404
     fve = fve_list[fve_id]
     fve_node_list = fve["nodes"]
     if fve_node_list:
@@ -143,7 +162,7 @@ class FogVirtEngine(Resource):
       # pick the first node on the list (TODO implement a better picking method)
       node_id = fve_node_list[0]
       node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
-      return {"message": "Fog Virtualization Engine {} available.".format(fve_id), "node_url": node["url"]}
+      return {"message": "FVE {} available.".format(fve_id), "node_url": node["url"]}
     else:
       return {"message": "FVE {} not available on any node.".format(fve_id)}, 503
 
@@ -201,6 +220,7 @@ if __name__ == '__main__':
   
   api.add_resource(Test, '/test')
   api.add_resource(FogApplication, '/app/<app_id>')
+  api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
   api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
   app.run(host=ep_address, port=ep_port, debug=debug)

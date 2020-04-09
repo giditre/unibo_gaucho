@@ -3,6 +3,7 @@ import requests
 import json
 import datetime
 import argparse
+import sys
 
 def print_flush(*args, **kwargs):
   kwargs["flush"] = True
@@ -16,6 +17,10 @@ parser.add_argument("--post-delete", help="DELETE after gathering measurements, 
 
 args = parser.parse_args()
 print_flush("CLI args: {}".format(vars(args)))
+
+c = input("Confirm? [y/n] ")
+if c != "y":
+  sys.exit("Aborted.")
 
 #app_id = args.app_id
 pre_delete = args.pre_delete

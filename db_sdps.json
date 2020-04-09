@@ -7,10 +7,6 @@
     "SDP002": {
       "name": "alpine",
       "descr": "Lightweight Ubuntu"
-    },
-    "SDP003": {
-      "name": "progrium/stress",
-      "descr": "Stress"
     }
   }
 }
