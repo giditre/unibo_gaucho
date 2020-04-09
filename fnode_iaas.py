@@ -120,6 +120,12 @@ class FogApplication(Resource):
         "port_mappings": port_mappings
         }, 201
 
+class FogVirtEngineList(Resource):
+
+  def get(self):
+    # TODO do it not hardcoded
+    return {"fves": {"Docker": 1}}
+
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
     resp_code = -1
@@ -184,6 +190,8 @@ if __name__ == '__main__':
   api.add_resource(FogNodeInfo, "/info")
   api.add_resource(FogApplicationList, '/apps')
   api.add_resource(FogApplication, '/app/<app_id>')
+  api.add_resource(FogVirtEngineList, '/fves')
+  api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
   app.run(host=ep_address, port=ep_port, debug=debug)
   
