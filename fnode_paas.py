@@ -41,33 +41,33 @@ class FogNodeInfo(Resource):
 
 # TODO transform FogApplication into SoftDevPlatform
 
-class FogApplicationList(Resource):
+class SoftDevPlatformList(Resource):
   def get(self):
-    # TODO make it not hardcoded but get the identifier somewhere
+    # TODO make it not hardcoded but get the identifier somewhere (SDP001 is python)
     # TODO count the instances of each app currently running on this node
-    apps = {"FA002": 1}
-    return {"apps": apps}
+    apps = {"SDP001": 1}
+    return {"sdps": sdps}
       
   def delete(self):
     # remove instances of running apps if possible
     global thread_list
     for t in thread_list:
-      r = requests.delete("http://127.0.0.1:{}/app/{}".format(t.get_port(), t.get_app_id()))
-    resp = "Stopped all apps."
+      r = requests.delete("http://127.0.0.1:{}/sdp/{}".format(t.get_port(), t.get_sdp_id()))
+    resp = "Stopped all SDPd."
     return {"message": resp}, 200
 
-class FogApplication(Resource):
+class SoftDevPlatform(Resource):
 
-  def post(self, app_id):
+  def post(self, sdp_id):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     
-    if app_id == "FA002":
+    if sdp_id == "SDP001":
       
-      msg = "Deployed app {}".format(app_id, req_json)
+      msg = "Deployed SDP {}".format(sdp_id, req_json)
       logger.debug(msg)
       
-      t = StressThread(app_id, **req_json)
+      t = PythonSDPThread(sdp_id, **req_json)
       t.start()
       thread_list.append(t)
 
@@ -78,7 +78,7 @@ class FogApplication(Resource):
       }, 201
 
     else:
-      msg = "Unrecognized app {}".format(app_id)
+      msg = "Unrecognized SDP {}".format(sdp_id)
       return {"message": msg}, 404
 
 def wait_for_remote_endpoint(ep_address, ep_port):
@@ -97,8 +97,8 @@ def wait_for_remote_endpoint(ep_address, ep_port):
 
 ###
 
-class StressThread(threading.Thread):
-  def __init__(self, app_id, *args, **kwargs):
+class PythoSDPThread(threading.Thread):
+  def __init__(self, sdp_id, *args, **kwargs):
     super().__init__()
 
     # parse handled parameters (application specific)
@@ -118,7 +118,7 @@ class StressThread(threading.Thread):
         self.port = random.randint(30000, 40000)
           
     # TODO find better way of running a separate thread offering its own API
-    self.cmd = "python3 fnode_stress.py 0.0.0.0 {}".format(self.port) 
+    self.cmd = "python3 fnode_pythonsdp.py 0.0.0.0 {}".format(self.port)
 
   def run(self):
     shell_command(self.cmd)
