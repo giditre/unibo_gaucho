@@ -1,5 +1,5 @@
 {
-  "SDPs": {
+  "sdps": {
     "SDP001": {
       "name": "python",
       "descr": "Python3"

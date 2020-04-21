@@ -67,36 +67,42 @@ class Test(Resource):
     return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
 
 class FogApplicationList(Resource):
+  @authenticate
   def get(self):
     # get app list from database
     r = requests.get("http://{}:{}/appcat".format(db_address, db_port))
     return r.json(), r.status_code
 
 class FogApplication(Resource):
+  @authenticate
   def get(self, app_id):
     # get node id from broker
     r = requests.get("http://{}:{}/app/{}".format(broker_address, broker_port, app_id))
     return r.json(), r.status_code
 
 class SoftDevPlatformList(Resource):
+  @authenticate
   def get(self):
     # get SDP list from database
     r = requests.get("http://{}:{}/sdpcat".format(db_address, db_port))
     return r.json(), r.status_code
 
 class SoftDevPlatform(Resource):
+  @authenticate
   def get(self, sdp_id):
     # get node id from broker
     r = requests.get("http://{}:{}/sdp/{}".format(broker_address, broker_port, sdp_id))
     return r.json(), r.status_code
 
 class FogVirtEngineList(Resource):
+  @authenticate
   def get(self):
     # get fve list from database
     r = requests.get("http://{}:{}/fvecat".format(db_address, db_port))
     return r.json(), r.status_code
 
 class FogVirtEngine(Resource):
+  @authenticate
   def get(self, fve_id):
     # get node id from broker
     r = requests.get("http://{}:{}/fve/{}".format(broker_address, broker_port, fve_id))

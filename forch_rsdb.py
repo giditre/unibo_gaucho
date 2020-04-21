@@ -202,20 +202,20 @@ class RSDB():
       fve_cat = json.load(f)
 
     rsdb["app_catalog"] = app_cat["apps"]
-    rsdb["SDP_catalog"] = sdp_cat["SDPs"]
-    rsdb["FVE_catalog"] = fve_cat["FVEs"]
+    rsdb["sdp_catalog"] = sdp_cat["sdps"]
+    rsdb["fve_catalog"] = fve_cat["fves"]
 
     rsdb["apps"] = deepcopy(rsdb["app_catalog"])
     for app in rsdb["app_catalog"]:
       rsdb["apps"][app]["nodes"] = []
 
-    rsdb["SDPs"] = deepcopy(rsdb["SDP_catalog"])
-    for sdp in rsdb["SDP_catalog"]:
-      rsdb["SDPs"][sdp]["nodes"] = []
+    rsdb["sdps"] = deepcopy(rsdb["sdp_catalog"])
+    for sdp in rsdb["sdp_catalog"]:
+      rsdb["sdps"][sdp]["nodes"] = []
 
-    rsdb["FVEs"] = deepcopy(rsdb["FVE_catalog"])
-    for fve in rsdb["FVE_catalog"]:
-      rsdb["FVEs"][fve]["nodes"] = []    
+    rsdb["fves"] = deepcopy(rsdb["fve_catalog"])
+    for fve in rsdb["fve_catalog"]:
+      rsdb["fves"][fve]["nodes"] = []    
 
     return rsdb   
 
@@ -344,26 +344,26 @@ class RSDB():
     return self.rsdb["apps"][app_id]
 
   def get_sdp_catalog(self):
-    return self.rsdb["SDP_catalog"]
+    return self.rsdb["sdp_catalog"]
 
   def get_sdp_list(self):
-    return self.rsdb["SDPs"]
+    return self.rsdb["sdps"]
 
   def get_sdp(self, sdp_id):
-    if sdp_id not in self.rsdb["SDPs"]:
+    if sdp_id not in self.rsdb["sdps"]:
       return {"message": "SDP {} not found.".format(app_id)}, 404
-    return self.rsdb["SDPs"][sdp_id]
+    return self.rsdb["sdps"][sdp_id]
 
   def get_fve_catalog(self):
-    return self.rsdb["FVE_catalog"]
+    return self.rsdb["fve_catalog"]
 
   def get_fve_list(self):
-    return self.rsdb["FVEs"]
+    return self.rsdb["fves"]
 
   def get_fve(self, fve_id):
-    if fve_id not in self.rsdb["FVEs"]:
+    if fve_id not in self.rsdb["fves"]:
       return {"message": "FVE {} not found.".format(app_id)}, 404
-    return self.rsdb["FVEs"][fve_id]
+    return self.rsdb["fves"][fve_id]
 
   def flush_db(self):
     with self.db_lock:

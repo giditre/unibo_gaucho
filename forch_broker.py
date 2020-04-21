@@ -143,7 +143,8 @@ class SoftDevPlatform(Resource):
       # pick the first node on the list (TODO implement a better picking method)
       node_id = sdp_node_list[0]
       node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
-      return {"message": "SDP {} available.".format(sdp_id), "node_url": node["url"]}
+      node_ip = node["ip"]
+      return {"message": "SDP {} available.".format(sdp_id), "node_ip": node_ip}
     else:
       return {"message": "SDP {} not available on any node.".format(sdp_id)}, 503
 
@@ -164,7 +165,8 @@ class FogVirtEngine(Resource):
       # pick the first node on the list (TODO implement a better picking method)
       node_id = fve_node_list[0]
       node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
-      return {"message": "FVE {} available.".format(fve_id), "node_url": node["url"]}
+      node_ip = node["ip"]
+      return {"message": "FVE {} available.".format(fve_id), "node_ip": node_ip}
     else:
       return {"message": "FVE {} not available on any node.".format(fve_id)}, 503
 
