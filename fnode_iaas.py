@@ -124,7 +124,7 @@ class FogVirtEngineList(Resource):
 
   def get(self):
     # TODO do it not hardcoded
-    return {"fves": {"Docker": 1}}
+    return {"fves": {"FVE001": 1}}
 
 class FogVirtEngine(Resource):
 
