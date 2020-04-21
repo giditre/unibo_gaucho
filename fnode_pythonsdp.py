@@ -63,7 +63,7 @@ class Test(Resource):
 
 class FogNodeInfo(Resource):
   def get(self):
-    return {"sdp": "FA002"}
+    return {"sdp": "SDP002"}
 
 class SoftDevPlatform(Resource):
 

@@ -42,7 +42,7 @@ class ImageList(Resource):
           "name": "httpd",
           "descr": "Apache web server",
           "uri": "httpd",
-          "apps": ["FA001"],
+          "apps": ["APP001"],
           "sdps": []
         },
         "Image03": {
@@ -56,7 +56,7 @@ class ImageList(Resource):
           "name": "stress",
           "descr": "Stress",
           "uri": "giditre/gaucho-stress",
-          "apps": ["FA002"],
+          "apps": ["APP002"],
           "sdps": ["SDP003"]
         }
       }

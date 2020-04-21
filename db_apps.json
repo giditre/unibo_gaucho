@@ -1,10 +1,10 @@
 {
   "apps": {
-    "FA001": {
+    "APP001": {
       "name": "httpd",
       "descr": "Apache web server"
     },
-    "FA002": {
+    "APP002": {
       "name": "stress",
       "descr": "Stress host"
     }

@@ -1,14 +1,14 @@
 {
   "apps": {
-    "FA001": {
+    "APP001": {
       "name": "FogApplication1",
       "descr": "Description of application FogApplication1"
     },
-    "FA002": {
+    "APP002": {
       "name": "FogApplication2",
       "descr": "Description of application FogApplication2"
     },
-    "FA003": {
+    "APP003": {
       "name": "FogApplication3",
       "descr": "Description of application FogApplication3"
     }

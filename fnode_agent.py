@@ -50,8 +50,8 @@ class FogNodeAgent(threading.Thread):
 
     #node_class = self.node_class if self.node_class else random.choice(["I", "P", "S"])
     node_class = self.node_class if self.node_class else random.choice(["P", "S"])
-    #apps = [f"FA{i:03d}" for i in range(1,4)]
-    apps = [f"FA{i:03d}" for i in range(1,3)]
+    #apps = [f"APP{i:03d}" for i in range(1,4)]
+    apps = [f"APP{i:03d}" for i in range(1,3)]
     sdps = [f"SDP{i:03d}" for i in range(1,4)]
     fves = [f"FVE{i:03d}" for i in range(1,4)]
     node_apps = []

@@ -31,12 +31,12 @@ class FogNodeInfo(Resource):
 
 class FogApplicationList(Resource):
   def get(self):
-    app_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("FA")])
+    app_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("APP")])
     return {"apps": dict(app_counter)}
       
   def delete(self):
     for cont in docker_client.containers.list():
-      if cont.name.startswith("FA"):
+      if cont.name.startswith("APP"):
         cont.stop()
     resp = docker_client.containers.prune()
     return {"message": resp}, 200

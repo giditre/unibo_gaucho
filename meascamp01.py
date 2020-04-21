@@ -40,8 +40,8 @@ r = requests.get("http://192.168.10.117:5001/apps")
 time.sleep(1)
 
 # request the allocation of new service
-print_flush("GET", "http://192.168.10.117:5001/app/FA002")
-r = requests.get("http://192.168.10.117:5001/app/FA002")
+print_flush("GET", "http://192.168.10.117:5001/app/APP002")
+r = requests.get("http://192.168.10.117:5001/app/APP002")
 resp_json = r.json()
 print_flush(json.dumps(resp_json, indent=2))
 time.sleep(1)
@@ -52,7 +52,7 @@ while r.status_code in [200, 201]:
   serv_port = resp_json["service_port"]
 
   # start new service
-  url = "http://{}:{}/app/FA002".format(node_ip, serv_port)
+  url = "http://{}:{}/app/APP002".format(node_ip, serv_port)
   data_json = service_data_json
   print_flush("POST", data_json, url)
   r = requests.post(url, json=data_json)
@@ -64,8 +64,8 @@ while r.status_code in [200, 201]:
   time.sleep(120)
 
   # request the allocation of new service
-  print_flush("GET", "http://192.168.10.117:5001/app/FA002")
-  r = requests.get("http://192.168.10.117:5001/app/FA002")
+  print_flush("GET", "http://192.168.10.117:5001/app/APP002")
+  r = requests.get("http://192.168.10.117:5001/app/APP002")
   resp_json = r.json()
   print_flush(json.dumps(resp_json, indent=2))
   time.sleep(10)

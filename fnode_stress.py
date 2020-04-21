@@ -79,7 +79,7 @@ class Test(Resource):
 
 class FogNodeInfo(Resource):
   def get(self):
-    return {"app": "FA002"}
+    return {"app": "APP002"}
 
 class FogApplication(Resource):
 

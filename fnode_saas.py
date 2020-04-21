@@ -43,7 +43,7 @@ class FogApplicationList(Resource):
   def get(self):
     # TODO make it not hardcoded but get the identifier somewhere
     # TODO count the instances of each app currently running on this node
-    apps = {"FA002": 1}
+    apps = {"APP002": 1}
     return {"apps": apps}
       
   def delete(self):
@@ -60,7 +60,7 @@ class FogApplication(Resource):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     
-    if app_id == "FA002":
+    if app_id == "APP002":
       
       msg = "Deployed app {}".format(app_id, req_json)
       logger.debug(msg)
