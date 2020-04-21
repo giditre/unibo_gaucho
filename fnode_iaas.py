@@ -126,6 +126,12 @@ class FogVirtEngineList(Resource):
     # TODO do it not hardcoded
     return {"fves": {"Docker": 1}}
 
+class FogVirtEngine(Resource):
+
+  def get(self):
+    # TODO do it not hardcoded
+    return {"message": "OK"}
+
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
     resp_code = -1
