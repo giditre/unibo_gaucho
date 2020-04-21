@@ -33,7 +33,7 @@ class FogApplication(Resource):
     node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
     app_list = requests.get("http://{}:{}/apps".format(db_address, db_port)).json()
     if app_id not in app_list:
-      return { "message": "Application {} not found".format(app_id) }, 404
+      return { "message": "Application {} not defined".format(app_id) }, 404
     app = app_list[app_id]
     app_node_list = app["nodes"]
 
@@ -117,14 +117,14 @@ class FogApplication(Resource):
     else:
       return r.json(), r.status_code
     
-  def post(self):
-    # retrieve information from POST body
-    args = self.parser.parse_args()
-    image_id = args["image"]
-    # determine node id by choosing a node among the available IaaS nodes (if any)
-    node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port, image_id)).json()
-    #logger.debug(f"{r}")
-    return '', 201
+  #def post(self):
+  #  # retrieve information from POST body
+  #  args = self.parser.parse_args()
+  #  image_id = args["image"]
+  #  # determine node id by choosing a node among the available IaaS nodes (if any)
+  #  node_list = requests.get("http://{}:{}/nodes".format(db_address, db_port, image_id)).json()
+  #  #logger.debug(f"{r}")
+  #  return '', 201
 
 class SoftDevPlatform(Resource):
   def __init__(self):
@@ -144,9 +144,12 @@ class SoftDevPlatform(Resource):
       node_id = sdp_node_list[0]
       node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
       node_ip = node["ip"]
-      return {"message": "SDP {} available.".format(sdp_id), "node_ip": node_ip}
+      r = requests.post("http://{}:{}/app/{}".format(node_ip, 5005, app_id), json={"test": "dummy"})
+      resp_json = r.json()
+      port = resp_json["port"]
+      return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
     else:
-      return {"message": "SDP {} not available on any node.".format(sdp_id)}, 503
+      return {"message": "SDP {} not available on any node".format(sdp_id)}, 503
 
 class FogVirtEngine(Resource):
   def __init__(self):
@@ -167,8 +170,14 @@ class FogVirtEngine(Resource):
       node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
       node_ip = node["ip"]
       return {"message": "FVE {} available.".format(fve_id), "node_ip": node_ip}
+
+      #r = requests.post("http://{}:{}/app/{}".format(node_ip, 5005, app_id), json={"test": "dummy"})
+      #resp_json = r.json()
+      #port = resp_json["port"]
+      #return {"message": "FVE {} allocated".format(fve_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+
     else:
-      return {"message": "FVE {} not available on any node.".format(fve_id)}, 503
+      return {"message": "FVE {} not available on any node".format(fve_id)}, 503
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)
