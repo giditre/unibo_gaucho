@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Resource, Api, reqparse, abort
 import json
 import argparse
@@ -7,6 +7,8 @@ import logging
 import random
 from time import sleep
 import os
+from werkzeug.security import check_password_hash
+from functools import wraps
 
 ### Logging setup
 
@@ -18,10 +20,50 @@ formatter = logging.Formatter('[ %(asctime)s ][ %(levelname)s ] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
+###
+
+def authenticate(function):
+
+  @wraps(function)
+  def wrapper(*args, **kwargs):
+
+    auth = request.authorization
+
+    if not auth or not auth.username or not auth.password:
+      return {"message": "Authorization required"}, 401
+
+    # load db file
+    with open("db_users.json") as f:
+      user_db = json.load(f)
+
+    # check if user exists in db
+    for uid in user_db:
+      if user_db[uid]["name"] == auth.username:
+        # found it!
+        reg_user_name = user_db[uid]["name"]
+        reg_user_pwd = user_db[uid]["password"]
+        if check_password_hash(reg_user_pwd, auth.password):
+          # success!
+          #return reg_user_name
+          return function(*args, **kwargs)
+        else:
+          # user unauthorized
+          return {"message": "Unauthorized user"}, 401
+
+    # user not found
+    return {"message": "Bad authorization"}, 401
+
+  return wrapper
+
 ### Resource definition
 
 class Test(Resource):
+  @authenticate
   def get(self):
+    ##logger.debug(request.authorization)
+    #auth_user = authenticate(request.authorization)
+    #if not auth_user:
+    #  return {"message": "Bad authentication"}, 401
     return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
 
 class FogApplicationList(Resource):
@@ -123,5 +165,5 @@ if __name__ == '__main__':
     wait_for_remote_endpoint(db_address, db_port)
     wait_for_remote_endpoint(broker_address, broker_port)
 
-  app.run(host=ep_address, port=ep_port, debug=True)
+  app.run(host=ep_address, port=ep_port, debug=debug, ssl_context='adhoc')
 

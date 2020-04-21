@@ -132,6 +132,7 @@ class SoftDevPlatform(Resource):
 
   def get(self, sdp_id):
     # determine node id by choosing node among the ones offering this SDP (if any)
+    node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
     sdp_list = requests.get("http://{}:{}/sdps".format(db_address, db_port)).json()
     if sdp_id not in sdp_list:
       return { "message": "SDP {} not found".format(sdp_id) }, 404
@@ -152,6 +153,7 @@ class FogVirtEngine(Resource):
 
   def get(self, fve_id):
     # determine node id by choosing node among the ones offering this FVE (if any)
+    node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
     fve_list = requests.get("http://{}:{}/fves".format(db_address, db_port)).json()
     if fve_id not in fve_list:
       return { "message": "FVE {} not found".format(fve_id) }, 404

@@ -319,7 +319,8 @@ class RSDB():
 
         else:
           # TODO handle error
-          logger.debug("Unhandled class {}".format(node_info["class"])
+          logger.debug("Unhandled class {}".format(node_info["class"]))
+
     return self.rsdb["nodes"]
 
   def get_node(self, node_id):
