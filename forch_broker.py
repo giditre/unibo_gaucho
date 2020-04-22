@@ -169,12 +169,11 @@ class FogVirtEngine(Resource):
       node_id = fve_node_list[0]
       node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
       node_ip = node["ip"]
-      return {"message": "FVE {} available.".format(fve_id), "node_ip": node_ip}
-
-      #r = requests.post("http://{}:{}/app/{}".format(node_ip, 5005, app_id), json={"test": "dummy"})
-      #resp_json = r.json()
-      #port = resp_json["port"]
-      #return {"message": "FVE {} allocated".format(fve_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+      logger.debug("FVE {} available at {}".format(fve_id, node_ip))
+      r = requests.post("http://{}:{}/fve/{}".format(node_ip, 5005, fve_id), json={"test": "dummy"})
+      resp_json = r.json()
+      port = resp_json["port"]
+      return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
 
     else:
       return {"message": "FVE {} not available on any node".format(fve_id)}, 503
