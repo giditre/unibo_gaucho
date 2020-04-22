@@ -65,14 +65,16 @@ class FogApplication(Resource):
     # here try to deploy image image_uri on this node
 
     # check if image is present on this node. If not, TODO check if image is allowed. Is yes, pull it from repo.
-    # TODO raise and handle error architecture not supported
-    node_arch = docker_client.info()["Architecture"]
-    if "64" in node_arch:
-      node_arch = "amd64"
-    elif "arm" in node_arch:
-      node_arch = "arm"
+    
+    if image_uri.startswith("giditre"):
+      # TODO raise and handle error architecture not supported
+      node_arch = docker_client.info()["Architecture"]
+      if "64" in node_arch:
+        node_arch = "amd64"
+      elif "arm" in node_arch:
+        node_arch = "arm"
 
-    image_uri = "{}:{}".format(image_uri, node_arch)
+      image_uri = "{}:{}".format(image_uri, node_arch)
 
     if not docker_client.images.list(name=image_uri):
       logger.debug("Image {} not found on this node, pulling it...".format(image_uri))
@@ -126,11 +128,92 @@ class FogVirtEngineList(Resource):
     # TODO do it not hardcoded
     return {"fves": {"FVE001": 1}}
 
+  def delete(self):
+    for cont in docker_client.containers.list():
+      if cont.name.startswith("FVE"):
+        cont.stop()
+    resp = docker_client.containers.prune()
+    return {"message": resp}, 200
+
+
 class FogVirtEngine(Resource):
 
   def get(self):
     # TODO do it not hardcoded
     return {"message": "OK"}
+
+  def post(self, image_uri):
+    # retrieve information from POST body
+    req_json = request.get_json(force=True)
+    
+    image_uri = ""
+    if "image_uri" in req_json:
+      image_uri = req_json["image_uri"]
+    else:
+      return {"message": "Image URI not specified"}, 400
+
+    command = ""
+    if "command" in req_json:
+      command = req_json["command"]
+
+    entrypoint = ""
+    if "entrypoint" in req_json:
+      entrypoint = req_json["entrypoint"]
+
+    # here try to deploy image image_uri on this node
+
+    # check if image is present on this node. If not, TODO check if image is allowed. Is yes, pull it from repo.
+    
+    if image_uri.startswith("giditre"):
+      # TODO raise and handle error architecture not supported
+      node_arch = docker_client.info()["Architecture"]
+      if "64" in node_arch:
+        node_arch = "amd64"
+      elif "arm" in node_arch:
+        node_arch = "arm"
+
+      image_uri = "{}:{}".format(image_uri, node_arch)
+
+    if not docker_client.images.list(name=image_uri):
+      logger.debug("Image {} not found on this node, pulling it...".format(image_uri))
+      docker_client.images.pull(image_uri)
+    
+    cont_name = "FVE" + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
+
+    logger.debug("Deploying container {} with image {}{}".format(
+      cont_name,
+      image_uri,
+      " and command '{}'".format(command) if command else ""
+      )
+    )
+
+    try:
+      docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
+    except docker.errors.ImageNotFound as e:
+      return {"message": str(e)}, 404
+
+    container = docker_client.containers.get(cont_name)
+
+    cont_ip = container.attrs["NetworkSettings"]["IPAddress"]
+    logger.debug(cont_ip)
+
+    port_mappings = []
+
+    ports_dict = container.attrs["NetworkSettings"]["Ports"]
+    for cont_port in ports_dict:
+      for host_port_dict in ports_dict[cont_port]:
+        port_map = "{}:{}->{}".format(host_port_dict["HostIp"], host_port_dict["HostPort"], cont_port)
+        port_mappings.append(port_map)
+        logger.debug(port_map)
+
+    return {"message": "Deployed image {}".format(image_uri),
+        "name": cont_name,
+        "cont_ip": cont_ip,
+        "port_mappings": port_mappings
+        }, 201
+
+  # TODO def delete(self):
+     
 
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
