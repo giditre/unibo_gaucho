@@ -66,12 +66,6 @@ class ImageList(Resource):
 
 class FogApplication(Resource):
 
-  def __init__(self):
-    super().__init__()
-    self.parser = reqparse.RequestParser()
-    self.parser.add_argument('image', type=str, help='Image locator')
-    self.parser.add_argument('node', type=str, help='Node locator')
-
   def post(self, app_id):
     ## retrieve information from POST body
     req_json = request.get_json(force=True)
@@ -101,6 +95,38 @@ class FogApplication(Resource):
       "node_ip": node_ipv4,
       "port_mappings": resp_json["port_mappings"] 
       }, r.status_code
+
+#class FogVirtEngine(Resource):
+#
+#  def post(self, fve_id):
+#    ## retrieve information from POST body
+#    req_json = request.get_json(force=True)
+#    image_name = req_json["image_name"] 
+#    node_ipv4 = req_json["node_ipv4"]
+#
+#    # find image URI based on name
+#    image_uri = ""
+#    image_dict = ImageList().get()
+#    for image_id in image_dict["fogimages"]:
+#      if image_dict["fogimages"][image_id]["name"] == image_name:
+#        image_uri = image_dict["fogimages"][image_id]["uri"]
+#        break
+#    if not image_uri:
+#      return {"message": "Aborted: no image found having name {}".format(image_name)}
+#
+#    try:
+#      r = requests.post("http://{}:{}/fve/{}".format(node_ipv4, 5005, fve_id), json={"image_uri": image_uri})
+#    except requests.exceptions.ConnectionError:
+#      msg = "Aborted: error in connecting to node {}".format(node_ipv4)
+#      return {"message": msg}, 500
+#    resp_json = r.json()
+#    logger.debug("Response from node {}: {}".format(node_ipv4, resp_json))
+#    #"0.0.0.0:32774->80/tcp"
+#    return {
+#      "message": "Application {} successfully deployed".format(app_id),
+#      "node_ip": node_ipv4,
+#      "port_mappings": resp_json["port_mappings"] 
+#      }, r.status_code
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)
@@ -145,6 +171,7 @@ if __name__ == '__main__':
   api.add_resource(Test, "/test")
   api.add_resource(ImageList, "/images")
   api.add_resource(FogApplication, "/app/<app_id>")
+  #api.add_resource(FogVirtEngine, "/fve/<fve_id>")
 
   app.run(host=ep_address, port=ep_port, debug=debug)
 
