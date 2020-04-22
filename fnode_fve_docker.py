@@ -10,7 +10,6 @@ import datetime
 import os
 import threading
 from collections import Counter
-import socket
 import docker
 
 ### Docker
@@ -19,7 +18,7 @@ docker_client = docker.from_env()
 
 ###
 
-thread_list = []
+cont_name = ''
 
 ###
 
@@ -37,21 +36,17 @@ class FogNodeInfo(Resource):
   def get(self):
     return {"class": "I"}
 
-class FogApplicationList(Resource):
+class FogVirtEngine(Resource):
+
   def get(self):
-    app_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("APP")])
-    return {"apps": dict(app_counter)}
-      
-  def delete(self):
-    for cont in docker_client.containers.list():
-      if cont.name.startswith("APP"):
-        cont.stop()
-    resp = docker_client.containers.prune()
-    return {"message": resp}, 200
+    # TODO do it not hardcoded
+    return {"message": "OK"}
 
-class FogApplication(Resource):
+  def post(self, fve_id):
+    global cont_name
+    if cont_name:
+      return {"message": "Busy"}, 400
 
-  def post(self, app_id):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     
@@ -59,8 +54,7 @@ class FogApplication(Resource):
     if "image_uri" in req_json:
       image_uri = req_json["image_uri"]
     else:
-      # TODO: GET the image by app_id from forch_iaas_mgmt
-      pass
+      return {"message": "Image URI not specified"}, 400
 
     command = ""
     if "command" in req_json:
@@ -77,15 +71,11 @@ class FogApplication(Resource):
     if not docker_client.images.list(name=image_uri):
       logger.debug("Image {} not found on this node, pulling it...".format(image_uri))
       docker_client.images.pull(image_uri, tag="latest")
-    
-    cont_name = app_id + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
+  
 
-    ## TODO IMPORTANT find a smarter way to implement command to stress
-    #if image_uri == "progrium/stress":
-    #  #command = "stress --cpu 1 --io 1 --vm 1 --vm-bytes 1G --timeout 36000s"
-    #  command = "stress --cpu 1 --timeout 36000s"
+    cont_name = "FVE" + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
 
-    logger.debug("Deploying app {} in container {} with image {}{}".format(app_id,
+    logger.debug("Deploying container {} with image {}{}".format(
       cont_name,
       image_uri,
       " and command '{}'".format(command) if command else ""
@@ -96,9 +86,6 @@ class FogApplication(Resource):
       docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
     except docker.errors.ImageNotFound as e:
       return {"message": str(e)}, 404
-
-    #with open("/tmp/{}.json".format(cont_name), "w") as f:
-    #  json.dump({"image": image_uri, "app": app_id}, f)
 
     container = docker_client.containers.get(cont_name)
 
@@ -116,85 +103,18 @@ class FogApplication(Resource):
 
     return {"message": "Deployed image {}".format(image_uri),
         "name": cont_name,
-        "cont_ip": cont_ip,
+        #"cont_ip": cont_ip,
         "port_mappings": port_mappings
         }, 201
 
-class FogVirtEngineList(Resource):
-
-  def get(self):
-    # TODO do it not hardcoded
-    return {"fves": {"FVE001": 1}}
-
-  def delete(self):
+  def delete(self, fve_id):
+    global cont_name
     for cont in docker_client.containers.list():
-      if cont.name.startswith("FVE"):
+      if cont.name == cont_name:
         cont.stop()
+    cont_name = ''
     resp = docker_client.containers.prune()
     return {"message": resp}, 200
-
-class DockerFVEThread(threading.Thread):
-  def __init__(self, fve_id, *args, **kwargs):
-    super().__init__()
-
-    ## parse handled parameters (application specific)
-    #_handled_parameters = [ "timeout", "cpu" ]
-    #self.parameters_dict = {}
-    #for p in _handled_parameters:
-    #  if p in kwargs:
-    #    self.parameters_dict[p] = kwargs[p]
-
-    self.fve_id = fve_id
-
-    # select random port
-    self.port = random.randint(30000, 40000)
-    # check if port is in use and keep selecting new port until free port found
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-      while s.connect_ex(('localhost', self.port)) == 0:
-        self.port = random.randint(30000, 40000)
-
-    # TODO find better way of running a separate thread offering its own API
-    self.cmd = "python3 fnode_fve_docker.py 0.0.0.0 {}".format(self.port)
-
-  def run(self):
-    shell_command(self.cmd)
-
-  def get_fve_id(self):
-    return self.fve_id
-
-  def get_port(self):
-    return self.port
-
-class FogVirtEngine(Resource):
-
-  def get(self):
-    # TODO do it not hardcoded
-    return {"message": "OK"}
-
-  def post(self, fve_id):
-    # retrieve information from POST body
-    req_json = request.get_json(force=True)
-
-    if fve_id == "FVE001":
-      msg = "Deployed FVE {}".format(fve_id, req_json)
-      logger.debug(msg)
-
-      t = DockerFVEThread(fve_id, **req_json)
-      t.start()
-      thread_list.append(t)
-
-      return {
-        "message": msg,
-        "hostname": socket.gethostname(),
-        "port": t.get_port()
-      }, 201
-
-    else:
-      msg = "Unrecognized FVE {}".format(fve_id)
-      return {"message": msg}, 400
-      
-
-  # TODO def delete(self):     
 
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
@@ -258,9 +178,6 @@ if __name__ == '__main__':
   api = Api(app)
   api.add_resource(Test, '/test')
   api.add_resource(FogNodeInfo, "/info")
-  api.add_resource(FogApplicationList, '/apps')
-  api.add_resource(FogApplication, '/app/<app_id>')
-  api.add_resource(FogVirtEngineList, '/fves')
   api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
   app.run(host=ep_address, port=ep_port, debug=debug)
