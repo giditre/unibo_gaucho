@@ -37,7 +37,7 @@ class Test(Resource):
 
 class FogNodeInfo(Resource):
   def get(self):
-    return {"class": "S"}
+    return {"class": "P"}
 
 # TODO transform FogApplication into SoftDevPlatform
 
@@ -53,7 +53,7 @@ class SoftDevPlatformList(Resource):
     global thread_list
     for t in thread_list:
       r = requests.delete("http://127.0.0.1:{}/sdp/{}".format(t.get_port(), t.get_sdp_id()))
-    resp = "Stopped all SDPd."
+    resp = "Stopped all SDPs"
     return {"message": resp}, 200
 
 class SoftDevPlatform(Resource):
