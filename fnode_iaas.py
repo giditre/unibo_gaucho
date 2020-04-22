@@ -142,7 +142,7 @@ class FogVirtEngine(Resource):
     # TODO do it not hardcoded
     return {"message": "OK"}
 
-  def post(self, image_uri):
+  def post(self, fve_id):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     
