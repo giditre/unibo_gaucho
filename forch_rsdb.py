@@ -382,9 +382,10 @@ class RSDB():
   def delete_apps(self):
     process_list = []
     for node_id in self.rsdb["nodes"]:
-      p = Process(target=self.delete_apps_node, args=(node_id,))
-      p.start()
-      process_list.append(p)
+      if self.rsdb["nodes"][node_id]["apps"]:
+        p = Process(target=self.delete_apps_node, args=(node_id,))
+        p.start()
+        process_list.append(p)
     for p in process_list:
       p.join()
     return {"message": "APPs deleted on all nodes."}, 200
@@ -401,9 +402,10 @@ class RSDB():
   def delete_sdps(self):
     process_list = []
     for node_id in self.rsdb["nodes"]:
-      p = Process(target=self.delete_sdps_node, args=(node_id,))
-      p.start()
-      process_list.append(p)
+      if self.rsdb["nodes"][node_id]["sdps"]:
+        p = Process(target=self.delete_sdps_node, args=(node_id,))
+        p.start()
+        process_list.append(p)
     for p in process_list:
       p.join()
     return {"message": "SDPs deleted on all nodes."}, 200
@@ -420,9 +422,10 @@ class RSDB():
   def delete_fves(self):
     process_list = []
     for node_id in self.rsdb["nodes"]:
-      p = Process(target=self.delete_fves_node, args=(node_id,))
-      p.start()
-      process_list.append(p)
+      if self.rsdb["nodes"][node_id]["fves"]:
+        p = Process(target=self.delete_fves_node, args=(node_id,))
+        p.start()
+        process_list.append(p)
     for p in process_list:
       p.join()
     return {"message": "FVEs deleted on all nodes."}, 200
@@ -443,6 +446,8 @@ class FogNodeList(Resource):
 
   def delete(self):
     rsdb.delete_apps()
+    rsdb.delete_sdps()
+    rsdb.delete_fves()
     rsdb.flush_db()
     return {"message": "Apps deleted and database re-initialized"}, 200
 
