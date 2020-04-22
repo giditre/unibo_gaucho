@@ -66,19 +66,9 @@ class FogApplication(Resource):
 
     # check if image is present on this node. If not, TODO check if image is allowed. Is yes, pull it from repo.
     
-    if image_uri.startswith("giditre"):
-      # TODO raise and handle error architecture not supported
-      node_arch = docker_client.info()["Architecture"]
-      if "64" in node_arch:
-        node_arch = "amd64"
-      elif "arm" in node_arch:
-        node_arch = "arm"
-
-      image_uri = "{}:{}".format(image_uri, node_arch)
-
     if not docker_client.images.list(name=image_uri):
       logger.debug("Image {} not found on this node, pulling it...".format(image_uri))
-      docker_client.images.pull(image_uri)
+      docker_client.images.pull(image_uri, tag="latest")
     
     cont_name = app_id + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
 
@@ -99,8 +89,8 @@ class FogApplication(Resource):
     except docker.errors.ImageNotFound as e:
       return {"message": str(e)}, 404
 
-    with open("/tmp/{}.json".format(cont_name), "w") as f:
-      json.dump({"image": image_uri, "app": app_id}, f)
+    #with open("/tmp/{}.json".format(cont_name), "w") as f:
+    #  json.dump({"image": image_uri, "app": app_id}, f)
 
     container = docker_client.containers.get(cont_name)
 
@@ -164,19 +154,9 @@ class FogVirtEngine(Resource):
 
     # check if image is present on this node. If not, TODO check if image is allowed. Is yes, pull it from repo.
     
-    if image_uri.startswith("giditre"):
-      # TODO raise and handle error architecture not supported
-      node_arch = docker_client.info()["Architecture"]
-      if "64" in node_arch:
-        node_arch = "amd64"
-      elif "arm" in node_arch:
-        node_arch = "arm"
-
-      image_uri = "{}:{}".format(image_uri, node_arch)
-
     if not docker_client.images.list(name=image_uri):
       logger.debug("Image {} not found on this node, pulling it...".format(image_uri))
-      docker_client.images.pull(image_uri)
+      docker_client.images.pull(image_uri, tag="latest")
     
     cont_name = "FVE" + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
 
