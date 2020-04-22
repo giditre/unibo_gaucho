@@ -387,8 +387,45 @@ class RSDB():
       process_list.append(p)
     for p in process_list:
       p.join()
-    return {"message": "Apps deleted on all nodes."}, 200
+    return {"message": "APPs deleted on all nodes."}, 200
 
+  def delete_sdps_node(self, node_id):
+    node_ip = self.rsdb["nodes"][node_id]["ip"]
+    try:
+      r = requests.delete("http://{}:5005/sdps".format(node_ip))
+    except requests.exceptions.ConnectionError as e:
+      # handle error
+      #logger.debug(str(e))
+      logger.info("Node {} at {} not available for DELETE".format(node_id, node_ip))
+
+  def delete_sdps(self):
+    process_list = []
+    for node_id in self.rsdb["nodes"]:
+      p = Process(target=self.delete_sdps_node, args=(node_id,))
+      p.start()
+      process_list.append(p)
+    for p in process_list:
+      p.join()
+    return {"message": "SDPs deleted on all nodes."}, 200
+
+  def delete_fves_node(self, node_id):
+    node_ip = self.rsdb["nodes"][node_id]["ip"]
+    try:
+      r = requests.delete("http://{}:5005/fves".format(node_ip))
+    except requests.exceptions.ConnectionError as e:
+      # handle error
+      #logger.debug(str(e))
+      logger.info("Node {} at {} not available for DELETE".format(node_id, node_ip))
+
+  def delete_fves(self):
+    process_list = []
+    for node_id in self.rsdb["nodes"]:
+      p = Process(target=self.delete_fves_node, args=(node_id,))
+      p.start()
+      process_list.append(p)
+    for p in process_list:
+      p.join()
+    return {"message": "FVEs deleted on all nodes."}, 200
 
 # initialize database handler
 rsdb = RSDB()
@@ -425,7 +462,6 @@ class FogApplicationCatalog(Resource):
 class FogApplicationList(Resource):
   def get(self):
     return rsdb.get_app_list()
-
   def delete(self):
     return rsdb.delete_apps()
 
@@ -440,6 +476,8 @@ class SoftDevPlatformCatalog(Resource):
 class SoftDevPlatformList(Resource):
   def get(self):
     return rsdb.get_sdp_list()
+  def delete(self):
+    return rsdb.delete_sdps()
 
 class SoftDevPlatform(Resource):
   def get(self, sdp_id):
@@ -452,6 +490,8 @@ class FogVirtEngineCatalog(Resource):
 class FogVirtEngineList(Resource):
   def get(self):
     return rsdb.get_fve_list()
+  def delete(self):
+    return rsdb.delete_fves()
 
 class FogVirtEngine(Resource):
   def get(self, fve_id):

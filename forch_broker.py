@@ -144,7 +144,7 @@ class SoftDevPlatform(Resource):
       node_id = sdp_node_list[0]
       node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
       node_ip = node["ip"]
-      r = requests.post("http://{}:{}/app/{}".format(node_ip, 5005, app_id), json={"test": "dummy"})
+      r = requests.post("http://{}:{}/sdp/{}".format(node_ip, 5005, sdp_id), json={"test": "dummy"})
       resp_json = r.json()
       port = resp_json["port"]
       return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
