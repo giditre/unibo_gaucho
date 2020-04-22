@@ -118,7 +118,7 @@ class PythonSDPThread(threading.Thread):
         self.port = random.randint(30000, 40000)
           
     # TODO find better way of running a separate thread offering its own API
-    self.cmd = "python3 fnode_pythonsdp.py 0.0.0.0 {}".format(self.port)
+    self.cmd = "python3 fnode_sdp_python.py 0.0.0.0 {}".format(self.port)
 
   def run(self):
     shell_command(self.cmd)

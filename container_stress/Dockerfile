@@ -12,7 +12,7 @@ WORKDIR /root
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-COPY fnode_stress.py .
+COPY fnode_app_stress.py .
 COPY run.sh .
 
 EXPOSE 5100
