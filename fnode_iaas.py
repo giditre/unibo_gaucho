@@ -114,7 +114,83 @@ class FogApplication(Resource):
         port_mappings.append(port_map)
         logger.debug(port_map)
 
-    return {"message": "Deployed image {}".format(image_uri),
+    return {"message": "Deployed APP {} with image {}".format(app_id, image_uri),
+        "name": cont_name,
+        "cont_ip": cont_ip,
+        "port_mappings": port_mappings
+        }, 201
+
+class SoftDevPlatformList(Resource):
+  def get(self):
+    app_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("SDP")])
+    return {"apps": dict(app_counter)}
+      
+  def delete(self):
+    for cont in docker_client.containers.list():
+      if cont.name.startswith("SDP"):
+        cont.stop()
+    resp = docker_client.containers.prune()
+    return {"message": resp}, 200
+
+class SoftDevPlatform(Resource):
+
+  def post(self, sdp_id):
+    # retrieve information from POST body
+    req_json = request.get_json(force=True)
+    
+    image_uri = ""
+    if "image_uri" in req_json:
+      image_uri = req_json["image_uri"]
+    else:
+      # TODO: GET the image by app_id from forch_iaas_mgmt
+      pass
+
+    command = ""
+    if "command" in req_json:
+      command = req_json["command"]
+
+    entrypoint = ""
+    if "entrypoint" in req_json:
+      entrypoint = req_json["entrypoint"]
+
+    # here try to deploy image image_uri on this node
+
+    # check if image is present on this node. If not, TODO check if image is allowed. Is yes, pull it from repo.
+    
+    if not docker_client.images.list(name=image_uri):
+      logger.debug("Image {} not found on this node, pulling it...".format(image_uri))
+      docker_client.images.pull(image_uri, tag="latest")
+    
+    cont_name = sdp_id + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
+
+    logger.debug("Deploying SDP {} in container {} with image {}{}".format(app_id,
+      cont_name, image_uri, " and command '{}'".format(command) if command else ""
+      )
+    )
+
+    try:
+      docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
+    except docker.errors.ImageNotFound as e:
+      return {"message": str(e)}, 404
+
+    #with open("/tmp/{}.json".format(cont_name), "w") as f:
+    #  json.dump({"image": image_uri, "app": app_id}, f)
+
+    container = docker_client.containers.get(cont_name)
+
+    cont_ip = container.attrs["NetworkSettings"]["IPAddress"]
+    logger.debug(cont_ip)
+
+    port_mappings = []
+
+    ports_dict = container.attrs["NetworkSettings"]["Ports"]
+    for cont_port in ports_dict:
+      for host_port_dict in ports_dict[cont_port]:
+        port_map = "{}:{}->{}".format(host_port_dict["HostIp"], host_port_dict["HostPort"], cont_port)
+        port_mappings.append(port_map)
+        logger.debug(port_map)
+
+    return {"message": "Deployed SDP {} with image {}".format(sdp_id, image_uri),
         "name": cont_name,
         "cont_ip": cont_ip,
         "port_mappings": port_mappings
@@ -260,6 +336,8 @@ if __name__ == '__main__':
   api.add_resource(FogNodeInfo, "/info")
   api.add_resource(FogApplicationList, '/apps')
   api.add_resource(FogApplication, '/app/<app_id>')
+  api.add_resource(FogApplicationList, '/sdps')
+  api.add_resource(FogApplication, '/app/<sdp_id>')
   api.add_resource(FogVirtEngineList, '/fves')
   api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
