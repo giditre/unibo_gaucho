@@ -336,8 +336,8 @@ if __name__ == '__main__':
   api.add_resource(FogNodeInfo, "/info")
   api.add_resource(FogApplicationList, '/apps')
   api.add_resource(FogApplication, '/app/<app_id>')
-  api.add_resource(FogApplicationList, '/sdps')
-  api.add_resource(FogApplication, '/app/<sdp_id>')
+  api.add_resource(SoftDevPlatformList, '/sdps')
+  api.add_resource(SoftDevPlatform, '/app/<sdp_id>')
   api.add_resource(FogVirtEngineList, '/fves')
   api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
