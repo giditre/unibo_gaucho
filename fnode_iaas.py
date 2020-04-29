@@ -142,7 +142,7 @@ class SoftDevPlatform(Resource):
     if "image_uri" in req_json:
       image_uri = req_json["image_uri"]
     else:
-      # TODO: GET the image by app_id from forch_iaas_mgmt
+      # TODO: GET the image by sdp_id from forch_iaas_mgmt
       pass
 
     command = ""
@@ -163,8 +163,8 @@ class SoftDevPlatform(Resource):
     
     cont_name = sdp_id + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
 
-    logger.debug("Deploying SDP {} in container {} with image {}{}".format(app_id,
-      cont_name, image_uri, " and command '{}'".format(command) if command else ""
+    logger.debug("Deploying SDP {} in container {} with image {}{}".format(
+      sdp_id, cont_name, image_uri, " and command '{}'".format(command) if command else ""
       )
     )
 
