@@ -133,10 +133,11 @@ class FogGateway(Resource):
 
     path = path.replace("-", "/")
 
-    req_json = {"test":  "dummy"}
     # retrieve additional data from request
-    if request.is_json:
-      req_json = request.get_json(force=True)
+    # force parsing json ignring mimetype and return None if parsing fails
+    req_json = request.get_json(force=True, silent=True)
+    if not req_json:
+      req_json = {}
 
     r = requests.post("http://{}:{}/{}".format(node_ip, node_port, path), json=req_json)
 
