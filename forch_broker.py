@@ -94,7 +94,7 @@ class FogApplication(Resource):
       logger.debug("Picked node {}".format(node_id))
 
     if not node_id:
-      return {"message": "Application not deployed and no available IaaS node."}, 503
+      return {"message": "Application {} not deployed and no available IaaS node".format(app_id)}, 503
 
     node = node_dict[node_id]
     logger.debug("Chosen node: {}".format(node_id, node))
@@ -163,10 +163,54 @@ class SoftDevPlatform(Resource):
         resp_json = r.json()
         port = resp_json["port"]
         return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
-      else:
-        return {"message": "SDP {} is deployed but no available PaaS node".format(sdp_id)}, 503
+      #else:
+      #  return {"message": "SDP {} is deployed but no available PaaS node".format(sdp_id)}, 503
     else:
-      return {"message": "SDP {} not deployed".format(sdp_id)}, 503
+      # getting here means this SDP is not implemented/deployed on any node
+      logger.debug("SDP currently not deployed on any node")
+      # try installing image on a IaaS node to implement this SDP
+      # get list of nodes and pick the first available IaaS nodes having CPU utilization lower than a threshold
+      # TODO implement a better picking method
+      node_id = ""
+      candidate_node_list = []
+      for h_id in node_dict:
+        node = node_dict[h_id]
+        if node["available"] == "1" and node["class"] == "I":
+          for item_id in node["resources"]:
+            if node["resources"][item_id]["name"] == "CPU utilization":
+              logger.debug("Node {} CPU {}%".format(h_id, node["resources"][item_id]["lastvalue"]))
+              if float(node["resources"][item_id]["lastvalue"]) < 90:
+                # we have found a candidate node
+                candidate_node_list.append(h_id)
+
+      if candidate_node_list:
+        # TODO implement heuristic picking method
+        node_id = candidate_node_list[0]
+        logger.debug("Picked node {}".format(node_id))
+
+      if not node_id:
+        return {"message": "SDP {} not deployed and no available IaaS node".format(sdp_id)}, 503
+
+      node = node_dict[node_id]
+      logger.debug("Chosen node: {}".format(node_id, node))
+      node_ip = node["ip"]
+      # get list of available images and look for image that offers the required SDP
+      image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()
+      sdp_image_list = [ image for image in image_list["fogimages"] if sdp_id in image_list["fogimages"][image]["sdps"] ]
+      if not sdp_image_list:
+        return {"message": "SDP {} not deployed and not provided by any available image".format(sdp_id)}, 503
+      # pick the first image on the list (TODO implement a better picking method)
+      image_id = sdp_image_list[0]
+      image_name = image_list["fogimages"][image_id]["name"]
+      r = requests.post("http://{}:{}/sdp/{}".format(iaas_mgmt_address, iaas_mgmt_port, sdp_id), json={"image_name": image_name, "node_ipv4": node_ip})
+      if r.status_code == 201:
+        r_json = r.json()
+        # "0.0.0.0:32809->5100/tcp"
+        port = r_json["port_mappings"][0].split(":")[1].split("-")[0]
+        resp_json = {"message": "SDP {} allocated".format(sdp_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        return resp_json, 201
+      else:
+        return r.json(), r.status_code
 
 class FogVirtEngine(Resource):
   def __init__(self):
