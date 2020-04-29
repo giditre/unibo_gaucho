@@ -43,10 +43,10 @@ class FogApplication(Resource):
     # check if this app is implemented on some node
     if app_node_list:
       # if we get here, there are active nodes that implement this app
-      # check if any of those has CPU usage lower than a threshold
+      # check if any of those has resource usage lower than a threshold
       node_id = ""
       candidate_node_list = []
-      for h_id in node_dict:
+      for h_id in app_node_list:
         node = node_dict[h_id]
         if node["available"] == "1" and node["class"] == "S":
           for item_id in node["resources"]:
@@ -139,17 +139,34 @@ class SoftDevPlatform(Resource):
     sdp = sdp_list[sdp_id]
     sdp_node_list = sdp["nodes"]
     if sdp_node_list:
-      # there is a node offering this SDP
-      # pick the first node on the list (TODO implement a better picking method)
-      node_id = sdp_node_list[0]
-      node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
-      node_ip = node["ip"]
-      r = requests.post("http://{}:{}/sdp/{}".format(node_ip, 5005, sdp_id), json={"test": "dummy"})
-      resp_json = r.json()
-      port = resp_json["port"]
-      return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+      # if we get here, there are active nodes that offer this SDP
+      # check if any of those has resource usage lower than a threshold
+      node_id = ""
+      candidate_node_list = []
+      for h_id in sdp_node_list:
+        node = node_dict[h_id]
+        if node["available"] == "1" and node["class"] == "P":
+          for item_id in node["resources"]:
+            if node["resources"][item_id]["name"] == "CPU utilization":
+              logger.debug("Node {} CPU {}%".format(h_id, node["resources"][item_id]["lastvalue"]))
+              if float(node["resources"][item_id]["lastvalue"]) < 90:
+                # we have found a candidate node
+                candidate_node_list.append(h_id)
+
+      if candidate_node_list:
+        # TODO implement heuristic picking method
+        node_id = candidate_node_list[0]
+        logger.debug("Picked node {}".format(node_id))
+        node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
+        node_ip = node["ip"]
+        r = requests.post("http://{}:{}/sdp/{}".format(node_ip, 5005, sdp_id), json={"test": "dummy"})
+        resp_json = r.json()
+        port = resp_json["port"]
+        return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+      else:
+        return {"message": "SDP {} is deployed but no available PaaS node".format(sdp_id)}, 503
     else:
-      return {"message": "SDP {} not available on any node".format(sdp_id)}, 503
+      return {"message": "SDP {} not deployed".format(sdp_id)}, 503
 
 class FogVirtEngine(Resource):
   def __init__(self):
@@ -164,19 +181,35 @@ class FogVirtEngine(Resource):
     fve = fve_list[fve_id]
     fve_node_list = fve["nodes"]
     if fve_node_list:
-      # there is a node offering this FVE
-      # pick the first node on the list (TODO implement a better picking method)
-      node_id = fve_node_list[0]
-      node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
-      node_ip = node["ip"]
-      logger.debug("FVE {} available at {}".format(fve_id, node_ip))
-      r = requests.post("http://{}:{}/fve/{}".format(node_ip, 5005, fve_id), json={"test": "dummy"})
-      resp_json = r.json()
-      port = resp_json["port"]
-      return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+      # if we get here, there are active nodes that offer this FVE
+      # check if any of those has resource usage lower than a threshold
+      node_id = ""
+      candidate_node_list = []
+      for h_id in fve_node_list:
+        node = node_dict[h_id]
+        if node["available"] == "1" and node["class"] == "P":
+          for item_id in node["resources"]:
+            if node["resources"][item_id]["name"] == "CPU utilization":
+              logger.debug("Node {} CPU {}%".format(h_id, node["resources"][item_id]["lastvalue"]))
+              if float(node["resources"][item_id]["lastvalue"]) < 90:
+                # we have found a candidate node
+                candidate_node_list.append(h_id)
 
+      if candidate_node_list:
+        # TODO implement heuristic picking method
+        node_id = candidate_node_list[0]
+        logger.debug("Picked node {}".format(node_id))
+        node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
+        node_ip = node["ip"]
+        logger.debug("FVE {} available at {}".format(fve_id, node_ip))
+        r = requests.post("http://{}:{}/fve/{}".format(node_ip, 5005, fve_id), json={"test": "dummy"})
+        resp_json = r.json()
+        port = resp_json["port"]
+        return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+      else:
+        return {"message": "FVE {} is deployed but no available IaaS node".format(fve_id)}, 503
     else:
-      return {"message": "FVE {} not available on any node".format(fve_id)}, 503
+      return {"message": "FVE {} not deployed".format(fve_id)}, 503
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)
