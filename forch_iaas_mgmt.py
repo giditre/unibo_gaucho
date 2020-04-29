@@ -28,40 +28,9 @@ class Test(Resource):
 
 class ImageList(Resource):
   def get(self):
-    # TODO get list of allowed images from file and check that they exixt in the repo
-    images = {
-      "fogimages": {
-        "Image01": {
-          "name": "alpine",
-          "descr": "Lightweight Ubuntu",
-          "uri": "alpine",
-          "apps": [],
-          "sdps": ["SDP002"]
-        },
-        "Image02": {
-          "name": "httpd",
-          "descr": "Apache web server",
-          "uri": "httpd",
-          "apps": ["APP001"],
-          "sdps": []
-        },
-        "Image03": {
-          "name": "python3",
-          "descr": "Python3 interactive shell",
-          "uri": "python",
-          "apps": [],
-          "sdps": ["SDP001"]
-        },
-        "Image04": {
-          "name": "stress",
-          "descr": "Stress",
-          "uri": "giditre/gaucho-stress",
-          "apps": ["APP002"],
-          "sdps": ["SDP003"]
-        }
-      }
-    }
-
+    # get images from file
+    with open("db_images.json") as f:
+      images = json.load(f)
     return images
 
 class FogApplication(Resource):
