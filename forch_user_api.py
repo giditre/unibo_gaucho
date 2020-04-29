@@ -127,7 +127,7 @@ class FogGateway(Resource):
     return r.json(), r.status_code
 
   @authenticate
-  def post(self, node_id, node_port):
+  def post(self, node_id, node_port, path):
     # retrieve node IP
     node_ip = self.get_node_ip(node_id)
 
