@@ -65,7 +65,7 @@ class FogApplication(Resource):
       "port_mappings": resp_json["port_mappings"] 
       }, r.status_code
 
-class FogApplication(Resource):
+class SoftDevPlatform(Resource):
 
   def post(self, sdp_id):
     ## retrieve information from POST body
@@ -83,8 +83,10 @@ class FogApplication(Resource):
     if not image_uri:
       return {"message": "Aborted: no image found having name {}".format(image_name)}, 400
 
+    logger.debug("Selected image {}".format(image_uri))
+
     try:
-      r = requests.post("http://{}:{}/sdp/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
+      r = requests.post("http://{}:{}/sdp/{}".format(node_ipv4, 5005, sdp_id), json={"image_uri": image_uri})
     except requests.exceptions.ConnectionError:
       msg = "Aborted: error in connecting to node {}".format(node_ipv4)
       return {"message": msg}, 500
@@ -92,7 +94,7 @@ class FogApplication(Resource):
     logger.debug("Response from node {}: {}".format(node_ipv4, resp_json))
     #"0.0.0.0:32774->80/tcp"
     return {
-      "message": "SDP {} successfully deployed".format(app_id),
+      "message": "SDP {} successfully deployed".format(sdp_id),
       "node_ip": node_ipv4,
       "port_mappings": resp_json["port_mappings"] 
       }, r.status_code

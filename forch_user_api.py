@@ -108,6 +108,40 @@ class FogVirtEngine(Resource):
     r = requests.get("http://{}:{}/fve/{}".format(broker_address, broker_port, fve_id))
     return r.json(), r.status_code
 
+class FogGateway(Resource):
+
+  def get_node_ip(self, node_id):
+    node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
+    node_ip = node["ip"]
+    return node_ip
+
+  @authenticate
+  def get(self, node_id, node_port, path):
+    # retrieve node IP
+    node_ip = self.get_node_ip(node_id)
+
+    path = path.replace("-", "/")
+
+    r = requests.get("http://{}:{}/{}".format(node_ip, node_port, path))
+
+    return r.json(), r.status_code
+
+  @authenticate
+  def post(self, node_id, node_port):
+    # retrieve node IP
+    node_ip = self.get_node_ip(node_id)
+
+    path = path.replace("-", "/")
+
+    req_json = {"test":  "dummy"}
+    # retrieve additional data from request
+    if request.is_json:
+      req_json = request.get_json(force=True)
+
+    r = requests.post("http://{}:{}/{}".format(node_ip, node_port, path), json=req_json)
+
+    return r.json(), r.status_code
+
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)
   while True:
@@ -138,6 +172,8 @@ api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
 
 api.add_resource(FogVirtEngineList, '/fves')
 api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+
+api.add_resource(FogGateway, '/fgw/<node_id>/<node_port>/<path>')
 
 ### MAIN
 
