@@ -449,7 +449,7 @@ class FogNodeList(Resource):
     rsdb.delete_sdps()
     rsdb.delete_fves()
     rsdb.flush_db()
-    return {"message": "Apps deleted and database re-initialized"}, 200
+    return {"message": "Services deleted and database re-initialized"}, 200
 
 class FogNode(Resource):
   def get(self, node_id):

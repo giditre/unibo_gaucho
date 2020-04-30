@@ -67,7 +67,8 @@ class FogApplication(Resource):
         r = requests.post("http://{}:{}/app/{}".format(node_ip, 5005, app_id), json={"test": "dummy"})
         resp_json = r.json()
         port = resp_json["port"]
-        return {"message": "App {} allocated".format(app_id), "node_class": "S", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        #return {"message": "App {} allocated".format(app_id), "node_class": "S", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        return {"message": "APP {} allocated".format(app_id), "node_class": "S", "node_id": node_id, "service_port": port}
       else:
         logger.debug("Application not already available on any SaaS node")
 
