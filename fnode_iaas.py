@@ -117,8 +117,8 @@ class FogApplication(Resource):
 
 class SoftDevPlatformList(Resource):
   def get(self):
-    app_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("SDP")])
-    return {"apps": dict(app_counter)}
+    sdp_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("SDP")])
+    return {"sdps": dict(sdp_counter)}
       
   def delete(self):
     for cont in docker_client.containers.list():
