@@ -174,6 +174,7 @@ class FogVirtEngineList(Resource):
 
   def get(self):
     fve_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("FVE")])
+    fve_counter.update({"FVE001": 1})
     return {"fves": dict(fve_counter)}, 200
 
   def delete(self):
