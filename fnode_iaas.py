@@ -118,7 +118,7 @@ class FogApplication(Resource):
 class SoftDevPlatformList(Resource):
   def get(self):
     sdp_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("SDP")])
-    return {"sdps": dict(sdp_counter)}
+    return {"sdps": dict(sdp_counter)}, 200
       
   def delete(self):
     for cont in docker_client.containers.list():
@@ -173,8 +173,8 @@ class SoftDevPlatform(Resource):
 class FogVirtEngineList(Resource):
 
   def get(self):
-    # TODO do it not hardcoded
-    return {"fves": {"FVE001": 1}}
+    fve_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("FVE")])
+    return {"fves": dict(fve_counter)}, 200
 
   def delete(self):
     for cont in docker_client.containers.list():
