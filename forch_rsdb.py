@@ -294,11 +294,53 @@ class RSDB():
         elif node_info["class"] == "I":
           self.rsdb["nodes"][node_id]["class"] = node_info["class"]
           try:
+            node_apps = requests.get("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"])).json()
+            node_sdps = requests.get("http://{}:5005/sdps".format(self.rsdb["nodes"][node_id]["ip"])).json()
             node_fves = requests.get("http://{}:5005/fves".format(self.rsdb["nodes"][node_id]["ip"])).json()
           except requests.exceptions.ConnectionError:
             # TODO signal the error
-            logger.debug("Error in connecting to http://{}:5005/fves".format(self.rsdb["nodes"][node_id]["ip"]))
+            logger.debug("Error in connecting to {}".format(self.rsdb["nodes"][node_id]["ip"]))
             continue
+
+          # APPs
+          for app_id in node_apps["apps"]:
+            self.rsdb["nodes"][node_id]["apps"].append(app_id)
+          # get monitoring information
+          self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
+          # update apps database
+          for app in self.rsdb["nodes"][node_id]["apps"]:
+            if app in self.rsdb["apps"]:
+              if node_id not in self.rsdb["apps"][app]["nodes"]:
+                self.rsdb["apps"][app]["nodes"].append(node_id)
+            else:
+              # get app structure from catalog
+              self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
+              self.rsdb["apps"][app]["nodes"] = [node_id]
+          # remove node from app db if it does no longer offer that app
+          for app in self.rsdb["apps"]:
+            if app not in self.rsdb["nodes"][node_id]["apps"] and node_id in self.rsdb["apps"][app]["nodes"]:
+              self.rsdb["apps"][app]["nodes"].remove(node_id)
+
+          # SDPs
+          for sdp_id in node_sdps["sdps"]:
+            self.rsdb["nodes"][node_id]["sdps"].append(sdp_id)
+          # get monitoring information 
+          self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
+          # update sdps database
+          for sdp in self.rsdb["nodes"][node_id]["sdps"]:
+            if sdp in self.rsdb["sdps"]:
+              if node_id not in self.rsdb["sdps"][sdp]["nodes"]:
+                self.rsdb["sdps"][sdp]["nodes"].append(node_id)
+            else:
+              # get sdp structure from catalog
+              self.rsdb["sdps"][sdp] = deepcopy(self.rsdb["sdp_catalog"][sdp])
+              self.rsdb["sdps"][sdp]["nodes"] = [node_id]
+          # remove node from sdp db if it does no longer offer that sdp
+          for sdp in self.rsdb["sdps"]:
+            if sdp not in self.rsdb["nodes"][node_id]["sdps"] and node_id in self.rsdb["sdps"][sdp]["nodes"]:
+              self.rsdb["sdps"][sdp]["nodes"].remove(node_id)
+
+          # FVEs
           for fve_id in node_fves["fves"]:
             self.rsdb["nodes"][node_id]["fves"].append(fve_id)
           # get monitoring information
