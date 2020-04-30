@@ -116,7 +116,7 @@ class FogGateway(Resource):
     return node_ip
 
   @authenticate
-  def get(self, node_id, node_port, path):
+  def get(self, node_id, node_port, path=""):
     # retrieve node IP
     node_ip = self.get_node_ip(node_id)
 
@@ -124,10 +124,13 @@ class FogGateway(Resource):
 
     r = requests.get("http://{}:{}/{}".format(node_ip, node_port, path))
 
-    return r.json(), r.status_code
+    try:
+      return r.json(), r.status_code
+    except json.decoder.JSONDecodeError:
+      return r.text, r.status_code
 
   @authenticate
-  def post(self, node_id, node_port, path):
+  def post(self, node_id, node_port, path=""):
     # retrieve node IP
     node_ip = self.get_node_ip(node_id)
 
@@ -174,7 +177,7 @@ api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
 api.add_resource(FogVirtEngineList, '/fves')
 api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
-api.add_resource(FogGateway, '/fgw/<node_id>/<node_port>/<path>')
+api.add_resource(FogGateway, '/fgw/<node_id>/<node_port>', '/fgw/<node_id>/<node_port>/<path>')
 
 ### MAIN
 
