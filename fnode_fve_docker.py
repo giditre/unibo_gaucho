@@ -52,7 +52,7 @@ def run_container(service_id, image_uri, command="", entrypoint=""):
 
 class Test(Resource):
   def get(self):
-    return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
+    return {"message": "This endpoint ({} at {}) is up!".format(os.path.basename(__file__), socket.gethostname())}
 
 class FogNodeInfo(Resource):
   def get(self):
