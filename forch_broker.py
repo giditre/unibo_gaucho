@@ -112,7 +112,8 @@ class FogApplication(Resource):
       r_json = r.json()
       # "0.0.0.0:32809->5100/tcp"
       port = r_json["port_mappings"][0].split(":")[1].split("-")[0]
-      resp_json = {"message": "App {} allocated".format(app_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+      #resp_json = {"message": "App {} allocated".format(app_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+      resp_json = {"message": "App {} allocated".format(app_id), "node_class": "I", "node_id": node_id, "service_port": port}
       return resp_json, 201
     else:
       return r.json(), r.status_code
@@ -162,7 +163,8 @@ class SoftDevPlatform(Resource):
         r = requests.post("http://{}:{}/sdp/{}".format(node_ip, 5005, sdp_id), json={"test": "dummy"})
         resp_json = r.json()
         port = resp_json["port"]
-        return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        #return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "service_port": port}
       #else:
       #  return {"message": "SDP {} is deployed but no available PaaS node".format(sdp_id)}, 503
     else:
@@ -207,7 +209,8 @@ class SoftDevPlatform(Resource):
         r_json = r.json()
         # "0.0.0.0:32809->5100/tcp"
         port = r_json["port_mappings"][0].split(":")[1].split("-")[0]
-        resp_json = {"message": "SDP {} allocated".format(sdp_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        #resp_json = {"message": "SDP {} allocated".format(sdp_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        resp_json = {"message": "SDP {} allocated".format(sdp_id), "node_class": "I", "node_id": node_id, "service_port": port}
         return resp_json, 201
       else:
         return r.json(), r.status_code
@@ -249,7 +252,8 @@ class FogVirtEngine(Resource):
         r = requests.post("http://{}:{}/fve/{}".format(node_ip, 5005, fve_id), json={"test": "dummy"})
         resp_json = r.json()
         port = resp_json["port"]
-        return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        #return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "service_port": port}
       else:
         return {"message": "FVE {} is deployed but no available IaaS node".format(fve_id)}, 503
     else:
