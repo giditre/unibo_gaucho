@@ -26,6 +26,28 @@ def shell_command(cmd, track_pid=False, pid_dir="/tmp"):
   logger.debug("Shell cmd: {}".format(cmd))
   os.system(cmd)
 
+def run_container(service_id, image_uri, command="", entrypoint=""):
+  # check if image is present on this node. If not, TODO check if image is allowed. Is yes, pull it from repo.
+
+  if not docker_client.images.list(name=image_uri):
+    logger.debug("Image {} not found on this node, pulling it...".format(image_uri))
+    docker_client.images.pull(image_uri, tag="latest")
+
+  cont_name = service_id + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
+  cont_hostname = cont_name if len(cont_name) <= 63 else cont_name[:63]
+
+  logger.debug("Deploying service {} in container {} with image {}{}".format(service_id, cont_name, image_uri,
+    " and command '{}'".format(command) if command else ""))
+
+  try:
+    docker_client.containers.run(image_uri, name=cont_name, hostname=cont_hostname, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
+  except docker.errors.ImageNotFound as e:
+    return {"message": str(e)}, 404
+
+  container = docker_client.containers.get(cont_name)
+
+  return container
+
 ### Resource definition
 
 class Test(Resource):
@@ -65,32 +87,11 @@ class FogVirtEngine(Resource):
       entrypoint = req_json["entrypoint"]
 
     # here try to deploy image image_uri on this node
+    container = run_container(fve_id, image_uri, command, entrypoint)
 
-    # check if image is present on this node. If not, TODO check if image is allowed. Is yes, pull it from repo.
-    
-    if not docker_client.images.list(name=image_uri):
-      logger.debug("Image {} not found on this node, pulling it...".format(image_uri))
-      docker_client.images.pull(image_uri, tag="latest")
-  
-
-    cont_name = "FVE" + "_" + image_uri.replace("/", "-").replace(":", "-") + "_" + '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.datetime.now())
-
-    logger.debug("Deploying container {} with image {}{}".format(
-      cont_name,
-      image_uri,
-      " and command '{}'".format(command) if command else ""
-      )
-    )
-
-    try:
-      docker_client.containers.run(image_uri, name=cont_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
-    except docker.errors.ImageNotFound as e:
-      return {"message": str(e)}, 404
-
-    container = docker_client.containers.get(cont_name)
-
+    cont_name = container.name
     cont_ip = container.attrs["NetworkSettings"]["IPAddress"]
-    logger.debug(cont_ip)
+    #logger.debug(cont_ip)
 
     port_mappings = []
 
