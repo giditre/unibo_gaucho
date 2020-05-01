@@ -1,4 +1,4 @@
-<img src="/forch_logo.png" width="150" align="right">
+<img src="/FORCH_logo.png" width="150" align="right">
 
 # UniBo GAUChO: FORCH
 
@@ -76,70 +76,70 @@ pip3 install -r requirements.txt
   > POST /fgw/<node_id>/<node_port>/<path>
 
 #### Broker (_forch_broker.py_)
-  api.add_resource(Test, '/test')
-  api.add_resource(FogApplication, '/app/<app_id>')
-  api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
-  api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+  Test, '/test'
+  FogApplication, '/app/<app_id>'
+  SoftDevPlatform, '/sdp/<sdp_id>'
+  FogVirtEngine, '/fve/<fve_id>'
 
 #### Resource Datababe (_forch_rsdb.py_)
-  api.add_resource(Test, '/test')
-  api.add_resource(FogNodeList, '/nodes')
-  api.add_resource(FogNode, '/node/<node_id>')
-  api.add_resource(FogMeasurements, '/meas')
-  api.add_resource(FogApplicationCatalog, '/appcat')
-  api.add_resource(FogApplicationList, '/apps')
-  api.add_resource(FogApplication, '/app/<app_id>')
-  api.add_resource(SoftDevPlatformCatalog, '/sdpcat')
-  api.add_resource(SoftDevPlatformList, '/sdps')
-  api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
-  api.add_resource(FogVirtEngineCatalog, '/fvecat')
-  api.add_resource(FogVirtEngineList, '/fves')
-  api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+  Test, '/test'
+  FogNodeList, '/nodes'
+  FogNode, '/node/<node_id>'
+  FogMeasurements, '/meas'
+  FogApplicationCatalog, '/appcat'
+  FogApplicationList, '/apps'
+  FogApplication, '/app/<app_id>'
+  SoftDevPlatformCatalog, '/sdpcat'
+  SoftDevPlatformList, '/sdps'
+  SoftDevPlatform, '/sdp/<sdp_id>'
+  FogVirtEngineCatalog, '/fvecat'
+  FogVirtEngineList, '/fves'
+  FogVirtEngine, '/fve/<fve_id>'
 
 #### IaaS node management (_forch_iaas_mgmt.py_)
-  api.add_resource(Test, "/test")
-  api.add_resource(ImageList, "/images")
-  api.add_resource(FogApplication, "/app/<app_id>")
-  api.add_resource(SoftDevPlatform, "/sdp/<sdp_id>")
-  #api.add_resource(FogVirtEngine, "/fve/<fve_id>")
+  Test, "/test"
+  ImageList, "/images"
+  FogApplication, "/app/<app_id>"
+  SoftDevPlatform, "/sdp/<sdp_id>"
+  #FogVirtEngine, "/fve/<fve_id>"
 
 ### Fog Node management API
 
 #### SaaS node management agent (_fnode_saas.py_)
-  api.add_resource(Test, '/test')
-  api.add_resource(FogNodeInfo, '/info')
-  api.add_resource(FogApplicationList, '/apps')
-  api.add_resource(FogApplication, '/app/<app_id>')
+  Test, '/test'
+  FogNodeInfo, '/info'
+  FogApplicationList, '/apps'
+  FogApplication, '/app/<app_id>'
   
 #### PaaS node management agent (_fnode_paas.py_)
-  api.add_resource(Test, '/test')
-  api.add_resource(FogNodeInfo, '/info')
-  api.add_resource(SoftDevPlatformList, '/sdps')
-  api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
+  Test, '/test'
+  FogNodeInfo, '/info'
+  SoftDevPlatformList, '/sdps'
+  SoftDevPlatform, '/sdp/<sdp_id>'
 
 #### IaaS node management agent (_fnode_iaas.py_)
-  api.add_resource(Test, '/test')
-  api.add_resource(FogNodeInfo, "/info")
-  api.add_resource(FogApplicationList, '/apps')
-  api.add_resource(FogApplication, '/app/<app_id>')
-  api.add_resource(SoftDevPlatformList, '/sdps')
-  api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
-  api.add_resource(FogVirtEngineList, '/fves')
-  api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+  Test, '/test'
+  FogNodeInfo, "/info"
+  FogApplicationList, '/apps'
+  FogApplication, '/app/<app_id>'
+  SoftDevPlatformList, '/sdps'
+  SoftDevPlatform, '/sdp/<sdp_id>'
+  FogVirtEngineList, '/fves'
+  FogVirtEngine, '/fve/<fve_id>'
 
 ### Fog Node Service API
 
 #### SaaS APP stress (_fnode_app_stress.py_)
-  api.add_resource(Test, '/test')
-  api.add_resource(FogNodeInfo, '/info')
-  api.add_resource(FogApplication, '/app/<app_id>')
+  Test, '/test'
+  FogNodeInfo, '/info'
+  FogApplication, '/app/<app_id>'
 
 #### PaaS SDP Python3 (_fnode_sdp_python.py_)
-  api.add_resource(Test, '/test')
-  api.add_resource(FogNodeInfo, '/info')
-  api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
+  Test, '/test'
+  FogNodeInfo, '/info'
+  SoftDevPlatform, '/sdp/<sdp_id>'
   
 #### IaaS FVE Docker (_fnode_fve_docker.py_)
-  api.add_resource(Test, '/test')
-  api.add_resource(FogNodeInfo, "/info")
-  api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+  Test, '/test'
+  FogNodeInfo, "/info"
+  FogVirtEngine, '/fve/<fve_id>'
