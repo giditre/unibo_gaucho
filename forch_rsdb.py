@@ -371,7 +371,6 @@ class RSDB():
     else:
       return {
         "message": "Node {} not in database, update database by performing GET /nodes and try again".format(node_id),
-        "type": "ORD_NODE_NDEF"
       }, 404
 
   def get_measurements(self):
@@ -386,8 +385,7 @@ class RSDB():
   def get_app(self, app_id):
     if app_id not in self.rsdb["apps"]:
       return {
-        "message": "APP {} not found.".format(app_id),
-        "type": "ORD_APP_NDEF"
+        "message": "APP {} not found.".format(app_id)
       }, 404
     return self.rsdb["apps"][app_id]
 
@@ -400,8 +398,7 @@ class RSDB():
   def get_sdp(self, sdp_id):
     if sdp_id not in self.rsdb["sdps"]:
       return {
-        "message": "SDP {} not found.".format(app_id),
-        "type": "ORD_SDP_NDEF"
+        "message": "SDP {} not found.".format(app_id)
       }, 404
     return self.rsdb["sdps"][sdp_id]
 
@@ -414,8 +411,7 @@ class RSDB():
   def get_fve(self, fve_id):
     if fve_id not in self.rsdb["fves"]:
       return {
-        "message": "FVE {} not found.".format(app_id),
-        "type": "ORD_FVE_NDEF"
+        "message": "FVE {} not found.".format(app_id)
       }, 404
     return self.rsdb["fves"][fve_id]
 
@@ -463,7 +459,7 @@ class RSDB():
         process_list.append(p)
     for p in process_list:
       p.join()
-    return {"message": "SDPs deleted on all nodes."}, 200
+    return {"message": "SDPs deleted on all nodes"}, 200
 
   def delete_fves_node(self, node_id):
     node_ip = self.rsdb["nodes"][node_id]["ip"]
@@ -483,7 +479,7 @@ class RSDB():
         process_list.append(p)
     for p in process_list:
       p.join()
-    return {"message": "FVEs deleted on all nodes."}, 200
+    return {"message": "FVEs deleted on all nodes"}, 200
 
 # initialize database handler
 rsdb = RSDB()
@@ -515,53 +511,53 @@ class FogNodeList(Resource):
 class FogNode(Resource):
   def get(self, node_id):
     resp, resp_code = rsdb.get_node(node_id)
-    return resp, resp_code
+    return {"type": "ORD_NODE_NDEF"}.update(resp), resp_code
 
 class FogMeasurements(Resource):
   def get(self):
-    return rsdb.get_measurements()
+    return {"type": "ORD_MEAS"}.update(rsdb.get_measurements())
 
 class FogApplicationCatalog(Resource):
   def get(self):
-    return rsdb.get_app_catalog()
+    return {"type": "ORD_APP_CAT"}.update(rsdb.get_app_catalog())
 
 class FogApplicationList(Resource):
   def get(self):
-    return rsdb.get_app_list()
+    return {"type": "ORD_APP_LIST"}.update(rsdb.get_app_list())
   def delete(self):
-    return rsdb.delete_apps()
+    return {"type": "ORD_APP_DEL"}.update(rsdb.delete_apps())
 
 class FogApplication(Resource):
   def get(self, app_id):
-    return rsdb.get_app(app_id)
+    return {"type": "ORD_APP"}.update(rsdb.get_app(app_id))
 
 class SoftDevPlatformCatalog(Resource):
   def get(self):
-    return rsdb.get_sdp_catalog()
+    return {"type": "ORD_SDP_CAT"}.update(rsdb.get_sdp_catalog())
 
 class SoftDevPlatformList(Resource):
   def get(self):
-    return rsdb.get_sdp_list()
+    return {"type": "ORD_SDP_LIST"}.update(rsdb.get_sdp_list())
   def delete(self):
-    return rsdb.delete_sdps()
+    return {"type": "ORD_SDP_DEL"}.update(rsdb.delete_sdps())
 
 class SoftDevPlatform(Resource):
   def get(self, sdp_id):
-    return rsdb.get_sdp(sdp_id)
+    return {"type": "ORD_SDP"}.update(rsdb.get_sdp(sdp_id))
 
 class FogVirtEngineCatalog(Resource):
   def get(self):
-    return rsdb.get_fve_catalog()
+    return {"type": "ORD_FVE_CAT"}.update(rsdb.get_fve_catalog())
 
 class FogVirtEngineList(Resource):
   def get(self):
-    return rsdb.get_fve_list()
+    return {"type": "ORD_FVE_LIST"}.update(rsdb.get_fve_list())
   def delete(self):
-    return rsdb.delete_fves()
+    return {"type": "ORD_FVE_DEL"}.update(rsdb.delete_fves())
 
 class FogVirtEngine(Resource):
   def get(self, fve_id):
-    return rsdb.get_fve(fve_id)
+    return {"type": "ORD_FVE"}.update(rsdb.get_fve(fve_id))
 
 ### MAIN
 
