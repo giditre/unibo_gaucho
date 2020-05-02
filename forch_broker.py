@@ -22,7 +22,10 @@ logger.addHandler(ch)
 
 class Test(Resource):
   def get(self):
-    return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
+    return {
+      "message": "This endpoint ({}) is up!".format(os.path.basename(__file__)),
+      "type": "OBR_TEST_OK"
+    }
 
 class FogApplication(Resource):
   def __init__(self):
@@ -33,7 +36,10 @@ class FogApplication(Resource):
     node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
     app_list = requests.get("http://{}:{}/apps".format(db_address, db_port)).json()
     if app_id not in app_list:
-      return { "message": "APP {} not defined".format(app_id) }, 404
+      return {
+        "message": "APP {} not defined".format(app_id), 
+        "type": "OBR_APP_NDEF"
+      }, 404
     app = app_list[app_id]
     app_node_list = app["nodes"]
 
@@ -68,7 +74,13 @@ class FogApplication(Resource):
         resp_json = r.json()
         port = resp_json["port"]
         #return {"message": "APP {} allocated".format(app_id), "node_class": "S", "node_id": node_id, "node_ip": node_ip, "service_port": port}
-        return {"message": "APP {} allocated".format(app_id), "type": "OBR_APP_AVLB_S", "node_class": "S", "node_id": node_id, "service_port": port}
+        return {
+          "message": "APP {} allocated".format(app_id),
+          "type": "OBR_APP_AVLB_S",
+          "node_class": "S",
+          "node_id": node_id,
+          "service_port": port
+        }
       else:
         logger.debug("APP not already available on any SaaS node")
 
@@ -95,7 +107,10 @@ class FogApplication(Resource):
       logger.debug("Picked node {}".format(node_id))
 
     if not node_id:
-      return {"message": "APP {} not deployed and no available IaaS node".format(app_id), "type": "OBR_APP_NAVL"}, 503
+      return {
+        "message": "APP {} not deployed and no available IaaS node".format(app_id),
+        "type": "OBR_APP_NAVL_I"
+      }, 503
 
     node = node_dict[node_id]
     logger.debug("Chosen node: {}".format(node_id, node))
@@ -104,7 +119,10 @@ class FogApplication(Resource):
     image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()
     app_image_list = [ image for image in image_list["fogimages"] if app_id in image_list["fogimages"][image]["apps"] ]
     if not app_image_list:
-      return {"message": "APP not deployed and not provided by any available image"}, 503
+      return {
+        "message": "APP not deployed and not provided by any available image",
+        "type": "OBR_APP_NIMG"
+      }, 503
     # pick the first image on the list (TODO implement a better picking method)
     image_id = app_image_list[0]
     image_name = image_list["fogimages"][image_id]["name"]
@@ -114,7 +132,13 @@ class FogApplication(Resource):
       # "0.0.0.0:32809->5100/tcp"
       port = r_json["port_mappings"][0].split(":")[1].split("-")[0]
       #resp_json = {"message": "APP {} allocated".format(app_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
-      resp_json = {"message": "APP {} allocated".format(app_id), "type": "OBR_APP_ALLC_I", "node_class": "I", "node_id": node_id, "service_port": port}
+      resp_json = {
+        "message": "APP {} allocated".format(app_id),
+        "type": "OBR_APP_ALLC_I",
+        "node_class": "I",
+        "node_id": node_id,
+        "service_port": port
+      }
       return resp_json, 201
     else:
       return r.json(), r.status_code
@@ -137,7 +161,10 @@ class SoftDevPlatform(Resource):
     node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
     sdp_list = requests.get("http://{}:{}/sdps".format(db_address, db_port)).json()
     if sdp_id not in sdp_list:
-      return { "message": "SDP {} not found".format(sdp_id) }, 404
+      return {
+        "message": "SDP {} not found".format(sdp_id)
+        "type": "OBR_SDP_NDEF"
+      }, 404
     sdp = sdp_list[sdp_id]
     sdp_node_list = sdp["nodes"]
     if sdp_node_list:
@@ -165,7 +192,13 @@ class SoftDevPlatform(Resource):
         resp_json = r.json()
         port = resp_json["port"]
         #return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
-        return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "service_port": port}
+        return {
+          "message": "SDP {} allocated".format(sdp_id),
+          "type": "OBR_SDP_AVLB_P",
+          "node_class": "P",
+          "node_id": node_id,
+          "service_port": port
+        }
       #else:
       #  return {"message": "SDP {} is deployed but no available PaaS node".format(sdp_id)}, 503
     else:
@@ -192,7 +225,10 @@ class SoftDevPlatform(Resource):
         logger.debug("Picked node {}".format(node_id))
 
       if not node_id:
-        return {"message": "SDP {} not deployed and no available IaaS node".format(sdp_id)}, 503
+        return {
+          "message": "SDP {} not deployed and no available IaaS node".format(sdp_id),
+          "type": "OBR_SDP_NAVL_I"
+        }, 503
 
       node = node_dict[node_id]
       logger.debug("Chosen node: {}".format(node_id, node))
@@ -201,7 +237,10 @@ class SoftDevPlatform(Resource):
       image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()
       sdp_image_list = [ image for image in image_list["fogimages"] if sdp_id in image_list["fogimages"][image]["sdps"] ]
       if not sdp_image_list:
-        return {"message": "SDP {} not deployed and not provided by any available image".format(sdp_id)}, 503
+        return {
+          "message": "SDP {} not deployed and not provided by any available image".format(sdp_id),
+          "type": "OBR_SDP_NIMG"
+        }, 503
       # pick the first image on the list (TODO implement a better picking method)
       image_id = sdp_image_list[0]
       image_name = image_list["fogimages"][image_id]["name"]
@@ -211,7 +250,13 @@ class SoftDevPlatform(Resource):
         # "0.0.0.0:32809->5100/tcp"
         port = r_json["port_mappings"][0].split(":")[1].split("-")[0]
         #resp_json = {"message": "SDP {} allocated".format(sdp_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
-        resp_json = {"message": "SDP {} allocated".format(sdp_id), "node_class": "I", "node_id": node_id, "service_port": port}
+        resp_json = {
+          "message": "SDP {} allocated".format(sdp_id),
+          "type": "OBR_SDP_ALLC_I",
+          "node_class": "I",
+          "node_id": node_id,
+          "service_port": port
+        }
         return resp_json, 201
       else:
         return r.json(), r.status_code
@@ -225,7 +270,10 @@ class FogVirtEngine(Resource):
     node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
     fve_list = requests.get("http://{}:{}/fves".format(db_address, db_port)).json()
     if fve_id not in fve_list:
-      return { "message": "FVE {} not found".format(fve_id) }, 404
+      return { 
+        "message": "FVE {} not found".format(fve_id),
+        "type": "OBR_FVE_NDEF"
+      }, 404
     fve = fve_list[fve_id]
     fve_node_list = fve["nodes"]
     if fve_node_list:
@@ -254,11 +302,23 @@ class FogVirtEngine(Resource):
         resp_json = r.json()
         port = resp_json["port"]
         #return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
-        return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "service_port": port}
+        return {
+          "message": "FVE {} allocated".format(fve_id),
+          "type": "OBR_FVE_ALLC_I",
+          "node_class": "I",
+          "node_id": node_id,
+          "service_port": port
+        }
       else:
-        return {"message": "FVE {} is deployed but no available IaaS node".format(fve_id)}, 503
+        return {
+          "message": "FVE {} is deployed but no available IaaS node".format(fve_id),
+          "type": "OBR_FVE_NAVL_I"
+        }, 503
     else:
-      return {"message": "FVE {} not deployed".format(fve_id)}, 503
+      return {
+        "message": "FVE {} not deployed".format(fve_id),
+        "type": "OBR_FVE_NDEP"
+      }, 503
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)

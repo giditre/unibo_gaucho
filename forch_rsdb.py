@@ -369,7 +369,10 @@ class RSDB():
     if node_id in self.rsdb["nodes"]:
       return self.rsdb["nodes"][node_id], 200
     else:
-      return {"message": "Node {} not in database, update database by performing GET /nodes and try again".format(node_id)}, 404
+      return {
+        "message": "Node {} not in database, update database by performing GET /nodes and try again".format(node_id),
+        "type": "ORD_NODE_NDEF"
+      }, 404
 
   def get_measurements(self):
     return self.rsdm.get_all_measurements()
@@ -382,7 +385,10 @@ class RSDB():
 
   def get_app(self, app_id):
     if app_id not in self.rsdb["apps"]:
-      return {"message": "APP {} not found.".format(app_id)}, 404
+      return {
+        "message": "APP {} not found.".format(app_id),
+        "type": "ORD_APP_NDEF"
+      }, 404
     return self.rsdb["apps"][app_id]
 
   def get_sdp_catalog(self):
@@ -393,7 +399,10 @@ class RSDB():
 
   def get_sdp(self, sdp_id):
     if sdp_id not in self.rsdb["sdps"]:
-      return {"message": "SDP {} not found.".format(app_id)}, 404
+      return {
+        "message": "SDP {} not found.".format(app_id),
+        "type": "ORD_SDP_NDEF"
+      }, 404
     return self.rsdb["sdps"][sdp_id]
 
   def get_fve_catalog(self):
@@ -404,13 +413,17 @@ class RSDB():
 
   def get_fve(self, fve_id):
     if fve_id not in self.rsdb["fves"]:
-      return {"message": "FVE {} not found.".format(app_id)}, 404
+      return {
+        "message": "FVE {} not found.".format(app_id),
+        "type": "ORD_FVE_NDEF"
+      }, 404
     return self.rsdb["fves"][fve_id]
 
   def flush_db(self):
     with self.db_lock:
       self.rsdb = self.init_db()
-    return {"message": "Database re-initialized."}, 200
+    return {
+      "message": "Database re-initialized"}, 200
 
   def delete_apps_node(self, node_id):
     node_ip = self.rsdb["nodes"][node_id]["ip"]
@@ -479,7 +492,10 @@ rsdb = RSDB()
 
 class Test(Resource):
   def get(self):
-    return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
+    return {
+      "message": "This endpoint ({}) is up!".format(os.path.basename(__file__)),
+      "type": "ORD_TEST_OK"
+    }
 
 class FogNodeList(Resource):
 
@@ -491,7 +507,10 @@ class FogNodeList(Resource):
     rsdb.delete_sdps()
     rsdb.delete_fves()
     rsdb.flush_db()
-    return {"message": "Services deleted and database re-initialized"}, 200
+    return {
+      "message": "Services deleted and database re-initialized",
+      "type": "ORD_NDDB_DEL"
+    }, 200
 
 class FogNode(Resource):
   def get(self, node_id):

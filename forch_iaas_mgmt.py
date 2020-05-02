@@ -24,7 +24,10 @@ logger.addHandler(ch)
 
 class Test(Resource):
   def get(self):
-    return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
+    return {
+      "message": "This endpoint ({}) is up!".format(os.path.basename(__file__)),
+      "type": "OIM_TEST_OK"
+    }
 
 class ImageList(Resource):
   def get(self):
@@ -49,17 +52,24 @@ class FogApplication(Resource):
         image_uri = image_dict["fogimages"][image_id]["uri"]
         break
     if not image_uri:
-      return {"message": "Aborted: no image found having name {}".format(image_name)}, 400
+      return {
+        "message": "Aborted: no image found having name {}".format(image_name)
+        "type": "OIM_APP_NIMG"
+      }, 400
 
     try:
       r = requests.post("http://{}:{}/app/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
     except requests.exceptions.ConnectionError:
-      return {"message": "Aborted: error in connecting to node {}".format(node_ipv4), "type": "OIM_FND_NAVL"}, 500
+      return {
+        "message": "Aborted: error in connecting to node {}".format(node_ipv4),
+        "type": "OIM_FND_NAVL_S"
+      }, 500
     resp_json = r.json()
     logger.debug("Response from node {}: {}".format(node_ipv4, resp_json))
     #"0.0.0.0:32774->80/tcp"
     return {
       "message": "APP {} successfully deployed".format(app_id),
+      "type": "OIM_APP_DEPL",
       "node_ip": node_ipv4,
       "port_mappings": resp_json["port_mappings"] 
       }, r.status_code
@@ -80,20 +90,26 @@ class SoftDevPlatform(Resource):
         image_uri = image_dict["fogimages"][image_id]["uri"]
         break
     if not image_uri:
-      return {"message": "Aborted: no image found having name {}".format(image_name)}, 400
+      return {
+        "message": "Aborted: no image found having name {}".format(image_name),
+        "type": "OIM_SDP_NIMG"
+      }, 400
 
     logger.debug("Selected image {}".format(image_uri))
 
     try:
       r = requests.post("http://{}:{}/sdp/{}".format(node_ipv4, 5005, sdp_id), json={"image_uri": image_uri})
     except requests.exceptions.ConnectionError:
-      msg = "Aborted: error in connecting to node {}".format(node_ipv4)
-      return {"message": msg}, 500
+      return {
+        "message": "Aborted: error in connecting to node {}".format(node_ipv4),
+        "type": "OIM_FND_NAVL_P"
+      }, 500
     resp_json = r.json()
     logger.debug("Response from node {}: {}".format(node_ipv4, resp_json))
     #"0.0.0.0:32774->80/tcp"
     return {
       "message": "SDP {} successfully deployed".format(sdp_id),
+      "type": "OIM_SDP_DEPL",
       "node_ip": node_ipv4,
       "port_mappings": resp_json["port_mappings"] 
       }, r.status_code
