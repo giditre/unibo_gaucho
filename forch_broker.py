@@ -33,7 +33,7 @@ class FogApplication(Resource):
     node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
     app_list = requests.get("http://{}:{}/apps".format(db_address, db_port)).json()
     if app_id not in app_list:
-      return { "message": "Application {} not defined".format(app_id) }, 404
+      return { "message": "APP {} not defined".format(app_id) }, 404
     app = app_list[app_id]
     app_node_list = app["nodes"]
 
@@ -67,13 +67,13 @@ class FogApplication(Resource):
         r = requests.post("http://{}:{}/app/{}".format(node_ip, 5005, app_id), json={"test": "dummy"})
         resp_json = r.json()
         port = resp_json["port"]
-        #return {"message": "App {} allocated".format(app_id), "node_class": "S", "node_id": node_id, "node_ip": node_ip, "service_port": port}
-        return {"message": "APP {} allocated".format(app_id), "node_class": "S", "node_id": node_id, "service_port": port}
+        #return {"message": "APP {} allocated".format(app_id), "node_class": "S", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+        return {"message": "APP {} allocated".format(app_id), "type": "OBR_APP_AVLB_S", "node_class": "S", "node_id": node_id, "service_port": port}
       else:
-        logger.debug("Application not already available on any SaaS node")
+        logger.debug("APP not already available on any SaaS node")
 
     # getting here means this app is not implemented/deployed on any node
-    logger.debug("Application not deployed on any node")
+    logger.debug("APP not deployed on any node")
     # try installing image on a IaaS node to implement this app
     # get list of nodes and pick the first available IaaS nodes having CPU utilization lower than a threshold
     # TODO implement a better picking method
@@ -95,7 +95,7 @@ class FogApplication(Resource):
       logger.debug("Picked node {}".format(node_id))
 
     if not node_id:
-      return {"message": "Application {} not deployed and no available IaaS node".format(app_id)}, 503
+      return {"message": "APP {} not deployed and no available IaaS node".format(app_id), "type": "OBR_APP_NAVL"}, 503
 
     node = node_dict[node_id]
     logger.debug("Chosen node: {}".format(node_id, node))
@@ -104,7 +104,7 @@ class FogApplication(Resource):
     image_list = requests.get("http://{}:{}/images".format(iaas_mgmt_address, iaas_mgmt_port)).json()
     app_image_list = [ image for image in image_list["fogimages"] if app_id in image_list["fogimages"][image]["apps"] ]
     if not app_image_list:
-      return {"message": "Application not deployed and not provided by any available image."}, 503
+      return {"message": "APP not deployed and not provided by any available image"}, 503
     # pick the first image on the list (TODO implement a better picking method)
     image_id = app_image_list[0]
     image_name = image_list["fogimages"][image_id]["name"]
@@ -113,8 +113,8 @@ class FogApplication(Resource):
       r_json = r.json()
       # "0.0.0.0:32809->5100/tcp"
       port = r_json["port_mappings"][0].split(":")[1].split("-")[0]
-      #resp_json = {"message": "App {} allocated".format(app_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
-      resp_json = {"message": "App {} allocated".format(app_id), "node_class": "I", "node_id": node_id, "service_port": port}
+      #resp_json = {"message": "APP {} allocated".format(app_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
+      resp_json = {"message": "APP {} allocated".format(app_id), "type": "OBR_APP_ALLC_I", "node_class": "I", "node_id": node_id, "service_port": port}
       return resp_json, 201
     else:
       return r.json(), r.status_code

@@ -54,8 +54,7 @@ class FogApplication(Resource):
     try:
       r = requests.post("http://{}:{}/app/{}".format(node_ipv4, 5005, app_id), json={"image_uri": image_uri})
     except requests.exceptions.ConnectionError:
-      msg = "Aborted: error in connecting to node {}".format(node_ipv4)
-      return {"message": msg}, 500
+      return {"message": "Aborted: error in connecting to node {}".format(node_ipv4), "type": "OIM_FND_NAVL"}, 500
     resp_json = r.json()
     logger.debug("Response from node {}: {}".format(node_ipv4, resp_json))
     #"0.0.0.0:32774->80/tcp"
@@ -68,7 +67,7 @@ class FogApplication(Resource):
 class SoftDevPlatform(Resource):
 
   def post(self, sdp_id):
-    ## retrieve information from POST body
+    # retrieve information from POST body
     req_json = request.get_json(force=True)
     image_name = req_json["image_name"] 
     node_ipv4 = req_json["node_ipv4"]
