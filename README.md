@@ -290,7 +290,27 @@ python3 <component_file_name> --help
   
   FogNodeInfo, '/info'
   
-  SoftDevPlatform, '/sdp/<sdp_id>'
+* SoftDevPlatform
+
+  * POST `/sdp/<sdp_id>`
+
+  **Sample Request Data:**
+  ```json
+  {
+    "code": "a=123456\nprint(str(a))",
+    "return_output": true
+  }
+  ```
+
+  **Code:** 200 <br />
+  **Sample Content:**
+  ```json 
+  {
+    "message": "Finished running SDP SDP001 with parameters '{'code': 'a=123456\\nprint(str(a))', 'return_output': True}'",
+    "hostname": "gaucho-fnode-vm2",
+    "output": "123456"
+  }
+  ```
   
 #### IaaS FVE Docker (_fnode_fve_docker.py_)
 
