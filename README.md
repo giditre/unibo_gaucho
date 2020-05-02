@@ -63,7 +63,7 @@ python3 <component_file_name> --help
 
 * Test
 
-  > GET /test
+  * `GET /test`
 
     **Code:** 200 <br />
     **Sample content:**
@@ -75,7 +75,7 @@ python3 <component_file_name> --help
 
 * APPs
 
-  > GET /apps
+  * `GET /apps`
   
   **Code:** 200 <br />
   **Sample Content:**
@@ -92,7 +92,7 @@ python3 <component_file_name> --help
   }
   ```
   
-  > GET /app/<app_id>
+  * `GET /app/<app_id>`
   
   **Code:** 200 <br />
   **Sample Content:**
@@ -107,7 +107,7 @@ python3 <component_file_name> --help
   
 * SDPs
 
-  > GET /sdps
+  * `GET /sdps`
   
   **Code:** 200 <br />
   **Sample Content:** 
@@ -124,7 +124,7 @@ python3 <component_file_name> --help
   }
   ```
   
-  > GET /sdp/<sdp_id>
+  * `GET /sdp/<sdp_id>`
   
   **Code:** 200 <br />
   **Sample Content:** 
@@ -139,7 +139,7 @@ python3 <component_file_name> --help
   
 * FVEs
 
-  > GET /fves
+  * `GET /fves`
   
   **Code:** 200 <br />
   **Sample Content:** 
@@ -152,7 +152,7 @@ python3 <component_file_name> --help
   }
   ```
   
-  > GET /fve/<fve_id>
+  * `GET /fve/<fve_id>`
   
   **Code:** 200 <br />
   **Sample Content:** 
@@ -167,13 +167,13 @@ python3 <component_file_name> --help
   
 * Fog Gateway to allocated services
 
-  > GET /fgw/<node_id>/<node_port>
+  * `GET /fgw/<node_id>/<node_port>`
   
-  > POST /fgw/<node_id>/<node_port>
+  * `POST /fgw/<node_id>/<node_port>`
   
-  > GET /fgw/<node_id>/<node_port>/<path>
+  * `GET /fgw/<node_id>/<node_port>/<path>`
   
-  > POST /fgw/<node_id>/<node_port>/<path>
+  * `POST /fgw/<node_id>/<node_port>/<path>`
 
 #### Broker (_forch_broker.py_)
   Test, '/test'
