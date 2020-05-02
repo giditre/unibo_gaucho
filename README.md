@@ -6,9 +6,11 @@ Introducing FORCH, a modular system for Fog Orchestrations container-based resor
 
 This PoC implementation is written in Python3. Its REST API is built using Flask RESTful, and it is for research and development purposes only, as it is not safe for production enviroments.
 
-### Installing
+## Setting up the environment
 
-Make sure the following Python3 modules are installed via pip3:
+It is suggested to operate inside of a [venv](https://docs.python.org/3.6/library/venv.html).
+
+Make sure the following Python3 modules are installed:
 ```
 flask_restful
 requests
@@ -22,7 +24,40 @@ cd unibo_gaucho/
 pip3 install -r requirements.txt
 ```
 
-### FORCH API
+## Running FORCH
+
+FORCH consists of multiple independent components, which may be run on the same machine or on separate machines, as the communication between them happens via REST calls. However, in the development phase, for security purposes it is suggested to run all of the FORCH components on a single machine and make all of them listen only on the loopback interface (127.0.0.1), except for the User Access component (_forch_user_api.py_) which is the only one using HTTPS (as opposed to the others using unencrypted HTTP).
+
+From inside of the repo directory, run each of the components with
+```
+python3 <component_file_name> <IP_address> <TCP_port>
+```
+for example:
+```
+`python3 forch_user_api.py 0.0.0.0 5001`
+```
+or
+```
+python3 forch_broker.py 127.0.0.1 5002
+```
+
+The address 0.0.0.0 makes the components listen on all of the machine's interfaces, while 127.0.0.1 makes it listen only on the loopback interface.
+
+The choice of the TCP port is arbitrary. However, by default the ports are mapped this way:
+Component | Port
+----------|-----
+forch_user_api.py | 5001
+forch_broker.py | 5002
+forch_rsdb.py | 5003
+forch_iaas_mgmt.py | 5004
+fnode_saas.py / fnode_paas.py / fnode_iaas.py | 5005
+
+Running a component with a customized port required the other components to be instructed on the choice. This can be achieved by specifying comman line arguments for every component detailing the choice of IP addresses and ports. For the list of available CLI arguments for every component and for their usage, refer to the inline help of each component, by running:
+```
+python3 <component_file_name> --help
+```
+
+### FORCH REST API
 
 #### User Access (_forch_user_api.py_)
 
@@ -31,43 +66,104 @@ pip3 install -r requirements.txt
   > GET /test
 
     **Code:** 200 <br />
-    **Sample content:** `{ "message" : "This endpoint is up!" }`
+    **Sample content:**
+    ```json
+    {
+      "message": "This endpoint is up!"
+    }
+    ```
 
 * APPs
 
   > GET /apps
   
   **Code:** 200 <br />
-  **Sample Content:** `{"APP001": {"name": "httpd", "descr": "Apache web server"}, "APP002": {"name": "stress", "descr": "Stress host"}}`
+  **Sample Content:**
+  ```json
+  {
+    "APP001": {
+      "name": "httpd",
+      "descr": "Apache web server"
+    },
+    "APP002": {
+      "name": "stress",
+      "descr": "Stress host"
+    }
+  }
+  ```
   
   > GET /app/<app_id>
   
   **Code:** 200 <br />
-  **Sample Content:** `{"message": "App APP001 allocated", "node_class": "I", "node_id": "10313", "service_port": "32772"}`
+  **Sample Content:**
+  ```json
+  {
+    "message": "App APP001 allocated",
+    "node_class": "I",
+    "node_id": "10313",
+    "service_port": "32772"
+  }
+  ```
   
 * SDPs
 
   > GET /sdps
   
   **Code:** 200 <br />
-  **Sample Content:** `{"SDP001": {"name": "python", "descr": "Python3"}, "SDP002": {"name": "alpine", "descr": "Lightweight Ubuntu"}}`
+  **Sample Content:** 
+  ```json
+  {
+    "SDP001": {
+      "name": "python",
+      "descr": "Python3"
+    },
+    "SDP002": {
+      "name": "alpine",
+      "descr": "Lightweight Ubuntu"
+    }
+  }
+  ```
   
   > GET /sdp/<sdp_id>
   
   **Code:** 200 <br />
-  **Sample Content:** `{"message": "SDP SDP001 allocated", "node_class": "P", "node_id": "10315", "service_port": 35676}`
+  **Sample Content:** 
+  ```json
+  {
+    "message": "SDP SDP001 allocated",
+    "node_class": "P",
+    "node_id": "10315",
+    "service_port": 35676
+  }
+  ```
   
 * FVEs
 
   > GET /fves
   
   **Code:** 200 <br />
-  **Sample Content:** `{"FVE001": {"name": "docker", "descr": "Docker engine"}}`
+  **Sample Content:** 
+  ```json
+  {
+    "FVE001": {
+      "name": "docker",
+      "descr": "Docker engine"
+    }
+  }
+  ```
   
   > GET /fve/<fve_id>
   
   **Code:** 200 <br />
-  **Sample Content:** `{"message": "FVE FVE001 allocated", "node_class": "I", "node_id": "10313", "service_port": 37507}`
+  **Sample Content:** 
+  ```json
+  {
+    "message": "FVE FVE001 allocated",
+    "node_class": "I",
+    "node_id": "10313",
+    "service_port": 37507
+  }
+  ```
   
 * Fog Gateway to allocated services
 
