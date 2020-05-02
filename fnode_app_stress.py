@@ -75,11 +75,17 @@ def stress_app_target(app, out_q, *args, **kwargs):
 
 class Test(Resource):
   def get(self):
-    return {"message": "This endpoint ({} at {}) is up!".format(os.path.basename(__file__), socket.gethostname())}
+    return {
+      "message": "This endpoint ({} at {}) is up!".format(os.path.basename(__file__), socket.gethostname()),
+      "type": "APP_STRS_TEST_OK"
+    }
 
 class FogNodeInfo(Resource):
   def get(self):
-    return {"app": "APP002"}
+    return {
+      "type": "APP_STRS_INFO",
+      "app": "APP002"
+    }
 
 class FogApplication(Resource):
 
@@ -90,13 +96,14 @@ class FogApplication(Resource):
     if app_process and app_process.is_alive():
       return {
         "message": "Busy",
+        "type": "APP_STRS_BUSY",
         "hostname": socket.gethostname()
       }, 503
 
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     
-    msg = "Running app {} with parameters '{}'".format(app_id, req_json)
+    msg = "Running app {}'".format(app_id)
 
     logger.debug(msg)
 
@@ -115,6 +122,8 @@ class FogApplication(Resource):
 
     return {
       "message": msg,
+      "type": "APP_STRS_EXEC",
+      "params": req_json,
       "hostname": socket.gethostname()
     }, 201
 
@@ -128,6 +137,7 @@ class FogApplication(Resource):
       msg = "No app process to terminate"
     return {
       "message": msg,
+      "type": "APP_STRS_DEL",
       "hostname": socket.gethostname()
     }, 200
 

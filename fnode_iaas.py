@@ -43,7 +43,10 @@ def run_container(service_id, image_uri, command="", entrypoint=""):
   try:
     docker_client.containers.run(image_uri, name=cont_name, hostname=cont_hostname, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
   except docker.errors.ImageNotFound as e:
-    return {"message": str(e)}, 404
+    return {
+      "message": str(e),
+      "type": "NIM_IMG_NF"
+    }, 404
 
   container = docker_client.containers.get(cont_name)
 
@@ -53,23 +56,35 @@ def run_container(service_id, image_uri, command="", entrypoint=""):
 
 class Test(Resource):
   def get(self):
-    return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
+    return {
+      "message": "This endpoint ({}) is up!".format(os.path.basename(__file__))
+      "type": "NIM_TEST_OK"
+    }
 
 class FogNodeInfo(Resource):
   def get(self):
-    return {"class": "I"}
+    return {
+      "type": "NIM_INFO",
+      "class": "I"
+    }
 
-class FogApplicationList(Resource):
+elass FogApplicationList(Resource):
   def get(self):
     app_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("APP")])
-    return {"apps": dict(app_counter)}
+    return {
+      "type": "NIM_APP_LIST",
+      "apps": dict(app_counter)
+    }
       
   def delete(self):
     for cont in docker_client.containers.list():
       if cont.name.startswith("APP"):
         cont.stop()
     resp = docker_client.containers.prune()
-    return {"message": resp}, 200
+    return {
+      "message": resp,
+      "type": "NIM_APP_DEL"
+    }, 200
 
 class FogApplication(Resource):
 
@@ -109,11 +124,13 @@ class FogApplication(Resource):
         port_mappings.append(port_map)
         logger.debug(port_map)
 
-    return {"message": "Deployed APP {} with image {}".format(app_id, image_uri),
-        "name": cont_name,
-        "cont_ip": cont_ip,
-        "port_mappings": port_mappings
-        }, 201
+    return {
+      "message": "Deployed APP {} with image {}".format(app_id, image_uri),
+      "type": "NIM_APP_DEPL",
+      "name": cont_name,
+      "cont_ip": cont_ip,
+      "port_mappings": port_mappings
+      }, 201
 
 class SoftDevPlatformList(Resource):
   def get(self):
@@ -125,7 +142,10 @@ class SoftDevPlatformList(Resource):
       if cont.name.startswith("SDP"):
         cont.stop()
     resp = docker_client.containers.prune()
-    return {"message": resp}, 200
+    return {
+      "message": resp,
+      "type": "NIM_SDP_DEL"
+    }, 200
 
 class SoftDevPlatform(Resource):
 
@@ -164,25 +184,33 @@ class SoftDevPlatform(Resource):
         port_mappings.append(port_map)
         logger.debug(port_map)
 
-    return {"message": "Deployed SDP {} with image {}".format(sdp_id, image_uri),
-        "name": cont_name,
-        "cont_ip": cont_ip,
-        "port_mappings": port_mappings
-        }, 201
+    return {
+      "message": "Deployed SDP {} with image {}".format(sdp_id, image_uri),
+      "type": "NIM_SDP_DEPL",
+      "name": cont_name,
+      "cont_ip": cont_ip,
+      "port_mappings": port_mappings
+      }, 201
 
 class FogVirtEngineList(Resource):
 
   def get(self):
     fve_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("FVE")])
     fve_counter.update({"FVE001": 1})
-    return {"fves": dict(fve_counter)}, 200
+    return {
+      "type": "NIM_FVE_LIST",
+      "fves": dict(fve_counter)
+    }, 200
 
   def delete(self):
     for cont in docker_client.containers.list():
       if cont.name.startswith("FVE"):
         cont.stop()
     resp = docker_client.containers.prune()
-    return {"message": resp}, 200
+    return {
+      "message": resp
+      "type": "NIM_FVE_DEL"
+    }, 200
 
 class DockerFVEThread(threading.Thread):
   def __init__(self, fve_id, *args, **kwargs):
@@ -218,10 +246,6 @@ class DockerFVEThread(threading.Thread):
 
 class FogVirtEngine(Resource):
 
-  def get(self):
-    # TODO do it not hardcoded
-    return {"message": "OK"}
-
   def post(self, fve_id):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
@@ -236,13 +260,17 @@ class FogVirtEngine(Resource):
 
       return {
         "message": msg,
+        "type": "NIM_FVE_DEPL"
         "hostname": socket.gethostname(),
         "port": t.get_port()
       }, 201
 
     else:
       msg = "Unrecognized FVE {}".format(fve_id)
-      return {"message": msg}, 400
+      return {
+        "message": msg,
+        "type": "NIM_FVE_NDEF"
+      }, 400
       
 
   # TODO def delete(self):     

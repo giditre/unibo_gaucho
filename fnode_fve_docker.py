@@ -43,7 +43,10 @@ def run_container(service_id, image_uri, command="", entrypoint=""):
   try:
     docker_client.containers.run(image_uri, name=cont_name, hostname=cont_hostname, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=command, entrypoint=entrypoint)
   except docker.errors.ImageNotFound as e:
-    return {"message": str(e)}, 404
+    return {
+      "type": "FVE_DOCK_IMG_NF",
+      "message": str(e)
+    }, 404
 
   container = docker_client.containers.get(cont_name)
 
@@ -53,22 +56,28 @@ def run_container(service_id, image_uri, command="", entrypoint=""):
 
 class Test(Resource):
   def get(self):
-    return {"message": "This endpoint ({} at {}) is up!".format(os.path.basename(__file__), socket.gethostname())}
+    return {
+      "message": "This endpoint ({} at {}) is up!".format(os.path.basename(__file__), socket.gethostname()),
+      "type": "FVE_DOCK_TEST_OK"
+    }
 
 class FogNodeInfo(Resource):
   def get(self):
-    return {"class": "I"}
+    return {
+      "type": "FVE_DOCK_INFO",
+      "class": "I"
+    }
+
 
 class FogVirtEngine(Resource):
-
-  def get(self):
-    # TODO do it not hardcoded
-    return {"message": "OK"}
 
   def post(self, fve_id):
     global cont_name
     if cont_name:
-      return {"message": "Busy"}, 400
+      return {
+        "type": "FVE_DOCK_BUSY",
+        "message": "Busy"
+      }, 400
 
     # retrieve information from POST body
     req_json = request.get_json(force=True)
@@ -77,7 +86,10 @@ class FogVirtEngine(Resource):
     if "image_uri" in req_json:
       image_uri = req_json["image_uri"]
     else:
-      return {"message": "Image URI not specified"}, 400
+      return {
+        "message": "Image URI not specified",
+        "type": "FVE_DOCK_IMG_NSPC"
+      }, 400
 
     command = ""
     if "command" in req_json:
@@ -103,7 +115,9 @@ class FogVirtEngine(Resource):
         port_mappings.append(port_map)
         logger.debug(port_map)
 
-    return {"message": "Deployed image {}".format(image_uri),
+    return {
+        "message": "Deployed image {}".format(image_uri),
+        "type": "FVE_DOCK_CONT_DEPL",
         "name": cont_name,
         #"cont_ip": cont_ip,
         "port_mappings": port_mappings
@@ -116,7 +130,10 @@ class FogVirtEngine(Resource):
         cont.stop()
     cont_name = ''
     resp = docker_client.containers.prune()
-    return {"message": resp}, 200
+    return {
+      "message": resp,
+      "type": "FVE_DOCK_DEL"
+    }, 200
 
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:

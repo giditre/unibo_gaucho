@@ -59,11 +59,17 @@ def python_sdp_target(sdp, out_q, *args, **kwargs):
 
 class Test(Resource):
   def get(self):
-    return {"message": "This endpoint ({} at {}) is up!".format(os.path.basename(__file__), socket.gethostname())}
+    return {
+      "message": "This endpoint ({} at {}) is up!".format(os.path.basename(__file__), socket.gethostname()),
+      "type": "SDP_PYTH_TEST_OK"
+    }
 
 class FogNodeInfo(Resource):
   def get(self):
-    return {"sdp": "SDP002"}
+    return {
+      "sdp": "SDP002",
+      "type": "SDP_PYTH_INFO"
+    }
 
 class SoftDevPlatform(Resource):
 
@@ -74,13 +80,14 @@ class SoftDevPlatform(Resource):
     if sdp_process and sdp_process.is_alive():
       return {
         "message": "Busy",
+        "type": "SDP_PYTH_BUSY",
         "hostname": socket.gethostname()
       }, 503
 
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     
-    msg = "Running SDP {} with parameters '{}'".format(sdp_id, req_json)
+    msg = "Running SDP {}".format(sdp_id)
 
     logger.debug(msg)
 
@@ -97,11 +104,13 @@ class SoftDevPlatform(Resource):
       sdp_process.join()
       sdp = q.get()
       #print("post", sdp.get_output_str())
-      msg = "Finished running SDP {} with parameters '{}'".format(sdp_id, req_json)
+      msg = "Finished running SDP {}".format(sdp_id)
       output = sdp.get_output_str()
 
     return {
       "message": msg,
+      "type": "SDP_PYTH_EXEC",
+      "params": req_json,
       "hostname": socket.gethostname(),
       "output": output
     }, 201  
@@ -114,6 +123,7 @@ class SoftDevPlatform(Resource):
       msg = "No running SDP to terminate"
     return {
       "message": msg,
+      "type": "SDP_PYTH_DEL",
       "hostname": socket.gethostname()
     }, 200
 
