@@ -68,7 +68,7 @@ class FogNodeInfo(Resource):
       "class": "I"
     }
 
-elass FogApplicationList(Resource):
+class FogApplicationList(Resource):
   def get(self):
     app_counter = Counter([ cont.name.split("_")[0] for cont in docker_client.containers.list() if cont.name.startswith("APP")])
     return {
@@ -208,7 +208,7 @@ class FogVirtEngineList(Resource):
         cont.stop()
     resp = docker_client.containers.prune()
     return {
-      "message": resp
+      "message": resp,
       "type": "NIM_FVE_DEL"
     }, 200
 
@@ -260,7 +260,7 @@ class FogVirtEngine(Resource):
 
       return {
         "message": msg,
-        "type": "NIM_FVE_DEPL"
+        "type": "NIM_FVE_DEPL",
         "hostname": socket.gethostname(),
         "port": t.get_port()
       }, 201
