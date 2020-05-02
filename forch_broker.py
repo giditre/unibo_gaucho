@@ -162,7 +162,7 @@ class SoftDevPlatform(Resource):
     sdp_list = requests.get("http://{}:{}/sdps".format(db_address, db_port)).json()
     if sdp_id not in sdp_list:
       return {
-        "message": "SDP {} not found".format(sdp_id)
+        "message": "SDP {} not found".format(sdp_id),
         "type": "OBR_SDP_NDEF"
       }, 404
     sdp = sdp_list[sdp_id]

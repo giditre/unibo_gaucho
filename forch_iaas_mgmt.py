@@ -53,7 +53,7 @@ class FogApplication(Resource):
         break
     if not image_uri:
       return {
-        "message": "Aborted: no image found having name {}".format(image_name)
+        "message": "Aborted: no image found having name {}".format(image_name),
         "type": "OIM_APP_NIMG"
       }, 400
 
