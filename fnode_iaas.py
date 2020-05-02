@@ -57,7 +57,7 @@ def run_container(service_id, image_uri, command="", entrypoint=""):
 class Test(Resource):
   def get(self):
     return {
-      "message": "This endpoint ({}) is up!".format(os.path.basename(__file__))
+      "message": "This endpoint ({}) is up!".format(os.path.basename(__file__)),
       "type": "NIM_TEST_OK"
     }
 
