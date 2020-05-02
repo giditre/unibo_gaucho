@@ -77,33 +77,42 @@ python3 <component_file_name> --help
 
   * `GET /apps`
   
-  **Code:** 200 <br />
-  **Sample Content:**
-  ```json
-  {
-    "APP001": {
-      "name": "httpd",
-      "descr": "Apache web server"
-    },
-    "APP002": {
-      "name": "stress",
-      "descr": "Stress host"
+    **Code:** 200 <br />
+    **Sample Content:**
+    ```json
+    {
+      "APP001": {
+        "name": "httpd",
+        "descr": "Apache web server"
+      },
+      "APP002": {
+        "name": "stress",
+        "descr": "Stress host"
+      }
     }
-  }
-  ```
+    ```
   
   * `GET /app/<app_id>`
   
-  **Code:** 200 <br />
-  **Sample Content:**
-  ```json
-  {
-    "message": "App APP001 allocated",
-    "node_class": "I",
-    "node_id": "10313",
-    "service_port": "32772"
-  }
-  ```
+    **Code:** 200 <br />
+    **Sample Content:**
+    ```json
+    {
+      "message": "App APP001 allocated",
+      "node_class": "I",
+      "node_id": "10313",
+      "service_port": "32772"
+    }
+    ```
+
+    **Code:** 503 <br />
+    **Sample Content:**
+    ```json
+    {
+      "type": "test",
+      "message": "Application APP001 not deployed and no available IaaS node"
+    }
+    ```
   
 * SDPs
 
