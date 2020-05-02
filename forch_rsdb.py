@@ -382,7 +382,7 @@ class RSDB():
 
   def get_app(self, app_id):
     if app_id not in self.rsdb["apps"]:
-      return {"message": "Application {} not found.".format(app_id)}, 404
+      return {"message": "APP {} not found.".format(app_id)}, 404
     return self.rsdb["apps"][app_id]
 
   def get_sdp_catalog(self):

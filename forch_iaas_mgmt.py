@@ -59,7 +59,7 @@ class FogApplication(Resource):
     logger.debug("Response from node {}: {}".format(node_ipv4, resp_json))
     #"0.0.0.0:32774->80/tcp"
     return {
-      "message": "Application {} successfully deployed".format(app_id),
+      "message": "APP {} successfully deployed".format(app_id),
       "node_ip": node_ipv4,
       "port_mappings": resp_json["port_mappings"] 
       }, r.status_code
@@ -125,7 +125,7 @@ class SoftDevPlatform(Resource):
 #    logger.debug("Response from node {}: {}".format(node_ipv4, resp_json))
 #    #"0.0.0.0:32774->80/tcp"
 #    return {
-#      "message": "Application {} successfully deployed".format(app_id),
+#      "message": "APP {} successfully deployed".format(app_id),
 #      "node_ip": node_ipv4,
 #      "port_mappings": resp_json["port_mappings"] 
 #      }, r.status_code

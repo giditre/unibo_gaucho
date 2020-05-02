@@ -110,7 +110,7 @@ python3 <component_file_name> --help
     ```json
     {
       "type": "test",
-      "message": "Application APP001 not deployed and no available IaaS node"
+      "message": "APP APP001 not deployed and no available IaaS node"
     }
     ```
   
