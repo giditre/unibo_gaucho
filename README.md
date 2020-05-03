@@ -544,7 +544,7 @@ python3 <component_file_name> --help
   
   * ##### FogNodeInfo
 
-    * GET "/info"
+    * GET `/info`
   
   * ##### FogVirtEngine
 
