@@ -61,7 +61,7 @@ python3 <component_file_name> --help
 
 #### User Access (_forch_user_api.py_)
 
-* Test
+* ##### Test
 
   * `GET /test`
 
@@ -74,7 +74,7 @@ python3 <component_file_name> --help
     }
     ```
 
-* APPs
+* ##### APPs
 
   * `GET /apps`
   
@@ -96,7 +96,7 @@ python3 <component_file_name> --help
   
   * `GET /app/<app_id>`
   
-    **Sample request URL:** `/app/APP001`
+    **Sample request URL:** `/app/APP002`
 
     Possible responses:
 
@@ -105,11 +105,26 @@ python3 <component_file_name> --help
     **Sample response content:**
     ```json
     {
-      "message": "APP APP001 allocated",
+      "message": "APP APP002 allocated",
+      "type": "OBR_APP_AVLB_S",
+      "node_class": "S",
+      "node_id": "10317",
+      "service_port": 38538
+    }
+    ```
+    
+    or
+    
+    **Response code:** 201
+
+    **Sample response content:**
+    ```json
+    {
+      "message": "APP APP002 allocated",
       "type": "OBR_APP_ALLC_I",
       "node_class": "I",
       "node_id": "10313",
-      "service_port": "32784"
+      "service_port": 32784
     }
     ```
 
@@ -124,8 +139,20 @@ python3 <component_file_name> --help
       "type": "OBR_APP_NAVL_I"
     }
     ```
-  
-* SDPs
+    ---
+    **Sample request URL:** `/app/APP007`
+
+    **Response code:** 404
+    
+    **Sample response content:**
+    ```json
+    {
+      "message": "APP APP007 not defined",
+      "type": "OBR_APP_NDEF"
+    }
+    ```
+
+* ##### SDPs
 
   * `GET /sdps`
   
@@ -166,6 +193,21 @@ python3 <component_file_name> --help
 
     or
 
+    **Response code:** 201
+
+    **Sample response content:**
+    ```json
+    {
+      "message": "SDP SDP001 allocated",
+      "type": "OBR_SDP_ALLC_I",
+      "node_class": "I",
+      "node_id": "10313",
+      "service_port": 32785
+    }
+    ```
+
+    or
+
     **Response code:** 503
 
     **Sample response content:**
@@ -176,51 +218,81 @@ python3 <component_file_name> --help
     }
     ```
     ---
-    **Sample request URL:** `/sdp/SDP004`
+    **Sample request URL:** `/sdp/SDP007`
 
     **Response code:** 404
 
     **Sample response content:**
     ```json
     {
-      "message": "SDP SDP004 not found",
+      "message": "SDP SDP007 not defined",
       "type": "OBR_SDP_NDEF"
     }
     ```
 
-* FVEs
+* ##### FVEs
 
   * `GET /fves`
   
-  **Response code:** 200
+    **Response code:** 200
 
-  **Sample response content:** 
-  ```json
-  {
-    "FVE001": {
-      "name": "docker",
-      "descr": "Docker engine"
+    **Sample response content:** 
+    ```json
+    {
+      "FVE001": {
+        "name": "docker",
+        "descr": "Docker engine"
+      }
     }
-  }
-  ```
+    ```
   
   * `GET /fve/<fve_id>`
   
-  **Response code:** 200
+    **Sample request URL:** `/fve/FVE001`
 
-  **Sample response content:** 
-  ```json
-  {
-    "message": "FVE FVE001 allocated",
-    "node_class": "I",
-    "node_id": "10313",
-    "service_port": 37507
-  }
-  ```
-  
-* Fog Gateway to allocated services
+    Possible responses:
+
+    **Response code:** 200
+
+    **Sample response content:** 
+    ```json
+    {
+      "message": "FVE FVE001 allocated",
+      "node_class": "I",
+      "node_id": "10313",
+      "service_port": 37507
+    }
+    ```
+    
+    or 
+
+    **Response code:** 503
+
+    **Sample response content:**
+    ```json  
+    {
+      "message": "FVE FVE001 is deployed but no available IaaS node",
+      "type": "OBR_FVE_NAVL_I"
+    }
+    ```
+    ---
+    **Sample request URL:** `/fve/FVE007`
+
+    **Response code:** 404
+
+    **Sample response content:**
+    ```json  
+    {
+      "message": "FVE FVE007 not defined",
+      "type": "OBR_FVE_NDEF"
+    }
+    ```
+
+* ##### Fog Gateway to allocated services
 
   * `GET /fgw/<node_id>/<node_port>`
+
+    
   
   * `POST /fgw/<node_id>/<node_port>`
   
@@ -229,41 +301,41 @@ python3 <component_file_name> --help
   * `POST /fgw/<node_id>/<node_port>/<path>`
 
 #### Broker (_forch_broker.py_)
-  Test, '/test'
+  Test, `/test`
   
-  FogApplication, '/app/<app_id>'
+  FogApplication, `/app/<app_id>`
   
-  SoftDevPlatform, '/sdp/<sdp_id>'
+  SoftDevPlatform, `/sdp/<sdp_id>`
   
-  FogVirtEngine, '/fve/<fve_id>'
+  FogVirtEngine, `/fve/<fve_id>`
 
 #### Resource Datababe (_forch_rsdb.py_)
 
-  Test, '/test'
+  Test, `/test`
   
-  FogNodeList, '/nodes'
+  FogNodeList, `/nodes`
   
-  FogNode, '/node/<node_id>'
+  FogNode, `/node/<node_id>`
   
-  FogMeasurements, '/meas'
+  FogMeasurements, `/meas`
   
-  FogApplicationCatalog, '/appcat'
+  FogApplicationCatalog, `/appcat`
   
-  FogApplicationList, '/apps'
+  FogApplicationList, `/apps`
   
-  FogApplication, '/app/<app_id>'
+  FogApplication, `/app/<app_id>`
   
-  SoftDevPlatformCatalog, '/sdpcat'
+  SoftDevPlatformCatalog, `/sdpcat`
   
-  SoftDevPlatformList, '/sdps'
+  SoftDevPlatformList, `/sdps`
   
-  SoftDevPlatform, '/sdp/<sdp_id>'
+  SoftDevPlatform, `/sdp/<sdp_id>`
   
-  FogVirtEngineCatalog, '/fvecat'
+  FogVirtEngineCatalog, `/fvecat`
   
-  FogVirtEngineList, '/fves'
+  FogVirtEngineList, `/fves`
   
-  FogVirtEngine, '/fve/<fve_id>'
+  FogVirtEngine, `/fve/<fve_id>`
 
 #### IaaS node management (_forch_iaas_mgmt.py_)
 
@@ -282,85 +354,109 @@ python3 <component_file_name> --help
 
 #### SaaS node management agent (_fnode_saas.py_)
 
-  Test, '/test'
+  Test, `/test`
   
-  FogNodeInfo, '/info'
+  FogNodeInfo, `/info`
   
-  FogApplicationList, '/apps'
+  FogApplicationList, `/apps`
   
-  FogApplication, '/app/<app_id>'
+  FogApplication, `/app/<app_id>`
   
 #### PaaS node management agent (_fnode_paas.py_)
 
-  Test, '/test'
+  Test, `/test`
   
-  FogNodeInfo, '/info'
+  FogNodeInfo, `/info`
   
-  SoftDevPlatformList, '/sdps'
+  SoftDevPlatformList, `/sdps`
   
-  SoftDevPlatform, '/sdp/<sdp_id>'
+  SoftDevPlatform, `/sdp/<sdp_id>`
 
 #### IaaS node management agent (_fnode_iaas.py_)
 
-  Test, '/test'
+  Test, `/test`
   
   FogNodeInfo, "/info"
   
-  FogApplicationList, '/apps'
+  FogApplicationList, `/apps`
   
-  FogApplication, '/app/<app_id>'
+  FogApplication, `/app/<app_id>`
   
-  SoftDevPlatformList, '/sdps'
+  SoftDevPlatformList, `/sdps`
   
-  SoftDevPlatform, '/sdp/<sdp_id>'
+  SoftDevPlatform, `/sdp/<sdp_id>`
   
-  FogVirtEngineList, '/fves'
+  FogVirtEngineList, `/fves`
   
-  FogVirtEngine, '/fve/<fve_id>'
+  FogVirtEngine, `/fve/<fve_id>`
 
 ### Fog Node Service API
 
 #### SaaS APP stress (_fnode_app_stress.py_)
 
-  Test, '/test'
+  Test, `/test`
   
-  FogNodeInfo, '/info'
+  FogNodeInfo, `/info`
   
-  FogApplication, '/app/<app_id>'
+*  FogApplication
+
+  * POST  `/app/<app_id>`
+
+    **Sample request URL:** `/app/APP002`
+
+    **Sample Request Data:**
+    ```json
+    {
+      "message": "Running app APP002'",
+      "type": "APP_STRS_EXEC",
+      "params": {
+        "cpu": 1,
+        "timeout": 10
+      },
+      "hostname": "gaucho-fnode-vm3"
+    }
+    ```
 
 #### PaaS SDP Python3 (_fnode_sdp_python.py_)
 
-  Test, '/test'
+  Test, `/test`
   
-  FogNodeInfo, '/info'
+* FogNodeInfo `/info`
   
 * SoftDevPlatform
 
   * POST `/sdp/<sdp_id>`
 
-  **Sample Request Data:**
-  ```json
-  {
-    "code": "a=123456\nprint(str(a))",
-    "return_output": true
-  }
-  ```
+    **Sample request URL:** `/sdp/SDP001`
 
-  **Response code:** 200
+    **Sample Request Data:**
+    ```json
+    {
+      "code": "a=123456\nprint(str(a))",
+      "return_output": true
+    }
+    ```
 
-  **Sample response content:**
-  ```json 
-  {
-    "message": "Finished running SDP SDP001 with parameters '{'code': 'a=123456\\nprint(str(a))', 'return_output': True}'",
-    "hostname": "gaucho-fnode-vm2",
-    "output": "123456"
-  }
-  ```
+    **Response code:** 200
+
+    **Sample response content:**
+    ```json 
+    {
+      "message": "Finished running SDP SDP001",
+      "type": "SDP_PYTH_EXEC",
+      "params": {
+        "code": "a=123456\nprint(str(a))",
+        "return_output": true
+      },
+      "hostname": "gaucho-fnode-vm2",
+      "output": "123456"
+    }
+    ```
   
 #### IaaS FVE Docker (_fnode_fve_docker.py_)
 
-  Test, '/test'
+  Test, `/test`
   
   FogNodeInfo, "/info"
   
-  FogVirtEngine, '/fve/<fve_id>'
+  FogVirtEngine, `/fve/<fve_id>`
