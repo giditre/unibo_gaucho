@@ -61,402 +61,403 @@ python3 <component_file_name> --help
 
 #### User Access (_forch_user_api.py_)
 
-* ##### Test
+  * ##### Test
 
-  * `GET /test`
+    * `GET /test`
 
-    **Response code:** 200
+      **Response code:** 200
 
-    **Sample response content:**
-    ```json
-    {
-      "message": "This endpoint is up!"
-    }
-    ```
-
-* ##### APPs
-
-  * `GET /apps`
-  
-    **Response code:** 200
-
-    **Sample response content:**
-    ```json
-    {
-      "APP001": {
-        "name": "httpd",
-        "descr": "Apache web server"
-      },
-      "APP002": {
-        "name": "stress",
-        "descr": "Stress host"
+      **Sample response content:**
+      ```json
+      {
+        "message": "This endpoint is up!"
       }
-    }
-    ```
-  
-  * `GET /app/<app_id>`
-  
-    **Sample request URL:** `/app/APP002`
+      ```
 
-    Possible responses:
+  * ##### APPs
 
-    **Response code:** 200
-
-    **Sample response content:**
-    ```json
-    {
-      "message": "APP APP002 allocated",
-      "type": "OBR_APP_AVLB_S",
-      "node_class": "S",
-      "node_id": "10317",
-      "service_port": 38538
-    }
-    ```
+    * `GET /apps`
     
-    or
-    
-    **Response code:** 201
+      **Response code:** 200
 
-    **Sample response content:**
-    ```json
-    {
-      "message": "APP APP002 allocated",
-      "type": "OBR_APP_ALLC_I",
-      "node_class": "I",
-      "node_id": "10313",
-      "service_port": 32784
-    }
-    ```
-
-    or
-
-    **Response code:** 503
-
-    **Sample response content:**
-    ```json
-    {
-      "message": "APP APP001 not deployed and no available IaaS node",
-      "type": "OBR_APP_NAVL_I"
-    }
-    ```
-    ---
-    **Sample request URL:** `/app/APP007`
-
-    **Response code:** 404
-    
-    **Sample response content:**
-    ```json
-    {
-      "message": "APP APP007 not defined",
-      "type": "OBR_APP_NDEF"
-    }
-    ```
-
-* ##### SDPs
-
-  * `GET /sdps`
-  
-    **Response code:** 200
-
-    **Sample response content:** 
-    ```json
-    {
-      "SDP001": {
-        "name": "python",
-        "descr": "Python3"
-      },
-      "SDP002": {
-        "name": "alpine",
-        "descr": "Lightweight Ubuntu"
+      **Sample response content:**
+      ```json
+      {
+        "APP001": {
+          "name": "httpd",
+          "descr": "Apache web server"
+        },
+        "APP002": {
+          "name": "stress",
+          "descr": "Stress host"
+        }
       }
-    }
-    ```
-  
-  * `GET /sdp/<sdp_id>`
-  
-    **Sample request URL:** `/sdp/SDP001`
+      ```
+    
+    * `GET /app/<app_id>`
+    
+      **Sample request URL:** `/app/APP002`
 
-    Possible responses:
+      Possible responses:
 
-    **Response code:** 200
+      **Response code:** 200
 
-    **Sample response content:** 
-    ```json
-    {
-      "message": "SDP SDP001 allocated",
-      "type": "OBR_SDP_AVLB_P",
-      "node_class": "P",
-      "node_id": "10315",
-      "service_port": 30674
-    }
-    ```
-
-    or
-
-    **Response code:** 201
-
-    **Sample response content:**
-    ```json
-    {
-      "message": "SDP SDP001 allocated",
-      "type": "OBR_SDP_ALLC_I",
-      "node_class": "I",
-      "node_id": "10313",
-      "service_port": 32785
-    }
-    ```
-
-    or
-
-    **Response code:** 503
-
-    **Sample response content:**
-    ```json
-    {
-      "message": "SDP SDP001 not deployed and no available IaaS node",
-      "type": "OBR_SDP_NAVL_I"
-    }
-    ```
-    ---
-    **Sample request URL:** `/sdp/SDP007`
-
-    **Response code:** 404
-
-    **Sample response content:**
-    ```json
-    {
-      "message": "SDP SDP007 not defined",
-      "type": "OBR_SDP_NDEF"
-    }
-    ```
-
-* ##### FVEs
-
-  * `GET /fves`
-  
-    **Response code:** 200
-
-    **Sample response content:** 
-    ```json
-    {
-      "FVE001": {
-        "name": "docker",
-        "descr": "Docker engine"
+      **Sample response content:**
+      ```json
+      {
+        "message": "APP APP002 allocated",
+        "type": "OBR_APP_AVLB_S",
+        "node_class": "S",
+        "node_id": "10317",
+        "service_port": 38538
       }
-    }
-    ```
-  
-  * `GET /fve/<fve_id>`
-  
-    **Sample request URL:** `/fve/FVE001`
+      ```
+      
+      or
+      
+      **Response code:** 201
 
-    Possible responses:
+      **Sample response content:**
+      ```json
+      {
+        "message": "APP APP002 allocated",
+        "type": "OBR_APP_ALLC_I",
+        "node_class": "I",
+        "node_id": "10313",
+        "service_port": 32784
+      }
+      ```
 
-    **Response code:** 200
+      or
 
-    **Sample response content:** 
-    ```json
-    {
-      "message": "FVE FVE001 allocated",
-      "node_class": "I",
-      "node_id": "10313",
-      "service_port": 37507
-    }
-    ```
+      **Response code:** 503
+
+      **Sample response content:**
+      ```json
+      {
+        "message": "APP APP001 not deployed and no available IaaS node",
+        "type": "OBR_APP_NAVL_I"
+      }
+      ```
+      ---
+      **Sample request URL:** `/app/APP007`
+
+      **Response code:** 404
+      
+      **Sample response content:**
+      ```json
+      {
+        "message": "APP APP007 not defined",
+        "type": "OBR_APP_NDEF"
+      }
+      ```
+
+  * ##### SDPs
+
+    * `GET /sdps`
     
-    or 
+      **Response code:** 200
 
-    **Response code:** 503
-
-    **Sample response content:**
-    ```json  
-    {
-      "message": "FVE FVE001 is deployed but no available IaaS node",
-      "type": "OBR_FVE_NAVL_I"
-    }
-    ```
-    ---
-    **Sample request URL:** `/fve/FVE007`
-
-    **Response code:** 404
-
-    **Sample response content:**
-    ```json  
-    {
-      "message": "FVE FVE007 not defined",
-      "type": "OBR_FVE_NDEF"
-    }
-    ```
-
-* ##### Fog Gateway to allocated services
-
-  * `GET /fgw/<node_id>/<node_port>`
-
+      **Sample response content:** 
+      ```json
+      {
+        "SDP001": {
+          "name": "python",
+          "descr": "Python3"
+        },
+        "SDP002": {
+          "name": "alpine",
+          "descr": "Lightweight Ubuntu"
+        }
+      }
+      ```
     
-  
-  * `POST /fgw/<node_id>/<node_port>`
-  
-  * `GET /fgw/<node_id>/<node_port>/<path>`
-  
-  * `POST /fgw/<node_id>/<node_port>/<path>`
+    * `GET /sdp/<sdp_id>`
+    
+      **Sample request URL:** `/sdp/SDP001`
+
+      Possible responses:
+
+      **Response code:** 200
+
+      **Sample response content:** 
+      ```json
+      {
+        "message": "SDP SDP001 allocated",
+        "type": "OBR_SDP_AVLB_P",
+        "node_class": "P",
+        "node_id": "10315",
+        "service_port": 30674
+      }
+      ```
+
+      or
+
+      **Response code:** 201
+
+      **Sample response content:**
+      ```json
+      {
+        "message": "SDP SDP001 allocated",
+        "type": "OBR_SDP_ALLC_I",
+        "node_class": "I",
+        "node_id": "10313",
+        "service_port": 32785
+      }
+      ```
+
+      or
+
+      **Response code:** 503
+
+      **Sample response content:**
+      ```json
+      {
+        "message": "SDP SDP001 not deployed and no available IaaS node",
+        "type": "OBR_SDP_NAVL_I"
+      }
+      ```
+      ---
+      **Sample request URL:** `/sdp/SDP007`
+
+      **Response code:** 404
+
+      **Sample response content:**
+      ```json
+      {
+        "message": "SDP SDP007 not defined",
+        "type": "OBR_SDP_NDEF"
+      }
+      ```
+
+  * ##### FVEs
+
+    * `GET /fves`
+    
+      **Response code:** 200
+
+      **Sample response content:** 
+      ```json
+      {
+        "FVE001": {
+          "name": "docker",
+          "descr": "Docker engine"
+        }
+      }
+      ```
+    
+    * `GET /fve/<fve_id>`
+    
+      **Sample request URL:** `/fve/FVE001`
+
+      Possible responses:
+
+      **Response code:** 200
+
+      **Sample response content:** 
+      ```json
+      {
+        "message": "FVE FVE001 allocated",
+        "node_class": "I",
+        "node_id": "10313",
+        "service_port": 37507
+      }
+      ```
+      
+      or 
+
+      **Response code:** 503
+
+      **Sample response content:**
+      ```json  
+      {
+        "message": "FVE FVE001 is deployed but no available IaaS node",
+        "type": "OBR_FVE_NAVL_I"
+      }
+      ```
+      ---
+      **Sample request URL:** `/fve/FVE007`
+
+      **Response code:** 404
+
+      **Sample response content:**
+      ```json  
+      {
+        "message": "FVE FVE007 not defined",
+        "type": "OBR_FVE_NDEF"
+      }
+      ```
+
+  * ##### Fog Gateway to allocated services
+
+    * `GET /fgw/<node_id>/<node_port>`
+
+      
+    
+    * `POST /fgw/<node_id>/<node_port>`
+    
+    * `GET /fgw/<node_id>/<node_port>/<path>`
+    
+    * `POST /fgw/<node_id>/<node_port>/<path>`
 
 #### Broker (_forch_broker.py_)
-  Test, `/test`
-  
-  FogApplication, `/app/<app_id>`
-  
-  SoftDevPlatform, `/sdp/<sdp_id>`
-  
-  FogVirtEngine, `/fve/<fve_id>`
+
+  * Test, `/test`
+   
+  * FogApplication, `/app/<app_id>`
+   
+  * SoftDevPlatform, `/sdp/<sdp_id>`
+   
+  * FogVirtEngine, `/fve/<fve_id>`
 
 #### Resource Datababe (_forch_rsdb.py_)
 
-  Test, `/test`
+  * Test, `/test`
   
-  FogNodeList, `/nodes`
+  * FogNodeList, `/nodes`
   
-  FogNode, `/node/<node_id>`
+  * FogNode, `/node/<node_id>`
   
-  FogMeasurements, `/meas`
+  * FogMeasurements, `/meas`
   
-  FogApplicationCatalog, `/appcat`
+  * FogApplicationCatalog, `/appcat`
   
-  FogApplicationList, `/apps`
+  * FogApplicationList, `/apps`
   
-  FogApplication, `/app/<app_id>`
+  * FogApplication, `/app/<app_id>`
   
-  SoftDevPlatformCatalog, `/sdpcat`
+  * SoftDevPlatformCatalog, `/sdpcat`
   
-  SoftDevPlatformList, `/sdps`
+  * SoftDevPlatformList, `/sdps`
   
-  SoftDevPlatform, `/sdp/<sdp_id>`
+  * SoftDevPlatform, `/sdp/<sdp_id>`
   
-  FogVirtEngineCatalog, `/fvecat`
+  * FogVirtEngineCatalog, `/fvecat`
   
-  FogVirtEngineList, `/fves`
+  * FogVirtEngineList, `/fves`
   
-  FogVirtEngine, `/fve/<fve_id>`
+  * FogVirtEngine, `/fve/<fve_id>`
 
 #### IaaS node management (_forch_iaas_mgmt.py_)
 
-  Test, "/test"
+  * Test, "/test"
   
-  ImageList, "/images"
+  * ImageList, "/images"
   
-  FogApplication, "/app/<app_id>"
+  * FogApplication, "/app/<app_id>"
   
-  SoftDevPlatform, "/sdp/<sdp_id>"
+  * SoftDevPlatform, "/sdp/<sdp_id>"
   
-  FogVirtEngine, "/fve/<fve_id>"
+  * FogVirtEngine, "/fve/<fve_id>"
 
 
 ### Fog Node management API
 
 #### SaaS node management agent (_fnode_saas.py_)
 
-  Test, `/test`
+  * Test, `/test`
   
-  FogNodeInfo, `/info`
+  * FogNodeInfo, `/info`
   
-  FogApplicationList, `/apps`
+  * FogApplicationList, `/apps`
   
-  FogApplication, `/app/<app_id>`
+  * FogApplication, `/app/<app_id>`
   
 #### PaaS node management agent (_fnode_paas.py_)
 
-  Test, `/test`
+  * Test, `/test`
   
-  FogNodeInfo, `/info`
+  * FogNodeInfo, `/info`
   
-  SoftDevPlatformList, `/sdps`
+  * SoftDevPlatformList, `/sdps`
   
-  SoftDevPlatform, `/sdp/<sdp_id>`
+  * SoftDevPlatform, `/sdp/<sdp_id>`
 
 #### IaaS node management agent (_fnode_iaas.py_)
 
-  Test, `/test`
+  * Test, `/test`
   
-  FogNodeInfo, "/info"
+  * FogNodeInfo, "/info"
   
-  FogApplicationList, `/apps`
+  * FogApplicationList, `/apps`
   
-  FogApplication, `/app/<app_id>`
+  * FogApplication, `/app/<app_id>`
   
-  SoftDevPlatformList, `/sdps`
+  * SoftDevPlatformList, `/sdps`
   
-  SoftDevPlatform, `/sdp/<sdp_id>`
+  * SoftDevPlatform, `/sdp/<sdp_id>`
   
-  FogVirtEngineList, `/fves`
+  * FogVirtEngineList, `/fves`
   
-  FogVirtEngine, `/fve/<fve_id>`
+  * FogVirtEngine, `/fve/<fve_id>`
 
 ### Fog Node Service API
 
 #### SaaS APP stress (_fnode_app_stress.py_)
 
-  Test, `/test`
+  * Test, `/test`
   
-  FogNodeInfo, `/info`
+  * FogNodeInfo, `/info`
   
-*  FogApplication
+  *  FogApplication
 
-  * POST  `/app/<app_id>`
+    * POST  `/app/<app_id>`
 
-    **Sample request URL:** `/app/APP002`
+      **Sample request URL:** `/app/APP002`
 
-    **Sample Request Data:**
-    ```json
-    {
-      "message": "Running app APP002'",
-      "type": "APP_STRS_EXEC",
-      "params": {
-        "cpu": 1,
-        "timeout": 10
-      },
-      "hostname": "gaucho-fnode-vm3"
-    }
-    ```
+      **Sample Request Data:**
+      ```json
+      {
+        "message": "Running app APP002'",
+        "type": "APP_STRS_EXEC",
+        "params": {
+          "cpu": 1,
+          "timeout": 10
+        },
+        "hostname": "gaucho-fnode-vm3"
+      }
+      ```
 
 #### PaaS SDP Python3 (_fnode_sdp_python.py_)
 
-  Test, `/test`
+  * Test, `/test`
   
-* FogNodeInfo `/info`
-  
-* SoftDevPlatform
+  * FogNodeInfo `/info`
+    
+  * SoftDevPlatform
 
-  * POST `/sdp/<sdp_id>`
+    * POST `/sdp/<sdp_id>`
 
-    **Sample request URL:** `/sdp/SDP001`
+      **Sample request URL:** `/sdp/SDP001`
 
-    **Sample Request Data:**
-    ```json
-    {
-      "code": "a=123456\nprint(str(a))",
-      "return_output": true
-    }
-    ```
-
-    **Response code:** 200
-
-    **Sample response content:**
-    ```json 
-    {
-      "message": "Finished running SDP SDP001",
-      "type": "SDP_PYTH_EXEC",
-      "params": {
+      **Sample Request Data:**
+      ```json
+      {
         "code": "a=123456\nprint(str(a))",
         "return_output": true
-      },
-      "hostname": "gaucho-fnode-vm2",
-      "output": "123456"
-    }
-    ```
+      }
+      ```
+
+      **Response code:** 200
+
+      **Sample response content:**
+      ```json 
+      {
+        "message": "Finished running SDP SDP001",
+        "type": "SDP_PYTH_EXEC",
+        "params": {
+          "code": "a=123456\nprint(str(a))",
+          "return_output": true
+        },
+        "hostname": "gaucho-fnode-vm2",
+        "output": "123456"
+      }
+      ```
   
 #### IaaS FVE Docker (_fnode_fve_docker.py_)
 
-  Test, `/test`
+  * Test, `/test`
   
-  FogNodeInfo, "/info"
+  * FogNodeInfo, "/info"
   
-  FogVirtEngine, `/fve/<fve_id>`
+  * FogVirtEngine, `/fve/<fve_id>`
