@@ -65,8 +65,9 @@ python3 <component_file_name> --help
 
   * `GET /test`
 
-    **Code:** 200 <br />
-    **Sample content:**
+    **Response code:** 200
+
+    **Sample response content:**
     ```json
     {
       "message": "This endpoint is up!"
@@ -77,8 +78,9 @@ python3 <component_file_name> --help
 
   * `GET /apps`
   
-    **Code:** 200 <br />
-    **Sample Content:**
+    **Response code:** 200
+
+    **Sample response content:**
     ```json
     {
       "APP001": {
@@ -94,23 +96,32 @@ python3 <component_file_name> --help
   
   * `GET /app/<app_id>`
   
-    **Code:** 200 <br />
-    **Sample Content:**
+    **Sample request URL:** `/app/APP001`
+
+    Possible responses:
+
+    **Response code:** 200
+
+    **Sample response content:**
     ```json
     {
-      "message": "App APP001 allocated",
+      "message": "APP APP001 allocated",
+      "type": "OBR_APP_ALLC_I",
       "node_class": "I",
       "node_id": "10313",
-      "service_port": "32772"
+      "service_port": "32784"
     }
     ```
 
-    **Code:** 503 <br />
-    **Sample Content:**
+    or
+
+    **Response code:** 503
+
+    **Sample response content:**
     ```json
     {
-      "type": "test",
-      "message": "APP APP001 not deployed and no available IaaS node"
+      "message": "APP APP001 not deployed and no available IaaS node",
+      "type": "OBR_APP_NAVL_I"
     }
     ```
   
@@ -118,40 +129,72 @@ python3 <component_file_name> --help
 
   * `GET /sdps`
   
-  **Code:** 200 <br />
-  **Sample Content:** 
-  ```json
-  {
-    "SDP001": {
-      "name": "python",
-      "descr": "Python3"
-    },
-    "SDP002": {
-      "name": "alpine",
-      "descr": "Lightweight Ubuntu"
+    **Response code:** 200
+
+    **Sample response content:** 
+    ```json
+    {
+      "SDP001": {
+        "name": "python",
+        "descr": "Python3"
+      },
+      "SDP002": {
+        "name": "alpine",
+        "descr": "Lightweight Ubuntu"
+      }
     }
-  }
-  ```
+    ```
   
   * `GET /sdp/<sdp_id>`
   
-  **Code:** 200 <br />
-  **Sample Content:** 
-  ```json
-  {
-    "message": "SDP SDP001 allocated",
-    "node_class": "P",
-    "node_id": "10315",
-    "service_port": 35676
-  }
-  ```
-  
+    **Sample request URL:** `/sdp/SDP001`
+
+    Possible responses:
+
+    **Response code:** 200
+
+    **Sample response content:** 
+    ```json
+    {
+      "message": "SDP SDP001 allocated",
+      "type": "OBR_SDP_AVLB_P",
+      "node_class": "P",
+      "node_id": "10315",
+      "service_port": 30674
+    }
+    ```
+
+    or
+
+    **Response code:** 503
+
+    **Sample response content:**
+    ```json
+    {
+      "message": "SDP SDP001 not deployed and no available IaaS node",
+      "type": "OBR_SDP_NAVL_I"
+    }
+    ```
+    ---
+    **Sample request URL:** `/sdp/SDP004`
+
+    **Response code:** 404
+
+    **Sample response content:**
+    ```json
+    {
+      "message": "SDP SDP004 not found",
+      "type": "OBR_SDP_NDEF"
+    }
+    ```
+
 * FVEs
 
   * `GET /fves`
   
-  **Code:** 200 <br />
-  **Sample Content:** 
+  **Response code:** 200
+
+  **Sample response content:** 
   ```json
   {
     "FVE001": {
@@ -163,8 +206,9 @@ python3 <component_file_name> --help
   
   * `GET /fve/<fve_id>`
   
-  **Code:** 200 <br />
-  **Sample Content:** 
+  **Response code:** 200
+
+  **Sample response content:** 
   ```json
   {
     "message": "FVE FVE001 allocated",
@@ -302,8 +346,9 @@ python3 <component_file_name> --help
   }
   ```
 
-  **Code:** 200 <br />
-  **Sample Content:**
+  **Response code:** 200
+
+  **Sample response content:**
   ```json 
   {
     "message": "Finished running SDP SDP001 with parameters '{'code': 'a=123456\\nprint(str(a))', 'return_output': True}'",
