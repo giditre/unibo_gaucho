@@ -557,7 +557,7 @@ class SoftDevPlatformList(Resource):
     return resp
   def delete(self):
     resp = rsdb.delete_sdps()
-    resp.update({"type": "ORD_SDP_DEL"})
+    #resp.update({"type": "ORD_SDP_DEL"})
     return resp
 
 class SoftDevPlatform(Resource):
