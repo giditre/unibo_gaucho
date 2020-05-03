@@ -302,102 +302,182 @@ python3 <component_file_name> --help
 
 #### Broker (_forch_broker.py_)
 
-  * ##### Test, `/test`
+  * ##### Test
+
+    * GET `/test`
    
-  * ##### FogApplication, `/app/<app_id>`
+  * ##### FogApplication
+
+    * GET `/app/<app_id>`
    
-  * ##### SoftDevPlatform, `/sdp/<sdp_id>`
+  * ##### SoftDevPlatform
+
+    * GET `/sdp/<sdp_id>`
    
-  * ##### FogVirtEngine, `/fve/<fve_id>`
+  * ##### FogVirtEngine
+
+    * GET `/fve/<fve_id>`
 
 #### Resource Datababe (_forch_rsdb.py_)
 
-  * ##### Test, `/test`
+  * ##### Test
+
+    * GET `/test`
   
-  * ##### FogNodeList, `/nodes`
+  * ##### FogNodeList
+
+    * GET `/nodes`
   
-  * ##### FogNode, `/node/<node_id>`
+  * ##### FogNode
+
+    * GET `/node/<node_id>`
   
-  * ##### FogMeasurements, `/meas`
+  * ##### FogMeasurements
+
+    * GET `/meas`
   
-  * ##### FogApplicationCatalog, `/appcat`
+  * ##### FogApplicationCatalog
+
+    * GET `/appcat`
   
-  * ##### FogApplicationList, `/apps`
+  * ##### FogApplicationList
+
+    * GET `/apps`
   
-  * ##### FogApplication, `/app/<app_id>`
+  * ##### FogApplication
+
+    * GET `/app/<app_id>`
   
-  * ##### SoftDevPlatformCatalog, `/sdpcat`
+  * ##### SoftDevPlatformCatalog
+
+    * GET `/sdpcat`
   
-  * ##### SoftDevPlatformList, `/sdps`
+  * ##### SoftDevPlatformList
+
+    * GET `/sdps`
   
-  * ##### SoftDevPlatform, `/sdp/<sdp_id>`
+  * ##### SoftDevPlatform
+
+    * GET `/sdp/<sdp_id>`
   
-  * ##### FogVirtEngineCatalog, `/fvecat`
+  * ##### FogVirtEngineCatalog
+
+    * GET `/fvecat`
   
-  * ##### FogVirtEngineList, `/fves`
+  * ##### FogVirtEngineList
+
+    * GET `/fves`
   
-  * ##### FogVirtEngine, `/fve/<fve_id>`
+  * ##### FogVirtEngine
+
+    * GET `/fve/<fve_id>`
 
 #### IaaS node management (_forch_iaas_mgmt.py_)
 
-  * ##### Test, `/test`
+  * ##### Test
+
+    * GET `/test`
   
-  * ##### ImageList, `/images`
+  * ##### ImageList
+
+    * GET `/images`
   
-  * ##### FogApplication, `/app/<app_id>`
+  * ##### FogApplication
+
+    * GET `/app/<app_id>`
   
-  * ##### SoftDevPlatform, `/sdp/<sdp_id>`
+  * ##### SoftDevPlatform
+
+    * GET `/sdp/<sdp_id>`
   
-  * ##### FogVirtEngine, `/fve/<fve_id>`
+  * ##### FogVirtEngine
+
+    * GET `/fve/<fve_id>`
 
 
 ### Fog Node management API
 
 #### SaaS node management agent (_fnode_saas.py_)
 
-  * ##### Test, `/test`
+  * ##### Test
+
+    * GET `/test`
   
-  * ##### FogNodeInfo, `/info`
+  * ##### FogNodeInfo
+
+    * GET `/info`
   
-  * ##### FogApplicationList, `/apps`
+  * ##### FogApplicationList
+
+    * GET `/apps`
   
-  * ##### FogApplication, `/app/<app_id>`
+  * ##### FogApplication
+
+    * GET `/app/<app_id>`
   
 #### PaaS node management agent (_fnode_paas.py_)
 
-  * ##### Test, `/test`
+  * ##### Test
+
+    * GET `/test`
   
-  * ##### FogNodeInfo, `/info`
+  * ##### FogNodeInfo
+
+    * GET `/info`
   
-  * ##### SoftDevPlatformList, `/sdps`
+  * ##### SoftDevPlatformList
+
+    * GET `/sdps`
   
-  * ##### SoftDevPlatform, `/sdp/<sdp_id>`
+  * ##### SoftDevPlatform
+
+    * GET `/sdp/<sdp_id>`
 
 #### IaaS node management agent (_fnode_iaas.py_)
 
-  * ##### Test, `/test`
+  * ##### Test
+
+    * GET `/test`
   
-  * ##### FogNodeInfo, "/info"
+  * ##### FogNodeInfo
+
+    * GET `/info`
   
-  * ##### FogApplicationList, `/apps`
+  * ##### FogApplicationList
+
+    * GET `/apps`
   
-  * ##### FogApplication, `/app/<app_id>`
+  * ##### FogApplication
+
+    * GET `/app/<app_id>`
   
-  * ##### SoftDevPlatformList, `/sdps`
+  * ##### SoftDevPlatformList
+
+    * GET `/sdps`
   
-  * ##### SoftDevPlatform, `/sdp/<sdp_id>`
+  * ##### SoftDevPlatform
+
+    * GET `/sdp/<sdp_id>`
   
-  * ##### FogVirtEngineList, `/fves`
+  * ##### FogVirtEngineList
+
+    * GET `/fves`
   
-  * ##### FogVirtEngine, `/fve/<fve_id>`
+  * ##### FogVirtEngine
+
+    * GET `/fve/<fve_id>`
 
 ### Fog Node Service API
 
 #### SaaS APP stress (_fnode_app_stress.py_)
 
-  * ##### Test, `/test`
+  * ##### Test
+
+    * GET `/test`
   
-  * ##### FogNodeInfo, `/info`
+  * ##### FogNodeInfo
+
+    * GET `/info`
   
   * #####  FogApplication
 
@@ -420,7 +500,9 @@ python3 <component_file_name> --help
 
 #### PaaS SDP Python3 (_fnode_sdp_python.py_)
 
-  * ##### Test, `/test`
+  * ##### Test
+
+    * GET `/test`
   
   * ##### FogNodeInfo `/info`
     
@@ -456,8 +538,14 @@ python3 <component_file_name> --help
   
 #### IaaS FVE Docker (_fnode_fve_docker.py_)
 
-  * ##### Test, `/test`
+  * ##### Test
+
+    * GET `/test`
   
-  * ##### FogNodeInfo, "/info"
+  * ##### FogNodeInfo
+
+    * GET "/info"
   
-  * ##### FogVirtEngine, `/fve/<fve_id>`
+  * ##### FogVirtEngine
+
+    * GET `/fve/<fve_id>`
