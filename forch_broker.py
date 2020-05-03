@@ -34,6 +34,7 @@ class FogApplication(Resource):
   def get(self, app_id):
     # determine node id by choosing a node among the ones that implement this app (if any)
     node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
+    logger.debug(node_dict)
     app_list = requests.get("http://{}:{}/apps".format(db_address, db_port)).json()
     if app_id not in app_list:
       return {
@@ -72,7 +73,7 @@ class FogApplication(Resource):
         node_ip = node["ip"]
         r = requests.post("http://{}:{}/app/{}".format(node_ip, 5005, app_id), json={"test": "dummy"})
         resp_json = r.json()
-        port = resp_json["port"]
+        port = int(resp_json["port"])
         #return {"message": "APP {} allocated".format(app_id), "node_class": "S", "node_id": node_id, "node_ip": node_ip, "service_port": port}
         return {
           "message": "APP {} allocated".format(app_id),
@@ -130,7 +131,7 @@ class FogApplication(Resource):
     if r.status_code == 201:
       r_json = r.json()
       # "0.0.0.0:32809->5100/tcp"
-      port = r_json["port_mappings"][0].split(":")[1].split("-")[0]
+      port = int(r_json["port_mappings"][0].split(":")[1].split("-")[0])
       #resp_json = {"message": "APP {} allocated".format(app_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
       resp_json = {
         "message": "APP {} allocated".format(app_id),
@@ -190,7 +191,7 @@ class SoftDevPlatform(Resource):
         node_ip = node["ip"]
         r = requests.post("http://{}:{}/sdp/{}".format(node_ip, 5005, sdp_id), json={"test": "dummy"})
         resp_json = r.json()
-        port = resp_json["port"]
+        port = int(resp_json["port"])
         #return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
         return {
           "message": "SDP {} allocated".format(sdp_id),
@@ -248,7 +249,7 @@ class SoftDevPlatform(Resource):
       if r.status_code == 201:
         r_json = r.json()
         # "0.0.0.0:32809->5100/tcp"
-        port = r_json["port_mappings"][0].split(":")[1].split("-")[0]
+        port = int(r_json["port_mappings"][0].split(":")[1].split("-")[0])
         #resp_json = {"message": "SDP {} allocated".format(sdp_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
         resp_json = {
           "message": "SDP {} allocated".format(sdp_id),
@@ -300,7 +301,7 @@ class FogVirtEngine(Resource):
         logger.debug("FVE {} available at {}".format(fve_id, node_ip))
         r = requests.post("http://{}:{}/fve/{}".format(node_ip, 5005, fve_id), json={"test": "dummy"})
         resp_json = r.json()
-        port = resp_json["port"]
+        port = int(resp_json["port"])
         #return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
         return {
           "message": "FVE {} allocated".format(fve_id),

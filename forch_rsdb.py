@@ -496,7 +496,9 @@ class Test(Resource):
 class FogNodeList(Resource):
 
   def get(self):
-    return rsdb.get_node_list()
+    resp = rsdb.get_node_list()
+    #resp.update({"type": "ORD_NODE_LIST"})
+    return resp
 
   def delete(self):
     rsdb.delete_apps()
@@ -511,53 +513,81 @@ class FogNodeList(Resource):
 class FogNode(Resource):
   def get(self, node_id):
     resp, resp_code = rsdb.get_node(node_id)
-    return {"type": "ORD_NODE_NDEF"}.update(resp), resp_code
+    #resp.update({"type": "ORD_NODE_NDEF"})
+    return resp, resp_code
 
 class FogMeasurements(Resource):
   def get(self):
-    return {"type": "ORD_MEAS"}.update(rsdb.get_measurements())
+    resp = rsdb.get_measurements()
+    #resp.update({"type": "ORD_MEAS"})
+    return resp
 
 class FogApplicationCatalog(Resource):
   def get(self):
-    return {"type": "ORD_APP_CAT"}.update(rsdb.get_app_catalog())
+    resp = rsdb.get_app_catalog()
+    #resp.update({"type": "ORD_APP_CAT"})
+    return resp
 
 class FogApplicationList(Resource):
   def get(self):
-    return {"type": "ORD_APP_LIST"}.update(rsdb.get_app_list())
+    resp = rsdb.get_app_list()
+    #resp.update({"type": "ORD_APP_LIST"})
+    return resp
   def delete(self):
-    return {"type": "ORD_APP_DEL"}.update(rsdb.delete_apps())
+    resp = rsdb.delete_apps()
+    #resp.update({"type": "ORD_APP_DEL"})
+    return resp
 
 class FogApplication(Resource):
   def get(self, app_id):
-    return {"type": "ORD_APP"}.update(rsdb.get_app(app_id))
+    resp = rsdb.get_app(app_id)
+    #resp.update({"type": "ORD_APP"})
+    return resp
 
 class SoftDevPlatformCatalog(Resource):
   def get(self):
-    return {"type": "ORD_SDP_CAT"}.update(rsdb.get_sdp_catalog())
+    resp = rsdb.get_sdp_catalog()
+    #resp.update({"type": "ORD_SDP_CAT"})
+    return resp
 
 class SoftDevPlatformList(Resource):
   def get(self):
-    return {"type": "ORD_SDP_LIST"}.update(rsdb.get_sdp_list())
+    resp = rsdb.get_sdp_list()
+    #resp.update({"type": "ORD_SDP_LIST"})
+    return resp
   def delete(self):
-    return {"type": "ORD_SDP_DEL"}.update(rsdb.delete_sdps())
+    resp = rsdb.delete_sdps()
+    resp.update({"type": "ORD_SDP_DEL"})
+    return resp
 
 class SoftDevPlatform(Resource):
   def get(self, sdp_id):
-    return {"type": "ORD_SDP"}.update(rsdb.get_sdp(sdp_id))
+    resp = rsdb.get_sdp(sdp_id)
+    #resp.update({"type": "ORD_SDP"})
+    return resp
 
 class FogVirtEngineCatalog(Resource):
   def get(self):
-    return {"type": "ORD_FVE_CAT"}.update(rsdb.get_fve_catalog())
+    resp = rsdb.get_fve_catalog()
+    #resp.update({"type": "ORD_FVE_CAT"})
+    return resp
 
 class FogVirtEngineList(Resource):
   def get(self):
-    return {"type": "ORD_FVE_LIST"}.update(rsdb.get_fve_list())
+    resp = rsdb.get_fve_list()
+    #resp.update({"type": "ORD_FVE_LIST"})
+    return resp
+    
   def delete(self):
-    return {"type": "ORD_FVE_DEL"}.update(rsdb.delete_fves())
+    resp = rsdb.delete_fves()
+    #resp.update({"type": "ORD_FVE_DEL"})
+    return resp
 
 class FogVirtEngine(Resource):
   def get(self, fve_id):
-    return {"type": "ORD_FVE"}.update(rsdb.get_fve(fve_id))
+    resp = rsdb.get_fve(fve_id)
+    #resp.update({"type": "ORD_FVE"})
+    return resp
 
 ### MAIN
 
