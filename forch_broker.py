@@ -163,7 +163,7 @@ class SoftDevPlatform(Resource):
     sdp_list = requests.get("http://{}:{}/sdps".format(db_address, db_port)).json()
     if sdp_id not in sdp_list:
       return {
-        "message": "SDP {} not found".format(sdp_id),
+        "message": "SDP {} not defined".format(sdp_id),
         "type": "OBR_SDP_NDEF"
       }, 404
     sdp = sdp_list[sdp_id]
@@ -272,7 +272,7 @@ class FogVirtEngine(Resource):
     fve_list = requests.get("http://{}:{}/fves".format(db_address, db_port)).json()
     if fve_id not in fve_list:
       return { 
-        "message": "FVE {} not found".format(fve_id),
+        "message": "FVE {} not defined".format(fve_id),
         "type": "OBR_FVE_NDEF"
       }, 404
     fve = fve_list[fve_id]
