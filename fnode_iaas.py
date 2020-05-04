@@ -275,6 +275,22 @@ class FogVirtEngine(Resource):
 
   # TODO def delete(self):     
 
+class DockerImageList(Resource):
+
+  def get(self):
+    img_counter = Counter([ img.tags[0] for img in docker_client.images.list() ])
+    return {
+      "type": "NIM_IMG_LIST",
+      "imgs": dict(img_counter)
+    }, 200
+
+  def delete(self):
+    resp = docker_client.images.prune(prune(filters={"dangling":False}))
+    return {
+      "message": resp,
+      "type": "NIM_IMG_DEL"
+    }, 200
+
 def wait_for_remote_endpoint(ep_address, ep_port):
   while True:
     resp_code = -1
@@ -346,6 +362,8 @@ if __name__ == '__main__':
 
   api.add_resource(FogVirtEngineList, '/fves')
   api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+
+  api.add_resource(DockerImageList, '/imgs')
 
   app.run(host=ep_address, port=ep_port, debug=debug)
   
