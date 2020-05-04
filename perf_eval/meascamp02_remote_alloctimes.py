@@ -6,6 +6,7 @@ import json
 import datetime
 import argparse
 import sys
+import os
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -115,7 +116,7 @@ if post_delete:
 
 print_flush(json.dumps(meas_dict, indent=2))
 
-results_fname = "res_" + sys.argv[0] + "{0:%Y%m%d_%H%M%S}".format(datetime.datetime.now()) + ".json"
+results_fname = "res_" + os.path.basename(__file__).split("_")[0] + "_" + "{0:%Y%m%d_%H%M%S}".format(datetime.datetime.now()) + ".json"
 with open(results_fname, "w") as f:
   json.dump(meas_dict, f)
   
