@@ -160,6 +160,10 @@ class FogGateway(Resource):
 
     r = requests.get("http://{}:{}/{}".format(node_ip, node_port, path))
 
+    #logger.debug(str(r))
+
+    #return r.content, r.status_code
+
     try:
       return r.json(), r.status_code
     except json.decoder.JSONDecodeError:
