@@ -5,10 +5,10 @@
     "password": "sha256$Rfprbl38$b62093644bd0e5579904bbdd1e9092e2834c2f2afbd6d1547290d9ea30cf185b",
     "is_admin": true
   },
-  "802270bd-4791-4a3a-afec-7dc49d8c82a3": {
-    "id": "802270bd-4791-4a3a-afec-7dc49d8c82a3",
+  "75f3195c-8347-4e1d-b31f-a58d8f31478f": {
+    "id": "75f3195c-8347-4e1d-b31f-a58d8f31478f",
     "name": "gaucho",
-    "password": "sha256$5b3EkHW8$b6e88b80fd9818e569d154eeaa7b57ddeaad8512f3dacd1c2ab371656fdcfd08",
+    "password": "sha256$6dlaYv9H$246ff88c2bb73eac727219ab9e4ac85db80cf1a58f056bd44b24b5fd96d0621c",
     "is_admin": false
   }
 }

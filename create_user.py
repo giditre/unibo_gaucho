@@ -68,5 +68,5 @@ print("Genrated user entry: {}".format(user))
 user_db[user_id] = user
 
 with open(db_fname, "w") as f:
-  json.dump(user_db, f)
+  json.dump(user_db, f, indent=2)
 
