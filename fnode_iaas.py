@@ -285,7 +285,7 @@ class DockerImageList(Resource):
     }, 200
 
   def delete(self):
-    resp = docker_client.images.prune(prune(filters={"dangling":False}))
+    resp = docker_client.images.prune(filters={"dangling":False})
     return {
       "message": resp,
       "type": "NIM_IMG_DEL"
