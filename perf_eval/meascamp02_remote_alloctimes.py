@@ -42,12 +42,13 @@ if c != "y":
 fua_url = args.fua_url.strip("/")
 fua_user = args.fua_user
 fua_password = args.fua_password
-fgw_url = args.fgw_url.strip("/")
-fgw_user = args.fgw_user if args.fgw_user else fua_user
-fgw_password = args.fgw_password if args.fgw_password else fua_password
 fomg_url = args.fomg_url.strip("/")
 fomg_user = args.fomg_user if args.fomg_user else fua_user
 fomg_password = args.fomg_password if args.fomg_password else fua_password
+if args.fgw_url:
+  fgw_url = args.fgw_url.strip("/")
+  fgw_user = args.fgw_user if args.fgw_user else fua_user
+  fgw_password = args.fgw_password if args.fgw_password else fua_password
 pre_delete = args.pre_delete
 post_delete = args.post_delete
 service_data_json = json.loads(args.service_data)
@@ -59,21 +60,23 @@ if pre_delete:
   url = fomg_url + "/127.0.0.1/5003/nodes"
   print_flush("DELETE", url)
   r = requests.delete(url, auth=(fomg_user, fomg_password), verify=False)
-  time.sleep(3)
-
-#curl http://192.168.10.117:5001/apps
-url = fua_url + "/apps"
-print_flush("GET", url)
-r = requests.get(url, auth=(fua_user, fua_password), verify=False)
-time.sleep(3)
+  time.sleep(1)
 
 # start measuring
 
 print_flush("\n### START MEASUREMENTS ###\n")
 
+meas_dict = {"values": []}
+
 for i in range(1, n_cycles+1):
 
   print_flush("\n# Cycle {}\n".format(i))
+
+  #curl http://192.168.10.117:5001/apps
+  url = fua_url + "/apps"
+  print_flush("GET", url)
+  r = requests.get(url, auth=(fua_user, fua_password), verify=False)
+  time.sleep(1)
 
   # start time
   start_time = time.time()
@@ -92,16 +95,25 @@ for i in range(1, n_cycles+1):
 
   print_flush("Cycle {}: {} ms".format(i, elapsed_time))
 
-  time.sleep(3)
+  meas_dict["values"].append(elapsed_time)
+
+  time.sleep(1)
 
   url = fomg_url + "/127.0.0.1/5003/nodes"
   print_flush("DELETE", url)
   r = requests.delete(url, auth=(fomg_user, fomg_password), verify=False)
 
-  time.sleep(3)
+  time.sleep(1)
 
 if post_delete:
   url = fomg_url + "/127.0.0.1/5003/nodes"
   print_flush("DELETE", url)
   r = requests.delete(url, auth=(fomg_user, fomg_password), verify=False)
-  time.sleep(3)
+  time.sleep(1)
+
+print_flush(json.dumps(meas_dict, indent=2))
+
+results_fname = "res_" + sys.argv[0] + "{0:%Y%m%d_%H%M%S}".format(datetime.datetime.now()) + ".json"
+with open(results_fname, "w") as f:
+  json.dump(meas_dict, f)
+  
