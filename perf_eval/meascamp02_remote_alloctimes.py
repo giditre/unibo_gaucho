@@ -28,15 +28,17 @@ parser.add_argument("--fomg-password", help="Password for the Fog Management, de
 parser.add_argument("--service-data", help="Service data to be passed to the request starting the service, default: {}", nargs="?", default="{}")
 parser.add_argument("--pre-delete", help="DELETE before starting allocation, default: False", action="store_true", default=False)
 parser.add_argument("--post-delete", help="DELETE after gathering measurements, default: False", action="store_true", default=False)
+parser.add_argument("-y", "--assume-yes", help="Automatic yes to prompts, default: False", action="store_true", default=False)
 
 parser.add_argument("-n", "--num-cycles", help="Number of measurement cycles", type=int, nargs="?", default=10)
 
 args = parser.parse_args()
 print_flush("CLI args: {}".format(vars(args)))
 
-c = input("Confirm? [y/n] ")
-if c != "y":
-  sys.exit("Aborted.")
+if not args.assume_yes:
+  c = input("Confirm? [y/n] ")
+  if c != "y":
+    sys.exit("Aborted.")
 
 #app_id = args.app_id
 fua_url = args.fua_url.strip("/")
