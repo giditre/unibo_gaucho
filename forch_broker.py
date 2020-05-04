@@ -194,7 +194,7 @@ class SoftDevPlatform(Resource):
         port = int(resp_json["port"])
         #return {"message": "SDP {} allocated".format(sdp_id), "node_class": "P", "node_id": node_id, "node_ip": node_ip, "service_port": port}
         return {
-          "message": "SDP {} allocated".format(sdp_id),
+          "message": "SDP {} available".format(sdp_id),
           "type": "OBR_SDP_AVLB_P",
           "node_class": "P",
           "node_id": node_id,
@@ -304,8 +304,8 @@ class FogVirtEngine(Resource):
         port = int(resp_json["port"])
         #return {"message": "FVE {} allocated".format(fve_id), "node_class": "I", "node_id": node_id, "node_ip": node_ip, "service_port": port}
         return {
-          "message": "FVE {} allocated".format(fve_id),
-          "type": "OBR_FVE_ALLC_I",
+          "message": "FVE {} available".format(fve_id),
+          "type": "OBR_FVE_AVLB_I",
           "node_class": "I",
           "node_id": node_id,
           "service_port": port
