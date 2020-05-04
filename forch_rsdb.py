@@ -225,7 +225,7 @@ class RSDB():
   def get_node_list(self):
     with self.db_lock:
       self.rsdb["nodes"] = self.collector.get_nodes()
-      # TODO avoid asking nodes directly, but go through forch_iaas_mgmt - but then what about non-IaaS nodes?
+      # maybe avoid asking nodes directly, but go through forch_iaas_mgmt? - but then what about non-IaaS nodes?
 
       for node_id in self.rsdb["nodes"]:
 
@@ -236,6 +236,7 @@ class RSDB():
         try:
           node_info = requests.get("http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])).json()
         except requests.exceptions.ConnectionError:
+          self.rsdb["nodes"][node_id]["class"] = ""
           self.rsdb["nodes"][node_id]["available"] = "0"
           continue
 
@@ -481,6 +482,26 @@ class RSDB():
       p.join()
     return {"message": "FVEs deleted on all nodes"}, 200
 
+  def delete_images_node(self, node_id):
+    node_ip = self.rsdb["nodes"][node_id]["ip"]
+    try:
+      r = requests.delete("http://{}:5005/imgs".format(node_ip))
+    except requests.exceptions.ConnectionError as e:
+      # handle error
+      #logger.debug(str(e))
+      logger.info("Node {} at {} not available for DELETE".format(node_id, node_ip))
+
+  def delete_images(self):
+    process_list = []
+    for node_id in self.rsdb["nodes"]:
+      if self.rsdb["nodes"][node_id]["class"] == "I":
+        p = Process(target=self.delete_images_node, args=(node_id,))
+        p.start()
+        process_list.append(p)
+    for p in process_list: 
+      p.join()
+    return {"message": "Images deleted on all IaaS nodes"}, 200
+
 # initialize database handler
 rsdb = RSDB()
 
@@ -504,6 +525,7 @@ class FogNodeList(Resource):
     rsdb.delete_apps()
     rsdb.delete_sdps()
     rsdb.delete_fves()
+    rsdb.delete_images()
     rsdb.flush_db()
     return {
       "message": "Services deleted and database re-initialized",
