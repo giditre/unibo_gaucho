@@ -258,9 +258,10 @@ python3 <component_file_name> --help
       ```json
       {
         "message": "FVE FVE001 available",
+        "type": "OBR_FVE_AVLB_I",
         "node_class": "I",
         "node_id": "10313",
-        "service_port": 37507
+        "service_port": 36683
       }
       ```
       
@@ -273,6 +274,18 @@ python3 <component_file_name> --help
       {
         "message": "FVE FVE001 is deployed but no available IaaS node",
         "type": "OBR_FVE_NAVL_I"
+      }
+      ```
+      ---
+      **Sample request URL:** `/fve/FVE002`
+
+      **Response code:** 503
+
+      **Sample response content:**
+      ```json
+      {
+        "message": "FVE FVE002 not deployed",
+        "type": "OBR_FVE_NDEP"
       }
       ```
       ---
