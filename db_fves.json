@@ -3,6 +3,10 @@
     "FVE001": {
       "name": "docker",
       "descr": "Docker engine"
+    },
+    "FVE002": {
+      "name": "fog05",
+      "descr": "Eclipse fog05"
     }
   }
 }
