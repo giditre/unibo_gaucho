@@ -30,7 +30,7 @@ def authenticate(function):
     auth = request.authorization
 
     if not auth or not auth.username or not auth.password:
-      return {"message": "Authorization required"}, 401
+      return {"message": "Authorization required"}, 401, {'WWW-Authenticate': 'Basic realm="Login Required"'}
 
     # load db file
     with open("db_users.json") as f:
@@ -63,7 +63,7 @@ def authenticate_admin(function):
     auth = request.authorization
 
     if not auth or not auth.username or not auth.password:
-      return {"message": "Authorization as administrator required"}, 401
+      return {"message": "Authorization as administrator required"}, 401, {'WWW-Authenticate': 'Basic realm="Login Required"'}
 
     # load db file
     with open("db_users.json") as f:

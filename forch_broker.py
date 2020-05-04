@@ -140,6 +140,8 @@ class FogApplication(Resource):
         "node_id": node_id,
         "service_port": port
       }
+      # refresh the node dictionary to reflect new allocation
+      node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
       return resp_json, 201
     else:
       return r.json(), r.status_code
@@ -258,6 +260,8 @@ class SoftDevPlatform(Resource):
           "node_id": node_id,
           "service_port": port
         }
+        # refresh the node dictionary to reflect new allocation
+        node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
         return resp_json, 201
       else:
         return r.json(), r.status_code
