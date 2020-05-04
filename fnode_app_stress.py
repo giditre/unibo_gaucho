@@ -103,7 +103,7 @@ class FogApplication(Resource):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     
-    msg = "Running app {}'".format(app_id)
+    msg = "Running app {}".format(app_id)
 
     logger.debug(msg)
 
