@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import time
 import requests
 import json
@@ -12,7 +14,7 @@ def print_flush(*args, **kwargs):
 parser = argparse.ArgumentParser()
   
 parser.add_argument("--service-data", help="Service data to be passed to the request starting the service, default: {}", nargs="?", default="{}")
-parser.add_argument("--pre-delete", help="DELETE before starting allocatio, default: False", action="store_true", default=False)
+parser.add_argument("--pre-delete", help="DELETE before starting allocation, default: False", action="store_true", default=False)
 parser.add_argument("--post-delete", help="DELETE after gathering measurements, default: False", action="store_true", default=False)
 
 args = parser.parse_args()
