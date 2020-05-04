@@ -124,7 +124,9 @@ class RSDM(threading.Thread):
     self.monitor = threading.Event()
 
   def do_monitor(self):
-    logger.debug("Monitor is collecting measurements")
+
+    #logger.debug("Monitor is collecting measurements")
+
     # TODO check for new hosts - or this in implicit in the length of the monitor list?
     # monitor utilization of resources
     t = round(time())
