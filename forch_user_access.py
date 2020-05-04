@@ -51,7 +51,43 @@ def authenticate(function):
           return {"message": "Unauthorized user"}, 401
 
     # user not found
-    return {"message": "Bad authorization"}, 401
+    return {"message": "Unregistered user"}, 401
+
+  return wrapper
+
+def authenticate_admin(function):
+
+  @wraps(function)
+  def wrapper(*args, **kwargs):
+
+    auth = request.authorization
+
+    if not auth or not auth.username or not auth.password:
+      return {"message": "Authorization as administrator required"}, 401
+
+    # load db file
+    with open("db_users.json") as f:
+      user_db = json.load(f)
+
+    # check if user exists in db
+    for uid in user_db:
+      if user_db[uid]["name"] == auth.username:
+        # found it!
+        if not user_db[uid]["is_admin"]:
+          return {"message": "Authorization as administrator required"}, 401
+        else:
+          reg_user_name = user_db[uid]["name"]
+          reg_user_pwd = user_db[uid]["password"]
+          if check_password_hash(reg_user_pwd, auth.password):
+            # success!
+            #return reg_user_name
+            return function(*args, **kwargs)
+          else:
+            # user unauthorized
+            return {"message": "Unauthorized user"}, 401
+
+    # user not found
+    return {"message": "Unregistered user"}, 401
 
   return wrapper
 
@@ -140,11 +176,48 @@ class FogGateway(Resource):
     # force parsing json ignring mimetype and return None if parsing fails
     req_json = request.get_json(force=True, silent=True)
     if not req_json:
-      req_json = {}
+      req_json = {"test": "test"}
 
     r = requests.post("http://{}:{}/{}".format(node_ip, node_port, path), json=req_json)
 
-    return r.json(), r.status_code
+    try:
+      return r.json(), r.status_code
+    except json.decoder.JSONDecodeError:
+      return r.text, r.status_code
+
+class FORCHManagement(Resource):
+
+  @authenticate_admin
+  def get(self, comp_ip, comp_port, path=""):
+    path = path.replace("-", "/")
+    r = requests.get("http://{}:{}/{}".format(comp_ip, comp_port, path))
+    try:
+      return r.json(), r.status_code
+    except json.decoder.JSONDecodeError:
+      return r.text, r.status_code
+
+  @authenticate_admin
+  def post(self, comp_ip, comp_port, path=""):
+    path = path.replace("-", "/")
+    # retrieve additional data from request
+    # force parsing json ignring mimetype and return None if parsing fails
+    req_json = request.get_json(force=True, silent=True)
+    if not req_json:
+      req_json = {"test": "test"}
+    r = requests.get("http://{}:{}/{}".format(comp_ip, comp_port, path), json=req_json)
+    try:
+      return r.json(), r.status_code
+    except json.decoder.JSONDecodeError:
+      return r.text, r.status_code
+
+  @authenticate_admin
+  def delete(self, comp_ip, comp_port, path=""):
+    path = path.replace("-", "/")
+    r = requests.delete("http://{}:{}/{}".format(comp_ip, comp_port, path))
+    try:
+      return r.json(), r.status_code
+    except json.decoder.JSONDecodeError:
+      return r.text, r.status_code
 
 def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
   url = "http://{}:{}/{}".format(ep_address, ep_port, path)
@@ -178,6 +251,8 @@ api.add_resource(FogVirtEngineList, '/fves')
 api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
 api.add_resource(FogGateway, '/fgw/<node_id>/<node_port>', '/fgw/<node_id>/<node_port>/<path>')
+
+api.add_resource(FORCHManagement, '/fomg/<comp_ip>/<comp_port>', '/fomg/<comp_ip>/<comp_port>/<path>')
 
 ### MAIN
 

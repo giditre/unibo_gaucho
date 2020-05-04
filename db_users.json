@@ -1,1 +1,14 @@
-{"78e14048-4bed-4e78-9430-e812888f0bb2": {"id": "78e14048-4bed-4e78-9430-e812888f0bb2", "name": "admin", "password": "sha256$Rfprbl38$b62093644bd0e5579904bbdd1e9092e2834c2f2afbd6d1547290d9ea30cf185b", "is_admin": true}, "802270bd-4791-4a3a-afec-7dc49d8c82a3": {"id": "802270bd-4791-4a3a-afec-7dc49d8c82a3", "name": "gaucho", "password": "sha256$5b3EkHW8$b6e88b80fd9818e569d154eeaa7b57ddeaad8512f3dacd1c2ab371656fdcfd08", "is_admin": false}}
+{
+  "78e14048-4bed-4e78-9430-e812888f0bb2": {
+    "id": "78e14048-4bed-4e78-9430-e812888f0bb2",
+    "name": "admin",
+    "password": "sha256$Rfprbl38$b62093644bd0e5579904bbdd1e9092e2834c2f2afbd6d1547290d9ea30cf185b",
+    "is_admin": true
+  },
+  "802270bd-4791-4a3a-afec-7dc49d8c82a3": {
+    "id": "802270bd-4791-4a3a-afec-7dc49d8c82a3",
+    "name": "gaucho",
+    "password": "sha256$5b3EkHW8$b6e88b80fd9818e569d154eeaa7b57ddeaad8512f3dacd1c2ab371656fdcfd08",
+    "is_admin": false
+  }
+}
