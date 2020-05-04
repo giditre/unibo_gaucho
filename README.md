@@ -26,7 +26,7 @@ pip3 install -r requirements.txt
 
 ## Running FORCH
 
-FORCH consists of multiple independent components, which may be run on the same machine or on separate machines, as the communication between them happens via REST calls. However, in the development phase, for security purposes it is suggested to run all of the FORCH components on a single machine and make all of them listen only on the loopback interface (127.0.0.1), except for the User Access component (_forch_user_api.py_) which is the only one using HTTPS (as opposed to the others using unencrypted HTTP).
+FORCH consists of multiple independent components, which may be run on the same machine or on separate machines, as the communication between them happens via REST calls. However, in the development phase, for security purposes it is suggested to run all of the FORCH components on a single machine and make all of them listen only on the loopback interface (127.0.0.1), except for the User Access component (_forch_user_access.py_) which is the only one using HTTPS (as opposed to the others using unencrypted HTTP).
 
 From inside of the repo directory, run each of the components with
 ```
@@ -34,7 +34,7 @@ python3 <component_file_name> <IP_address> <TCP_port>
 ```
 for example:
 ```
-python3 forch_user_api.py 0.0.0.0 5001
+python3 forch_user_access.py 0.0.0.0 5001
 ```
 or
 ```
@@ -46,7 +46,7 @@ The address 0.0.0.0 makes the components listen on all of the machine's interfac
 The choice of the TCP port is arbitrary. However, by default the ports are mapped this way:
 Component | Port
 ----------|-----
-forch_user_api.py | 5001
+forch_user_access.py | 5001
 forch_broker.py | 5002
 forch_rsdb.py | 5003
 forch_iaas_mgmt.py | 5004
@@ -59,7 +59,7 @@ python3 <component_file_name> --help
 
 ### FORCH REST API
 
-#### User Access (_forch_user_api.py_)
+#### User Access (_forch_user_access.py_)
 
   * ##### Test
 
@@ -100,12 +100,12 @@ python3 <component_file_name> --help
 
       Possible responses:
 
-      **Response code:** 201
+      **Response code:** 200
 
       **Sample response content:**
       ```json
       {
-        "message": "APP APP002 allocated",
+        "message": "APP APP002 available",
         "type": "OBR_APP_AVLB_S",
         "node_class": "S",
         "node_id": "10317",
@@ -183,7 +183,7 @@ python3 <component_file_name> --help
       **Sample response content:** 
       ```json
       {
-        "message": "SDP SDP001 allocated",
+        "message": "SDP SDP001 available",
         "type": "OBR_SDP_AVLB_P",
         "node_class": "P",
         "node_id": "10315",
@@ -257,7 +257,7 @@ python3 <component_file_name> --help
       **Sample response content:** 
       ```json
       {
-        "message": "FVE FVE001 allocated",
+        "message": "FVE FVE001 available",
         "node_class": "I",
         "node_id": "10313",
         "service_port": 37507
