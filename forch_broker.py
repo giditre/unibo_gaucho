@@ -65,7 +65,8 @@ class FogApplication(Resource):
 
       if candidate_node_list:
         # TODO implement heuristic picking method
-        node_id = candidate_node_list[0]
+        #node_id = candidate_node_list[0]
+        node_id = random.choice(candidate_node_list)
         logger.debug("Picked node {}".format(node_id))
 
       if node_id:
@@ -104,7 +105,8 @@ class FogApplication(Resource):
 
     if candidate_node_list:
       # TODO implement heuristic picking method
-      node_id = candidate_node_list[0]
+      #node_id = candidate_node_list[0]
+      node_id = random.choice(candidate_node_list)
       logger.debug("Picked node {}".format(node_id))
 
     if not node_id:
@@ -187,7 +189,8 @@ class SoftDevPlatform(Resource):
 
       if candidate_node_list:
         # TODO implement heuristic picking method
-        node_id = candidate_node_list[0]
+        #node_id = candidate_node_list[0]
+        node_id = random.choice(candidate_node_list)
         logger.debug("Picked node {}".format(node_id))
         node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
         node_ip = node["ip"]
@@ -224,7 +227,8 @@ class SoftDevPlatform(Resource):
 
       if candidate_node_list:
         # TODO implement heuristic picking method
-        node_id = candidate_node_list[0]
+        #node_id = candidate_node_list[0]
+        node_id = random.choice(candidate_node_list)
         logger.debug("Picked node {}".format(node_id))
 
       if not node_id:
@@ -298,7 +302,8 @@ class FogVirtEngine(Resource):
 
       if candidate_node_list:
         # TODO implement heuristic picking method
-        node_id = candidate_node_list[0]
+        #node_id = candidate_node_list[0]
+        node_id = random.choice(candidate_node_list)
         logger.debug("Picked node {}".format(node_id))
         node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
         node_ip = node["ip"]
