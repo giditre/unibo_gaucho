@@ -8,36 +8,38 @@ This PoC implementation is written in Python3. Its REST API is built using Flask
 
 ## Setting up the environment
 
-It is suggested to operate inside of a [venv](https://docs.python.org/3.6/library/venv.html).
+The following instructions apply for the machine(s) hosting the FORCH components, as well as for those acting as fog nodes.
 
-Make sure the following Python3 modules are installed:
+It is suggested (but not strictly required) to operate inside of a [venv](https://docs.python.org/3.6/library/venv.html).
+
+Make sure the following Python3 modules are installed on every machine:
 ```
 flask_restful
 requests
 docker
 pyzabbix
 ```
-This can be also achieved by cloning the repo, then moving into the directory, and let pip3 do the work:
+This can also be achieved by cloning the repo, then moving into the directory, and let pip3 do the work:
 ```
 git clone giditre/unibo_gaucho
 cd unibo_gaucho/
 pip3 install -r requirements.txt
 ```
 
-## Running FORCH
+## Running the FORCH ecosystem
 
 FORCH consists of multiple independent components, which may be run on the same machine or on separate machines, as the communication between them happens via REST calls. However, in the development phase, for security purposes it is suggested to run all of the FORCH components on a single machine and make all of them listen only on the loopback interface (127.0.0.1), except for the User Access component (_forch_user_access.py_) which is the only one using HTTPS (as opposed to the others using unencrypted HTTP).
 
 From inside of the repo directory, run each of the components with
-```
+```bash
 python3 <component_file_name> <IP_address> <TCP_port>
 ```
 for example:
-```
+```bash
 python3 forch_user_access.py 0.0.0.0 5001
 ```
 or
-```
+```bash
 python3 forch_broker.py 127.0.0.1 5002
 ```
 
@@ -53,9 +55,147 @@ forch_iaas_mgmt.py | 5004
 fnode_saas.py / fnode_paas.py / fnode_iaas.py | 5005
 
 Running a component with a customized port required the other components to be instructed on the choice. This can be achieved by specifying comman line arguments for every component detailing the choice of IP addresses and ports. For the list of available CLI arguments for every component and for their usage, refer to the inline help of each component, by running:
-```
+```bash
 python3 <component_file_name> --help
 ```
+
+In any case, it is necessary that every component is within reach (network-wise) of all the other ones. This also includes _fnode_ components.
+
+The monitoring system [Zabbix](www.zabbix.com) must be configured on the node running _forch_rsdb.py_ (which accesses Zabbix through the Python module _pyzabbix_)
+
+### Installing Zabbix
+
+**Section under construction**
+
+#### Zabbix Server
+
+The following set of operation is the one followed to reach correct functioning of the Zabbix moniroting system on our development environment. Our set refers to **Zabbix version 4.4**. It is slightly different than the set of instructions provided in [the official Zabbix documentation](https://www.zabbix.com/documentation/4.4/manual/installation/getting_zabbix), as some steps did not appear to work as they were described there. Plus, this is mostly specific to **Ubuntu 18.04**.
+
+First, install required web and database packages (step inspired by [this](https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-ubuntu-18-04)):
+```bash
+sudo apt install -y apache2 mysql-server
+```
+Run the configuration tool of mySQL:
+```bash
+sudo mysql_secure_installation
+```
+Choose a password (e.g., _mypassword123_), and confirm all the rest with _y_.
+
+Set the system firewall to allow web traffic:
+```bash
+sudo ufw app list
+sudo ufw app info "Apache Full"
+sudo ufw allow in "Apache Full"
+```
+Install php libraries
+```bash
+sudo apt install php libapache2-mod-php php-mysql
+```
+Restart the apacher web server:
+```bash
+sudo systemctl restart apache2
+```
+Install the PHP FastCGI Process Manager module ([website](https://www.php.net/manual/en/install.fpm.php)):
+```bash
+sudo apt install php-fpm
+```
+Add Zabbix repo to the machine's known repositories:
+```bash
+wget https://repo.zabbix.com/zabbix/4.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_4.4-1+bionic_all.deb
+sudo dpkg -i zabbix-release_4.4-1+bionic_all.deb
+```
+Install Zabbix server components:
+```bash
+sudo apt update && sudo apt install -y zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf
+```
+Authenticate as the user root to mySQL by the previously configured password (e.g., _mypassword123_) when requested:
+```bash
+sudo mysql -uroot -p
+```
+Inside the mySQL CLI, configure access as the _zabbix_ user:
+```
+create database zabbix character set utf8 collate utf8_bin;
+grant all privileges on zabbix.* to zabbix@localhost identified by 'zabbix';
+flush privileges;
+quit;
+```
+Initialize the database (this step might take a while to complete, do not interrupt it even if it does not print any output):
+```bash
+zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -uzabbix -p zabbix
+```
+Configure access to the Zabbix Server by editing the configuration file
+```bash
+sudo vim /etc/zabbix/zabbix_server.conf
+```
+and setting a password in the variable 'DBPassword' (e.g., _zabbix_).
+
+Set the correct local timezone by editing the configuration file
+```bash
+sudo vim /etc/zabbix/apache.conf
+```
+and setting `php_value date.timezone Europe/Rome` (or any other local timezone).
+
+Restart the web server and check its status:
+```bash
+sudo systemctl restart apache2
+sudo systemctl status apache2
+```
+Restart the Zabbix server and enable it for automatic start at system boot:
+```bash
+sudo systemctl restart zabbix-server
+sudo systemctl enable zabbix-server
+```
+Check the correct installation by navigating from a browser to the `http://myzabbixserver/zabbix/` where _myzabbixserveraddress_ is the IP address or hostname of the machine where the server is installed and running. If everything went well, you should find a message saying something like "_Congratulations! You have successfully installed Zabbix frontend. Configuration file "/usr/share/zabbix/conf/zabbix.conf.php" created._"
+
+#### Zabbix Agent
+
+The installation of the Zabbix agent module only is much lighter than the installation of the Zabbix server.
+
+Add Zabbix repo to the machine's known repositories:
+```bash
+wget https://repo.zabbix.com/zabbix/4.4/debian/pool/main/z/zabbix-release/zabbix-release_4.4-1+buster_all.deb
+sudo dpkg -i zabbix-release_4.4-1+buster_all.deb
+```
+Install Zabbix agent components:
+```bash
+sudo apt update && sudo apt install -y zabbix-agent
+```
+Generate a PSK key specific to this agent, and save it to a file:
+```bash
+sudo sh -c "openssl rand -hex 32 > /etc/zabbix/zabbix_agentd.psk"
+cat /etc/zabbix/zabbix_agentd.psk
+```
+The PSK key will be also used later on for the GUI configuration of each agent.
+
+Configure the communication of this agent with the Zabbix server by editing the configuration file:
+```bash
+sudo vim /etc/zabbix/zabbix_agentd.conf
+```
+and filling in the required details:
+```
+Server=_myzabbixserveraddress_
+TLSConnect=psk
+TLSAccept=psk
+TLSPSKIdentity=PSK 001
+TLSPSKFile=/etc/zabbix/zabbix_agentd.psk
+```
+where _myzabbixserveraddress_ is the IP address or hostname of the machine where the server is installed and running.
+
+Restart the Zabbix agent, check its status, and enable it for automatic start at system boot:
+```bash
+sudo systemctl restart zabbix-agent
+sudo systemctl status zabbix-agent
+sudo systemctl enable zabbix-agent
+```
+Set the firewall to allow the communication between the Zabbix agent and the Zabbix server (in this case allowing the default port, which however can be changed):
+```bash
+sudo ufw allow 10050/tcp
+```
+Configure each node hosting an agent (i.e., a _host_) in the Zabbix Web GUI specifying the PSK encryption.
+
+**TODO**
+
+## Using FORCH
 
 ### FORCH REST API
 
