@@ -158,7 +158,10 @@ class FogGateway(Resource):
 
     path = path.replace("-", "/")
 
-    r = requests.get("http://{}:{}/{}".format(node_ip, node_port, path))
+    try:
+      r = requests.get("http://{}:{}/{}".format(node_ip, node_port, path))
+    except requests.exceptions.ConnectionError:
+      return {"Connection error"}, 500
 
     #logger.debug(str(r))
 
