@@ -69,9 +69,9 @@ The monitoring system [Zabbix](www.zabbix.com) must be configured on the node ru
 
 #### Zabbix Server
 
-The following set of operation is the one followed to reach correct functioning of the Zabbix moniroting system on our development environment. Our set refers to **Zabbix version 4.4**. It is slightly different than the set of instructions provided in [the official Zabbix documentation](https://www.zabbix.com/documentation/4.4/manual/installation/getting_zabbix), as some steps did not appear to work as they were described there. Plus, this is mostly specific to **Ubuntu 18.04**.
+The following set of operation is the one followed to reach correct functioning of the Zabbix moniroting system on our development environment. Our set refers to **Zabbix version 4.4**. It is slightly different than the [installation instructions instructions](https://www.zabbix.com/documentation/4.4/manual/installation/getting_zabbix) provided in the official Zabbix documentation, as some steps did not appear to work as they were described there. Plus, this is mostly specific to **Ubuntu 18.04**.
 
-First, install required web and database packages (step inspired by [this](https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-ubuntu-18-04)):
+First, install required web and database packages (loosely based on [these instructions](https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-ubuntu-18-04)):
 ```bash
 sudo apt install -y apache2 mysql-server
 ```
@@ -95,7 +95,7 @@ Restart the apacher web server:
 ```bash
 sudo systemctl restart apache2
 ```
-Install the PHP FastCGI Process Manager module ([website](https://www.php.net/manual/en/install.fpm.php)):
+Install the [PHP FastCGI Process Manager](https://www.php.net/manual/en/install.fpm.php) module:
 ```bash
 sudo apt install php-fpm
 ```
@@ -165,8 +165,10 @@ Generate a PSK key specific to this agent, and save it to a file:
 sudo sh -c "openssl rand -hex 32 > /etc/zabbix/zabbix_agentd.psk"
 cat /etc/zabbix/zabbix_agentd.psk
 ```
-The PSK key will be also used later on for the GUI configuration of each agent.
-
+The PSK key will be also used later on for the GUI configuration of each agent. You can always retrieve it with:
+```bash
+cat /etc/zabbix/zabbix_agentd.psk
+```
 Configure the communication of this agent with the Zabbix server by editing the configuration file:
 ```bash
 sudo vim /etc/zabbix/zabbix_agentd.conf
@@ -191,9 +193,14 @@ Set the firewall to allow the communication between the Zabbix agent and the Zab
 ```bash
 sudo ufw allow 10050/tcp
 ```
-Configure each node hosting an agent (i.e., a _host_) in the Zabbix Web GUI specifying the PSK encryption.
 
-**TODO**
+#### Registration of Agents in the Server
+
+We need to register each node hosting an agent (i.e., a _host_) in the Zabbix Server's Web GUI
+
+Browse to `http://myzabbixserver/zabbix/` and [log in](https://www.zabbix.com/documentation/4.4/manual/quickstart/login) as administrator with username *Admin* and password *zabbix*.
+
+Under tab *Configuration > Hosts*, in the top right corner click on *Create host*, and insert the details of the fog node you want to register, specifying a host name, a template (e.g., *Template OS Linux by Zabbix agent*) and the node's IP address (which must be reachable from the Zabbix server), leaving the port to 10050 if you have not changed it in the server's configuration. In sub-tab *Encryption* set *Connections ot Host* to *PSK*, and set *Connections from host* to *PSK* only (uncheck the other checkboxes). Fill in the field *PSK* identity with the *TLSPSKIdentity* set at key creation, and fill in the field *PSK* with the PSK itself generated previously. Confirm with *Add* and go back to *Configuration > Hosts*, where you should see the new host connected to the server and reporting data (if you don't, wait a couple minutes and refresh the page).
 
 ## Using FORCH
 
