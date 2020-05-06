@@ -22,7 +22,7 @@ logger = logging.getLogger(os.path.basename(__file__))
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('[ %(asctime)s ][ %(levelname)s ] %(message)s')
+formatter = logging.Formatter('[ %(asctime)s ][ %(filename)s ][ %(levelname)s ] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
