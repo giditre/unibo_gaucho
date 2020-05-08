@@ -151,7 +151,7 @@ Under tab *Configuration > Hosts*, in the top right corner click on *Create host
 
 ### Install Docker
 
-The installation instructions for Docker Engine can be found [here](https://docs.docker.com/engine/install/). The following set of operation is the one followed to reach correct functioning of Docker Engine on the development system.
+Docker must be installed on machines acting as IaaS fog nodes. The installation instructions for Docker can be found [here](https://docs.docker.com/engine/install/). The following set of operation is the one followed to reach correct functioning of Docker Engine on the development system.
 
 #### ...on Ubuntu
 
@@ -239,14 +239,15 @@ FORCH consists of multiple independent components, which may be run on the same 
 
 ### Recommended: launching components simultaneously
 
-This is the easiest approach, which launches all FORCH components on a single machine, monitoring their output on a single terminal
+This is the easiest approach, which launches all FORCH components on a single machine, monitoring their output on a single terminal. From the machine you want to run FORCH, inside of the *unibo_gaucho* folder, launch:
 ```bash
 ./run_forch.sh
 ```
-On every Fog node, launch the relevant *fnode* component with
+Then, on every machine acting as fog node, clone the repo, then inside of the *unibo_gaucho* folder launch the relevant *fnode* component with:
 ```bash
-python3 <component_file_name> <IP_address> <TCP_port>
+./run_fnode_iaas.sh < -i | -p | -s >
 ```
+Where the option "i" or "p" or "s" will make the node act as IaaS, PaaS os SaaS respectively. Only one possible mode at a time. If you specify multiple option, only the last one will count.
 
 ### Alternative: launching components separately
 
