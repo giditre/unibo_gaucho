@@ -51,7 +51,7 @@ class FogApplication(Resource):
   def get(self, app_id):
     # determine node id by choosing a node among the ones that implement this app (if any)
     node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
-    logger.debug(node_dict)
+    #logger.trace(node_dict)
     app_list = requests.get("http://{}:{}/apps".format(db_address, db_port)).json()
     if app_id not in app_list:
       return {
