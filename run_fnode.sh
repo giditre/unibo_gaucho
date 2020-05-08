@@ -4,7 +4,9 @@ service=""
 while getopts 'ips' OPTION ; do
   case $OPTION in
     i) service="iaas"
+    ;;
     p) service="paas"
+    ;;
     s) service="saas"
     ;;
     ?) echo "Unknown parameter $OPTION"
