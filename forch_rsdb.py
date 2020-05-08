@@ -22,7 +22,7 @@ from logging.config import dictConfig as logging_dictConfig
 logging_dictConfig({
     'version': 1,
     'formatters': {'default': {
-        'format': '[ %(asctime)s ][ {} ][ %(levelname)s ] %(message)s'.format(os.path.basename(__file__)),
+        'format': '[ %(asctime)s ][ {:<21} ][ %(levelname)s ] %(message)s'.format(os.path.basename(__file__)),
     }},
     'handlers': {'wsgi': {
         'class': 'logging.StreamHandler',
