@@ -8,64 +8,11 @@ This PoC implementation is written in Python3. Its REST API is built using Flask
 
 ## Setting up the environment
 
-The following instructions apply for the machine(s) hosting the FORCH components, as well as for those acting as fog nodes.
+The following instructions cover the installation of the Zabbix monitoring system.
 
-It is suggested (but not strictly required) to operate inside of a [venv](https://docs.python.org/3.6/library/venv.html).
+**NOTE:** Zabbix Server must be installed on the machine running the *forch_rsdb* component of FORCH, while Zabbix Agent must be installed on each Fog node.
 
-Make sure the following Python3 modules are installed on every machine:
-```
-flask_restful
-requests
-docker
-pyzabbix
-```
-This can also be achieved by cloning the repo, then moving into the directory, and let pip3 do the work:
-```
-git clone giditre/unibo_gaucho
-cd unibo_gaucho/
-pip3 install -r requirements.txt
-```
-
-## Running the FORCH ecosystem
-
-FORCH consists of multiple independent components, which may be run on the same machine or on separate machines, as the communication between them happens via REST calls. However, in the development phase, for security purposes it is suggested to run all of the FORCH components on a single machine and make all of them listen only on the loopback interface (127.0.0.1), except for the User Access component (_forch_user_access.py_) which is the only one using HTTPS (as opposed to the others using unencrypted HTTP).
-
-From inside of the repo directory, run each of the components with
-```bash
-python3 <component_file_name> <IP_address> <TCP_port>
-```
-for example:
-```bash
-python3 forch_user_access.py 0.0.0.0 5001
-```
-or
-```bash
-python3 forch_broker.py 127.0.0.1 5002
-```
-
-The address 0.0.0.0 makes the components listen on all of the machine's interfaces, while 127.0.0.1 makes it listen only on the loopback interface.
-
-The choice of the TCP port is arbitrary. However, by default the ports are mapped this way:
-Component | Port
-----------|-----
-forch_user_access.py | 5001
-forch_broker.py | 5002
-forch_rsdb.py | 5003
-forch_iaas_mgmt.py | 5004
-fnode_saas.py / fnode_paas.py / fnode_iaas.py | 5005
-
-Running a component with a customized port required the other components to be instructed on the choice. This can be achieved by specifying comman line arguments for every component detailing the choice of IP addresses and ports. For the list of available CLI arguments for every component and for their usage, refer to the inline help of each component, by running:
-```bash
-python3 <component_file_name> --help
-```
-
-In any case, it is necessary that every component is within reach (network-wise) of all the other ones. This also includes _fnode_ components.
-
-The monitoring system [Zabbix](www.zabbix.com) must be configured on the node running _forch_rsdb.py_ (which accesses Zabbix through the Python module _pyzabbix_)
-
-### Installing Zabbix
-
-**Section under construction**
+### Install Zabbix
 
 #### Zabbix Server
 
@@ -194,13 +141,147 @@ Set the firewall to allow the communication between the Zabbix agent and the Zab
 sudo ufw allow 10050/tcp
 ```
 
-#### Registration of Agents in the Server
+#### Register Agents in the Server
 
 We need to register each node hosting an agent (i.e., a _host_) in the Zabbix Server's Web GUI
 
 Browse to `http://myzabbixserver/zabbix/` and [log in](https://www.zabbix.com/documentation/4.4/manual/quickstart/login) as administrator with username *Admin* and password *zabbix*.
 
 Under tab *Configuration > Hosts*, in the top right corner click on *Create host*, and insert the details of the fog node you want to register, specifying a host name, a template (e.g., *Template OS Linux by Zabbix agent*) and the node's IP address (which must be reachable from the Zabbix server), leaving the port to 10050 if you have not changed it in the server's configuration. In sub-tab *Encryption* set *Connections ot Host* to *PSK*, and set *Connections from host* to *PSK* only (uncheck the other checkboxes). Fill in the field *PSK* identity with the *TLSPSKIdentity* set at key creation, and fill in the field *PSK* with the PSK itself generated previously. Confirm with *Add* and go back to *Configuration > Hosts*, where you should see the new host connected to the server and reporting data (if you don't, wait a couple minutes and refresh the page).
+
+### Install Docker
+
+The installation instructions for Docker Engine can be found [here](https://docs.docker.com/engine/install/). The following set of operation is the one followed to reach correct functioning of Docker Engine on the development system.
+
+#### ...on Ubuntu
+
+The following instructions for the installation of Docker on Ubuntu are taken from [here](https://docs.docker.com/engine/install/ubuntu/).
+
+Make sure no Docker component is installed in the system:
+```
+sudo apt-get remove docker docker-engine docker.io containerd runc
+```
+Install authentication-related packages and add the Docker repository:
+```
+sudo apt-get update && sudo apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+```
+Install Docker packets:
+```
+sudo apt-get update && sudo apt-get -y install docker-ce docker-ce-cli containerd.io
+```
+Remove the need for `sudo` with:
+```
+sudo groupadd docker
+sudo gpasswd -a $USER docker
+newgrp docker
+```
+Test the correct installation of docker with:
+```
+docker run hello-world
+```
+
+#### ...on Raspberry Pi
+
+```
+sudo apt-get remove docker docker-engine docker.io containerd runc
+sudo apt-get update && sudo apt-get install apt-transport-https ca-certificates software-properties-common -y
+curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh
+sudo usermod -aG docker $USER
+sudo curl https://download.docker.com/linux/raspbian/gpg | sudo apt-key add -
+```
+Add the Raspbian Docker repo by editing
+```
+sudo vim /etc/apt/sources.list
+```
+and adding the line:
+```
+deb https://download.docker.com/linux/raspbian/ stretch stable
+```
+Upgrade the installation and make Docker active on boot:
+```
+sudo apt-get update && sudo apt-get -y upgrade
+sudo systemctl enable docker.service
+sudo systemctl restart docker.service
+sudo systemctl status docker.service
+```
+Check the correct installation
+```
+docker info
+docker run hello-world
+```
+
+### Install Python modules
+
+The following instructions apply for the machine(s) hosting the FORCH components, as well as for those acting as fog nodes.
+
+It is suggested (but not strictly required) to operate inside of a [venv](https://docs.python.org/3.6/library/venv.html).
+
+Make sure the following Python3 modules are installed on every machine:
+```
+flask_restful
+requests
+docker
+pyzabbix
+```
+This can also be achieved by cloning the repo, then moving into the directory, and let pip3 do the work:
+```
+git clone giditre/unibo_gaucho
+cd unibo_gaucho/
+pip3 install -r requirements.txt
+```
+
+## Running the FORCH ecosystem
+
+FORCH consists of multiple independent components, which may be run on the same machine or on separate machines, as the communication between them happens via REST calls. However, in the development phase, for security purposes it is suggested to run all of the FORCH components on a single machine and make all of them listen only on the loopback interface (127.0.0.1), except for the User Access component (*forch_user_access.py*) which is the only one using HTTPS (as opposed to the others using unencrypted HTTP).
+
+### Recommended: launching components simultaneously
+
+This is the easiest approach, which launches all FORCH components on a single machine, monitoring their output on a single terminal
+```bash
+./run_forch.sh
+```
+On every Fog node, launch the relevant *fnode* component with
+```bash
+python3 <component_file_name> <IP_address> <TCP_port>
+```
+
+### Alternative: launching components separately
+
+This is the advanced and more customizable From inside of the repo directory, run each of the components with
+```bash
+python3 <component_file_name> <IP_address> <TCP_port>
+```
+for example:
+```bash
+python3 forch_user_access.py 0.0.0.0 5001
+```
+or
+```bash
+python3 forch_broker.py 127.0.0.1 5002
+```
+
+The address 0.0.0.0 makes the components listen on all of the machine's interfaces, while 127.0.0.1 makes it listen only on the loopback interface.
+
+The choice of the TCP port is arbitrary. However, by default the ports are mapped this way:
+Component | Port
+----------|-----
+forch_user_access.py | 5001
+forch_broker.py | 5002
+forch_rsdb.py | 5003
+forch_iaas_mgmt.py | 5004
+fnode_saas.py / fnode_paas.py / fnode_iaas.py | 5005
+
+Running a component with a customized port required the other components to be instructed on the choice. This can be achieved by specifying comman line arguments for every component detailing the choice of IP addresses and ports. For the list of available CLI arguments for every component and for their usage, refer to the inline help of each component, by running:
+```bash
+python3 <component_file_name> --help
+```
+
+In any case, it is necessary that every component is within reach (network-wise) of all the other ones. This also includes _fnode_ components.
+
+The monitoring system [Zabbix](www.zabbix.com) must be configured on the node running _forch_rsdb.py_ (which accesses Zabbix through the Python module _pyzabbix_)
 
 ## Using FORCH
 
