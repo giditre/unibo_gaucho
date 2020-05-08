@@ -10,13 +10,30 @@ import os
 
 ### Logging setup
 
+from logging.config import dictConfig as logging_dictConfig
+logging_dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[ %(asctime)s ][ {} ][ %(levelname)s ] %(message)s'.format(os.path.basename(__file__)),
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
+
 logger = logging.getLogger(os.path.basename(__file__))
 logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('[ %(asctime)s ][ %(filename)s ][ %(levelname)s ] %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+#ch = logging.StreamHandler()
+#ch.setLevel(logging.DEBUG)
+#formatter = logging.Formatter('[ %(asctime)s ][ %(filename)s ][ %(levelname)s ] %(message)s')
+#ch.setFormatter(formatter)
+#logger.addHandler(ch)
 
 ### Resource definition
 

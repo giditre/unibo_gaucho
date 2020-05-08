@@ -1,4 +1,5 @@
 from flask import Flask, request
+from flask.logging import default_handler
 from flask_restful import Resource, Api, reqparse, abort
 import json
 import argparse
@@ -12,13 +13,32 @@ from functools import wraps
 
 ### Logging setup
 
+from logging.config import dictConfig as logging_dictConfig
+logging_dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[ %(asctime)s ][ {} ][ %(levelname)s ] %(message)s'.format(os.path.basename(__file__)),
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
+
 logger = logging.getLogger(os.path.basename(__file__))
 logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('[ %(asctime)s ][ %(filename)s ][ %(levelname)s ] %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+#ch = logging.StreamHandler()
+#ch.setLevel(logging.DEBUG)
+#formatter = logging.Formatter('[ %(asctime)s ][ %(filename)s ][ %(levelname)s ] %(message)s')
+#ch.setFormatter(formatter)
+#logger.addHandler(ch)
+
+#default_handler.setFormatter(formatter)
 
 ###
 
@@ -94,6 +114,10 @@ def authenticate_admin(function):
 ### Resource definition
 
 class Test(Resource):
+
+  def __init__(self, *args, **kwargs):
+    self.logger = kwargs.get('logger')
+
   @authenticate
   def get(self):
     ##logger.debug(request.authorization)
@@ -244,9 +268,10 @@ def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
 ### API definition
 
 app = Flask(__name__)
+
 api = Api(app)
 
-api.add_resource(Test, '/test')
+api.add_resource(Test, '/test', resource_class_kwargs={'logger': logging.getLogger(os.path.basename(__file__))})
 
 api.add_resource(FogApplicationList, '/apps')
 api.add_resource(FogApplication, '/app/<app_id>')
@@ -292,6 +317,8 @@ if __name__ == '__main__':
   if wait_remote:
     wait_for_remote_endpoint(db_address, db_port)
     wait_for_remote_endpoint(broker_address, broker_port)
+
+  #logger.debug("test")
 
   app.run(host=ep_address, port=ep_port, debug=debug, ssl_context='adhoc')
 
