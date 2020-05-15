@@ -4,19 +4,25 @@
 
 Introducing FORCH, a modular system for Fog Orchestrations container-based resorce allocation, developed in the context of project GAUChO by the team of the University of Bologna.
 
-This PoC implementation is written in Python3. Its REST API is built using Flask RESTful, and it is for research and development purposes only, as it is not safe for production enviroments.
+FORCH is designed for managing allocation of services in a Fog infrastructure, where efficiency, flexibility and dinamicity are key aspects. FORCH is composed of a set of components, each with its own role, communicating with the other components through their REST API. FORCH also relies on an "agent" module running in each Fog node, offering a REST API as well, employed to manage resources on the specifc node.
+
+This PoC implementation is written in Python3. Its REST API is built using Flask RESTful, and its intended use is research and development purposes only - it is not suitable for production enviroments (yet), due to limited use of security mechanisms.
 
 ## Setting up the environment
+
+FORCH modules (including orchestrator and agent modules) require the machines running them to offer some functionalities for monitoring and container management. Therefore, Zabbix (the employed monitoring system) and Docker (the virtualization engine of choice for this PoC implementation) must be installed and configured on the relevant nodes before running FORCH and its agent modules.
+
+The general idea is to run FORCH on a machine and Fog nodes separate machines. It is important that these machienes can reach one another through the network.
+
+### Install Zabbix
 
 The following instructions cover the installation of the Zabbix monitoring system.
 
 **NOTE:** Zabbix Server must be installed on the machine running the *forch_rsdb* component of FORCH, while Zabbix Agent must be installed on each Fog node.
 
-### Install Zabbix
-
 #### Zabbix Server
 
-The following set of operation is the one followed to reach correct functioning of the Zabbix moniroting system on our development environment. Our set refers to **Zabbix version 4.4**. It is slightly different than the [installation instructions instructions](https://www.zabbix.com/documentation/4.4/manual/installation/getting_zabbix) provided in the official Zabbix documentation, as some steps did not appear to work as they were described there. Plus, this is mostly specific to **Ubuntu 18.04**.
+The following set of operation is the one followed to reach correct functioning of the Zabbix moniroting system on our development environment. Our set refers to **Zabbix version 4.4**. It is slightly different than the [installation instructions](https://www.zabbix.com/documentation/4.4/manual/installation/getting_zabbix) provided in the official Zabbix documentation, as some steps did not appear to work as they were described there. Plus, this is mostly specific to **Ubuntu 18.04**.
 
 First, install required web and database packages (loosely based on [these instructions](https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-ubuntu-18-04)):
 ```bash
