@@ -39,6 +39,10 @@ class Test(Resource):
       "type": "NIM_TEST_OK"
     }
   def delete(self):
+    # remove instances of running apps if possible
+    global thread_list
+    for t in thread_list:
+      r = requests.delete("http://127.0.0.1:{}/app/{}".format(t.get_port(), t.get_app_id()))
     interrupt_main()
     return {
       "message": "This endpoint is being ({} at {}) stopped".format(os.path.basename(__file__), socket.gethostname()),
