@@ -7,6 +7,7 @@ import random
 from time import sleep
 import os
 import threading
+import multiprocessing
 import socket
 
 ### Logging setup
@@ -33,7 +34,18 @@ def shell_command(cmd, track_pid=False, pid_dir="/tmp"):
 
 class Test(Resource):
   def get(self):
-    return {"message": "This endpoint ({}) is up!".format(os.path.basename(__file__))}
+    return {
+      "message": "This endpoint ({} at {}) is up!".format(os.path.basename(__file__), socket.gethostname()),
+      "type": "NIM_TEST_OK"
+    }
+  def delete(self):
+    #stop_process = multiprocessing.Process(target=stop_target, args=(sdp, q), kwargs=req_json)
+    stop_process = multiprocessing.Process(target=stop_target)
+    stop_process.start()
+    return {
+      "message": "This endpoint is being ({} at {}) stopped".format(os.path.basename(__file__), socket.gethostname()),
+      "type": "NIM_STOP_OK"
+    }
 
 class FogNodeInfo(Resource):
   def get(self):

@@ -16,6 +16,8 @@ while getopts 'ips' OPTION ; do
 done
 shift $(($OPTIND-1))
 
+[ -z "$service" ] && echo "Usage: $0 < -i | -p | -s >" && exit 1
+
 # function called by trap
 cleanup() {
   echo -e "\nCleaning up..."
