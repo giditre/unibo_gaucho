@@ -7,8 +7,8 @@ import random
 from time import sleep
 import os
 import threading
-import multiprocessing
 import socket
+from _thread import interrupt_main
 
 ### Logging setup
   
@@ -30,6 +30,8 @@ def shell_command(cmd, track_pid=False, pid_dir="/tmp"):
   logger.debug("Shell cmd: {}".format(cmd))
   os.system(cmd)
 
+
+
 ### Resource definition
 
 class Test(Resource):
@@ -39,9 +41,7 @@ class Test(Resource):
       "type": "NIM_TEST_OK"
     }
   def delete(self):
-    #stop_process = multiprocessing.Process(target=stop_target, args=(sdp, q), kwargs=req_json)
-    stop_process = multiprocessing.Process(target=stop_target)
-    stop_process.start()
+    interrupt_main()
     return {
       "message": "This endpoint is being ({} at {}) stopped".format(os.path.basename(__file__), socket.gethostname()),
       "type": "NIM_STOP_OK"
