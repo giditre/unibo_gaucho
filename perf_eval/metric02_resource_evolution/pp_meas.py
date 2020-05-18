@@ -50,6 +50,16 @@ if ignore_last > 0:
 if len(sorted_t) > limit:
   sorted_t = sorted_t[-limit:]
 
+#  list and sort host_id and flter out those not included in the legend
+host_id_list = []
+for t in meas_dict:
+  for h_id in meas_dict[t]:
+    if h_id not in host_id_list:
+      host_id_list.append(h_id)
+sorted_host_id_list = sorted(host_id_list)
+n_hosts = len(sorted_host_id_list)
+print(n_hosts, sorted_host_id_list)
+
 # process the legend
 legend = {}
 if legend_str:
@@ -57,32 +67,39 @@ if legend_str:
     h_id, name = pair.split(":")
     legend[h_id] = name
 else:
-  legend = { k:k for k in meas_dict[sorted_t[0]].keys() }
+  legend = { h_id:h_id for h_id in sorted_host_id_list }
 print("legend", legend)
 
-# sort host_id and flter out those not included in the legend
-sorted_host_id = [ h_id for h_id in sorted(meas_dict[sorted_t[0]].keys()) if h_id in legend ]
-n_hosts = len(sorted_host_id)
-print(n_hosts, sorted_host_id)
+sorted_host_id_list = [ h_id for h_id in sorted_host_id_list if h_id in legend ]
 
 patterns = [ "//", "\\", "+", "x", "|", "/", "-", ".", "o", "O", "*" ]
 
-plot_dict = { h: {} for h in sorted_host_id }
+plot_dict = { h: {} for h in sorted_host_id_list }
 
 lastclock_dict = {}
 
 for t in sorted_t:
   meas = meas_dict[t]
-  for host_id in sorted_host_id:
+  for host_id in sorted_host_id_list:
     item_dict = meas[host_id]
     lastclock_dict[host_id] = 0
+    is_available = False
+    for item_id in item_dict:
+      item = item_dict[item_id]
+      if item["name"] == "available":
+        if item["lastvalue"] == "1":
+          is_available = True
+        break
     for item_id in item_dict:
       item = item_dict[item_id]
       if item["name"] == "CPU utilization":
         #print(t, host_id, item["lastvalue"])
         if item["lastclock"] != lastclock_dict[host_id]:
           lastclock_dict[host_id] = item["lastclock"]
-          plot_dict[host_id][item["lastclock"]] = round(float(item["lastvalue"]))
+          if is_available:
+            plot_dict[host_id][item["lastclock"]] = round(float(item["lastvalue"]))
+          else:
+            plot_dict[host_id][item["lastclock"]] = 0
 
 # trim length of plot_dict
 min_length = min( [ len(plot_dict[h_id]) for h_id in plot_dict ] )
@@ -98,7 +115,7 @@ labels = [ str(t) for t in range(min_length) ]
 print("labels", len(labels), labels)
 for h_id in plot_dict:
   print("h_id", h_id)
-  #print("plot_dict", plot_dict[h_id])
+  print("plot_dict", plot_dict[h_id])
   print("plot_dict keys", len(plot_dict[h_id].keys()), plot_dict[h_id].keys())
   print("plot_dict values", len(plot_dict[h_id].values()), plot_dict[h_id].values())
 
@@ -108,11 +125,11 @@ width = width_factor/n_hosts  # the width of the bars
 fig, ax = plt.subplots()
 
 #if n_hosts == 1:
-#  rect_list = [ ax.bar(x, plot_dict[sorted_host_id[0]], width, label=sorted_host_id[0]) ]
+#  rect_list = [ ax.bar(x, plot_dict[sorted_host_id_list[0]], width, label=sorted_host_id_list[0]) ]
 #else:
-#  rect_list = [ ax.bar(x - (n_hosts-1)/2 * width + i*width, plot_dict[sorted_host_id[i]], width, label=sorted_host_id[i]) for i in range(n_hosts) ]
+#  rect_list = [ ax.bar(x - (n_hosts-1)/2 * width + i*width, plot_dict[sorted_host_id_list[i]], width, label=sorted_host_id_list[i]) for i in range(n_hosts) ]
 
-rect_list = [ ax.bar( np.arange(len(plot_dict[sorted_host_id[i]].values())) - (n_hosts-1)/2 * width + i*width, list(plot_dict[sorted_host_id[i]].values()), width, label=legend[sorted_host_id[i]], hatch=patterns[i], alpha=.99) for i in range(n_hosts) ]
+rect_list = [ ax.bar( np.arange(len(plot_dict[sorted_host_id_list[i]].values())) - (n_hosts-1)/2 * width + i*width, list(plot_dict[sorted_host_id_list[i]].values()), width, label=legend[sorted_host_id_list[i]], hatch=patterns[i], alpha=.99) for i in range(n_hosts) ]
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
 #ax.set_title("CPU utilization")
@@ -124,15 +141,15 @@ ax.set_ylim([0, 120])
 ax.legend()
 
 
-def autolabel(rects):
-  """Attach a text label above each bar in *rects*, displaying its height."""
-  for rect in rects:
-    height = rect.get_height()
-    ax.annotate('{}'.format(height),
-      xy=(rect.get_x() + rect.get_width() / 2, height),
-      xytext=(0, 3),  # 3 points vertical offset
-      textcoords="offset points",
-      ha='center', va='bottom')
+#def autolabel(rects):
+#  """Attach a text label above each bar in *rects*, displaying its height."""
+#  for rect in rects:
+#    height = rect.get_height()
+#    ax.annotate('{}'.format(height),
+#      xy=(rect.get_x() + rect.get_width() / 2, height),
+#      xytext=(0, 3),  # 3 points vertical offset
+#      textcoords="offset points",
+#      ha='center', va='bottom')
 
 #for rect in rect_list:
 #  autolabel(rect)

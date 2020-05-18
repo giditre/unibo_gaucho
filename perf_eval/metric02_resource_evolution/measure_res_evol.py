@@ -32,6 +32,7 @@ parser.add_argument("--fomg-password", help="Password for the Fog Management, de
 parser.add_argument("-d", "--service-data", help="Service data to be passed to the request starting the service, default: {}", nargs="?", default="{}")
 parser.add_argument("--pre-delete", help="DELETE before starting allocation, default: False", action="store_true", default=False)
 parser.add_argument("--post-delete", help="DELETE after gathering measurements, default: False", action="store_true", default=False)
+parser.add_argument("--test-delete", help="Stop fog node processes after getting measurements, default: False", action="store_true", default=False)
 parser.add_argument("-y", "--assume-yes", help="Automatic yes to prompts, default: False", action="store_true", default=False)
 
 parser.add_argument("--cycle-delete", help="DELETE at the end of every cycle, default: False", action="store_true", default=False)
@@ -65,6 +66,7 @@ if args.fgw_url:
   fgw_password = args.fgw_password if args.fgw_password else fua_password
 pre_delete = args.pre_delete
 post_delete = args.post_delete
+test_delete = args.test_delete
 
 preliminary_get = args.preliminary_get
 allocation_get = args.allocation_get
@@ -73,9 +75,11 @@ service_data_json = json.loads(args.service_data)
 cycle_delete = args.cycle_delete
 n_cycles = args.num_cycles
 
-node_id_list = list(args.node_list.split(",")) if args.node_list else []
+new_node_id_list = list(args.node_list.split(",")) if args.node_list else []
 new_node_int_cycles = args.nnic
 end_cycles = args.end_cycles
+
+test_node_id_list = list(args.node_list.split(",")) if args.node_list else []
 
 output_fname = args.output_fname
 
@@ -130,13 +134,13 @@ while remaining_cycles > 0:
     time.sleep(1)
 
   # on some cycles activate a new fog node
-  if i % new_node_int_cycles == 0 and node_id_list:
-    node_id = node_id_list.pop(0)
+  if i % new_node_int_cycles == 0 and new_node_id_list:
+    node_id = new_node_id_list.pop(0)
     url = fgw_url + "/" + node_id + "/8000"
     print_flush("GET", url)
     r = requests.get(url, auth=(fgw_user, fgw_password), verify=False)
-    if not node_id_list:
-      print_flush("WARNING: node_id_list is empty")
+    if not new_node_id_list:
+      print_flush("WARNING: new_node_id_list is empty")
       remaining_cycles = end_cycles
 
   if cycle_delete:
@@ -150,6 +154,14 @@ while remaining_cycles > 0:
   
   print_flush("Sleep for 2 minutes")
   time.sleep(120)
+
+if test_delete:
+  for node_id in test_node_id_list:
+    # e.g. https://137.204.57.80:51117/fgw/10313/5005/test
+    url = fgw_url + "/" + node_id + "/5005/test"
+    print_flush("DELETE", url)
+    r = requests.delete(url, auth=(fomg_user, fomg_password), verify=False)
+    time.sleep(1)
 
 if post_delete:
   url = fomg_url + "/127.0.0.1/5003/nodes"
@@ -165,6 +177,6 @@ r = requests.get(url, auth=(fomg_user, fomg_password), verify=False)
 
 with open(output_fname, "w") as f:
   json.dump(r.json(), f)
-  
+
 print_flush("Measurement data written to file {}".format(output_fname))
 
