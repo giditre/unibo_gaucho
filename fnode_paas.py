@@ -41,6 +41,9 @@ class Test(Resource):
       "type": "NIM_TEST_OK"
     }
   def delete(self):
+    global thread_list
+    for t in thread_list:
+      r = requests.delete("http://127.0.0.1:{}/sdp/{}".format(t.get_port(), t.get_sdp_id()))
     interrupt_main()
     return {
       "message": "This endpoint is being ({} at {}) stopped".format(os.path.basename(__file__), socket.gethostname()),
