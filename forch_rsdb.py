@@ -93,10 +93,22 @@ class Zabbix():
   #  else:
   #    return {"message": "Node {} not found.".format(node_id)}
 
-  def get_measurements(self, node_id=None, search_str=""):
+  def get_measurements(self, node_id=None, only_available=True, search_str=""):
     fields = [ "hostid", "itemid", "name", "lastclock", "lastvalue", "units" ]
-    measurements = [ { f: item[f] for f in fields } for item in self.zapi.item.get(filter={"hostid": node_id}, search={"name": "*{}*".format(search_str)}, searchWildcardsEnabled=True) ]
-    #logger.debug("MEASUREMENTS", measurements)
+    #node_id_list = None
+    #if node_id is not None and only_available == True:
+    #  node_id_list = "-1"
+    #  if node_id in rsdb.rsdb["nodes"]:
+    #    available = str(rsdb.rsdb["nodes"][node_id]["available"])
+    #    #logger.debug("{} {}".format(node_id, available))
+    #    if available == "1":
+    #      node_id_list = [ node_id ]
+    #elif node_id is None and only_available == True:
+    #  node_id_list = [ h_id for h_id in rsdb.rsdb["nodes"] if rsdb.rsdb["nodes"][h_id]["available"] == "1" ]
+    #  logger.debug("Available hosts: {}".format(node_id_list))
+    node_id_list = [ node_id ]
+    measurements = [ { f: item[f] for f in fields } for item in self.zapi.item.get(filter={"hostid": node_id_list}, search={"name": "*{}*".format(search_str)}, searchWildcardsEnabled=True) ]
+    #logger.debug("MEASUREMENTS : {}".format(measurements))
     return measurements
 
 ### user functions
@@ -156,6 +168,11 @@ class RSDM(threading.Thread):
           #if lastclock == 0:
           #  continue
           self.rsdm_dict[t][node_id][item["itemid"]] = item
+        available_item_id = node_id + "01"
+        self.rsdm_dict[t][node_id][available_item_id] = {
+          "name": "available",
+          "lastvalue": rsdb.rsdb["nodes"][node_id]["available"] if node_id in rsdb.rsdb["nodes"] else "0"
+        }
       # keep maximum size of dictionary limited to max_history values
       if len(self.rsdm_dict) > self.max_history:
         oldest_t = min(self.rsdm_dict.keys())

@@ -209,7 +209,27 @@ class FogGateway(Resource):
     if not req_json:
       req_json = {"test": "test"}
 
-    r = requests.post("http://{}:{}/{}".format(node_ip, node_port, path), json=req_json)
+    try:
+      r = requests.post("http://{}:{}/{}".format(node_ip, node_port, path), json=req_json)
+    except requests.exceptions.ConnectionError:
+      return {"Connection error"}, 500
+
+    try:
+      return r.json(), r.status_code
+    except json.decoder.JSONDecodeError:
+      return r.text, r.status_code
+
+  @authenticate_admin
+  def delete(self, node_id, node_port, path=""):
+    # retrieve node IP
+    node_ip = self.get_node_ip(node_id)
+
+    path = path.replace("-", "/")
+
+    try:
+      r = requests.delete("http://{}:{}/{}".format(node_ip, node_port, path))
+    except requests.exceptions.ConnectionError:
+      return {"Connection error"}, 500
 
     try:
       return r.json(), r.status_code
