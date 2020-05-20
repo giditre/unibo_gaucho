@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("fname", help="File name")
 parser.add_argument("-i", "--ignore-last", help="Number of trailing results to ignore, starting from most recent, default: 0", type=int, nargs="?", default=0)
-parser.add_argument("-l", "--limit", help="Maximum number of results to show, starting from most recent, default: 1000", type=int, nargs="?", default=1000)
+parser.add_argument("-l", "--last-minutes", help="Only show the last l minutes, default: -1", type=int, nargs="?", default=-1)
 parser.add_argument("-f", "--fontsize", help="Font size, default: 10", type=int, nargs="?", default=10)
 parser.add_argument("-w", "--widthfactor", help="Width factor, default: 0.9", type=float, nargs="?", default=0.9)
 parser.add_argument("-s", "--figsizes", help="Sizes of the figure in inches, comma-separated values, default: 8,6", nargs="?", default="8,6")
@@ -26,7 +26,7 @@ print("CLI args: {}".format(vars(args)))
 
 fname = args.fname
 ignore_last = args.ignore_last
-limit = args.limit
+last_minutes = args.last_minutes
 fontsize = args.fontsize
 width_factor = args.widthfactor
 fig_width = int(args.figsizes.split(",")[0])
@@ -46,9 +46,9 @@ sorted_t = sorted(meas_dict.keys())
 # apply ignore_last
 if ignore_last > 0:
   sorted_t = sorted_t[:-ignore_last]
-# apply limit
-if len(sorted_t) > limit:
-  sorted_t = sorted_t[-limit:]
+  ## apply limit
+  #if len(sorted_t) > limit:
+  #  sorted_t = sorted_t[-limit:]
 
 #  list and sort host_id and flter out those not included in the legend
 host_id_list = []
@@ -108,16 +108,43 @@ for h_id in plot_dict:
     last_t = max(plot_dict[h_id].keys())
     del plot_dict[h_id][last_t]
 
+# convert to list
+for h_id in plot_dict:
+  plot_dict[h_id] = [ v for v in plot_dict[h_id].values() ][:]
+
+if last_minutes == -1:
+  # find last_minutes value as time where all values are 0
+  for i in range(min_length):
+    for h in range(len(sorted_host_id_list)):
+      h_id = sorted_host_id_list[h]
+      if plot_dict[h_id][i] == 0:
+        continue
+      else:
+        if h == len(sorted_host_id_list)-1:
+          # we get here only if all host id at position i have 0
+          last_minutes = min_lenght - i
+        else:
+          break
+
+# apply last_minutes
+for h_id in plot_dict:
+  plot_dict[h_id] = plot_dict[h_id][-last_minutes:]
+
 # create x axis labels
-labels = [ str(t) for t in range(min_length) ]
+if last_minutes == -1 or last_minutes == 0:
+  labels = [ str(t) for t in range(min_length) ]
+else:
+  labels = [ str(t) for t in range(last_minutes) ]
 
 # display information
 print("labels", len(labels), labels)
 for h_id in plot_dict:
   print("h_id", h_id)
   print("plot_dict", plot_dict[h_id])
-  print("plot_dict keys", len(plot_dict[h_id].keys()), plot_dict[h_id].keys())
-  print("plot_dict values", len(plot_dict[h_id].values()), plot_dict[h_id].values())
+  #print("plot_dict keys", len(plot_dict[h_id].keys()), plot_dict[h_id].keys())
+  print("plot_dict keys", len(plot_dict[h_id]), plot_dict[h_id])
+  #print("plot_dict values", len(plot_dict[h_id].values()), plot_dict[h_id].values())
+  print("plot_dict values", len(plot_dict[h_id]), plot_dict[h_id])
 
 x = np.arange(len(labels))  # the label locations
 width = width_factor/n_hosts  # the width of the bars
@@ -129,7 +156,8 @@ fig, ax = plt.subplots()
 #else:
 #  rect_list = [ ax.bar(x - (n_hosts-1)/2 * width + i*width, plot_dict[sorted_host_id_list[i]], width, label=sorted_host_id_list[i]) for i in range(n_hosts) ]
 
-rect_list = [ ax.bar( np.arange(len(plot_dict[sorted_host_id_list[i]].values())) - (n_hosts-1)/2 * width + i*width, list(plot_dict[sorted_host_id_list[i]].values()), width, label=legend[sorted_host_id_list[i]], hatch=patterns[i], alpha=.99) for i in range(n_hosts) ]
+#rect_list = [ ax.bar( np.arange(len(plot_dict[sorted_host_id_list[i]].values())) - (n_hosts-1)/2 * width + i*width, list(plot_dict[sorted_host_id_list[i]].values()), width, label=legend[sorted_host_id_list[i]], hatch=patterns[i], alpha=.99) for i in range(n_hosts) ]
+rect_list = [ ax.bar( np.arange(len(plot_dict[sorted_host_id_list[i]])) - (n_hosts-1)/2 * width + i*width, plot_dict[sorted_host_id_list[i]], width, label=legend[sorted_host_id_list[i]], hatch=patterns[i], alpha=.99) for i in range(n_hosts) ]
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
 #ax.set_title("CPU utilization")
@@ -163,5 +191,5 @@ fig.set_dpi(fig_dpi)
 if plt_show:
   plt.show()
 
-plt.savefig('out.pdf', bbox_inches='tight')
+plt.savefig(fname.replace("json", "pdf"), bbox_inches='tight')
 
