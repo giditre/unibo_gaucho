@@ -84,6 +84,7 @@ class Zabbix():
       hostid = i["hostid"]
       if hostid in nodes:
         nodes[hostid]["ip"] = i["ip"]
+    #logger.debug("Zabbix nodes: {}".format(nodes))
     return nodes
 
   #def get_node(self, node_id):
@@ -260,10 +261,14 @@ class RSDB():
 
   def get_node_list(self):
     with self.db_lock:
+      #logger.debug("Gathering node list from monitoring collector")
       self.rsdb["nodes"] = self.collector.get_nodes()
+      logger.debug("Gathered node list from monitoring collector")
       # maybe avoid asking nodes directly, but go through forch_iaas_mgmt? - but then what about non-IaaS nodes?
 
       for node_id in self.rsdb["nodes"]:
+
+        #logger.debug("Node {}".format(node_id))
 
         self.rsdb["nodes"][node_id]["apps"] = []
         self.rsdb["nodes"][node_id]["sdps"] = []
@@ -272,9 +277,12 @@ class RSDB():
         try:
           node_info = requests.get("http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])).json()
         except requests.exceptions.ConnectionError:
+          logger.debug("Node {} not responding at {}".format(node_id, "http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])))
           self.rsdb["nodes"][node_id]["class"] = ""
           self.rsdb["nodes"][node_id]["available"] = "0"
           continue
+
+        #logger.debug("Info {}".format(node_id, node_info))
 
         if node_info["class"] == "S":
           self.rsdb["nodes"][node_id]["class"] = node_info["class"]
@@ -395,10 +403,11 @@ class RSDB():
           for fve in self.rsdb["fves"]:
             if fve not in self.rsdb["nodes"][node_id]["fves"] and node_id in self.rsdb["fves"][fve]["nodes"]:
               self.rsdb["fves"][fve]["nodes"].remove(node_id)
-
         else:
           # TODO handle error
           logger.debug("Unhandled class {}".format(node_info["class"]))
+
+        #logger.debug(self.rsdb["nodes"][node_id])
 
     return self.rsdb["nodes"]
 

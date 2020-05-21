@@ -45,14 +45,14 @@ class Test(Resource):
     }
 
 class FogApplication(Resource):
-  def __init__(self):
-    super().__init__()
 
   def get(self, app_id):
     # determine node id by choosing a node among the ones that implement this app (if any)
     node_dict = requests.get("http://{}:{}/nodes".format(db_address, db_port)).json()
+    #logger.debug("Gathered node list")
     #logger.trace(node_dict)
     app_list = requests.get("http://{}:{}/apps".format(db_address, db_port)).json()
+    #logger.debug("Gathered app list")
     if app_id not in app_list:
       return {
         "message": "APP {} not defined".format(app_id), 
@@ -175,8 +175,6 @@ class FogApplication(Resource):
   #  return '', 201
 
 class SoftDevPlatform(Resource):
-  def __init__(self):
-    super().__init__()
 
   def get(self, sdp_id):
     # determine node id by choosing node among the ones offering this SDP (if any)
