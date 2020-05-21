@@ -469,8 +469,9 @@ class RSDB():
 
   def delete_apps(self):
     process_list = []
+    print(self.rsdb["nodes"])
     for node_id in self.rsdb["nodes"]:
-      if self.rsdb["nodes"][node_id]["apps"]:
+      if "apps" in self.rsdb["nodes"][node_id] and self.rsdb["nodes"][node_id]["apps"]:
         p = Process(target=self.delete_apps_node, args=(node_id,))
         p.start()
         process_list.append(p)
@@ -490,7 +491,7 @@ class RSDB():
   def delete_sdps(self):
     process_list = []
     for node_id in self.rsdb["nodes"]:
-      if self.rsdb["nodes"][node_id]["sdps"]:
+      if "sdps" in self.rsdb["nodes"][node_id] and self.rsdb["nodes"][node_id]["sdps"]:
         p = Process(target=self.delete_sdps_node, args=(node_id,))
         p.start()
         process_list.append(p)
@@ -510,7 +511,7 @@ class RSDB():
   def delete_fves(self):
     process_list = []
     for node_id in self.rsdb["nodes"]:
-      if self.rsdb["nodes"][node_id]["fves"]:
+      if "fves" in self.rsdb["nodes"][node_id] and self.rsdb["nodes"][node_id]["fves"]:
         p = Process(target=self.delete_fves_node, args=(node_id,))
         p.start()
         process_list.append(p)
