@@ -131,7 +131,19 @@ class FogApplicationList(Resource):
   def get(self):
     # get app list from database
     r = requests.get("http://{}:{}/appcat".format(db_address, db_port))
-    return r.json(), r.status_code
+    items_dict = r.json()
+
+    # experimental part for the GUI
+    items_json = items_dict
+    items_list = []
+    for item in items_json:
+      tmp_dict = {"id": item}
+      for k, v in items_json[item].items():
+        tmp_dict[k] = v
+      items_list.append(tmp_dict)
+    items_dict = {"items": items_list}
+
+    return items_dict, r.status_code
 
 class FogApplication(Resource):
   @authenticate
@@ -145,7 +157,19 @@ class SoftDevPlatformList(Resource):
   def get(self):
     # get SDP list from database
     r = requests.get("http://{}:{}/sdpcat".format(db_address, db_port))
-    return r.json(), r.status_code
+    items_dict = r.json()
+
+    # experimental part for the GUI
+    items_json = items_dict
+    items_list = []
+    for item in items_json:
+      tmp_dict = {"id": item}
+      for k, v in items_json[item].items():
+        tmp_dict[k] = v
+      items_list.append(tmp_dict)
+    items_dict = {"items": items_list}
+
+    return items_dict, r.status_code
 
 class SoftDevPlatform(Resource):
   @authenticate
@@ -159,7 +183,19 @@ class FogVirtEngineList(Resource):
   def get(self):
     # get fve list from database
     r = requests.get("http://{}:{}/fvecat".format(db_address, db_port))
-    return r.json(), r.status_code
+    items_dict = r.json()
+
+    # experimental part for the GUI
+    items_json = items_dict
+    items_list = []
+    for item in items_json:
+      tmp_dict = {"id": item}
+      for k, v in items_json[item].items():
+        tmp_dict[k] = v
+      items_list.append(tmp_dict)
+    items_dict = {"items": items_list}
+
+    return items_dict, r.status_code
 
 class FogVirtEngine(Resource):
   @authenticate
@@ -293,7 +329,7 @@ api = Api(app)
 
 api.add_resource(Test, '/test', resource_class_kwargs={'logger': logging.getLogger(os.path.basename(__file__))})
 
-api.add_resource(FogApplicationList, '/apps')
+api.add_resource(FogApplicationList, '/apps', "/api/apps")
 api.add_resource(FogApplication, '/app/<app_id>')
 
 api.add_resource(SoftDevPlatformList, '/sdps')
@@ -340,5 +376,6 @@ if __name__ == '__main__':
 
   #logger.debug("test")
 
+  #app.run(host=ep_address, port=ep_port, debug=debug)
   app.run(host=ep_address, port=ep_port, debug=debug, ssl_context='adhoc')
 
