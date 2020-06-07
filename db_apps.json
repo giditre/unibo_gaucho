@@ -1,10 +1,12 @@
 {
   "apps": {
     "APP001": {
+      "thumbnail": "http://137.204.57.73/restooltest/thumb_httpd.jpg",
       "name": "httpd",
       "descr": "Apache web server"
     },
     "APP002": {
+      "thumbnail": "http://137.204.57.73/restooltest/thumb_stress.jpg",
       "name": "stress",
       "descr": "Stress host"
     }

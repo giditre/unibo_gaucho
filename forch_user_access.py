@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask.logging import default_handler
 from flask_restful import Resource, Api, reqparse, abort
+from flask_cors import CORS
 import json
 import argparse
 import requests
@@ -325,6 +326,8 @@ def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
 
 app = Flask(__name__)
 
+CORS(app)
+
 api = Api(app)
 
 api.add_resource(Test, '/test', resource_class_kwargs={'logger': logging.getLogger(os.path.basename(__file__))})
@@ -376,6 +379,6 @@ if __name__ == '__main__':
 
   #logger.debug("test")
 
-  #app.run(host=ep_address, port=ep_port, debug=debug)
-  app.run(host=ep_address, port=ep_port, debug=debug, ssl_context='adhoc')
+  app.run(host=ep_address, port=ep_port, debug=debug)
+  #app.run(host=ep_address, port=ep_port, debug=debug, ssl_context='adhoc')
 
