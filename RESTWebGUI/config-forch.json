@@ -1,0 +1,49 @@
+{
+  "name": "FORCH REST API",
+  "favicon": "FORCH_logo.ico",
+  "baseUrl": "http://137.204.57.80:51117",
+  "pages": [
+    {
+      "name": "Apps",
+      "id": "applications",
+      "description": "View APPS",
+      "methods": {
+        "getAll": {
+          "label": "Get All",
+          "dataPath": "items",
+          "url": "/apps",
+          "display": {
+            "type": "cards"
+          },
+          "fields": [
+            {
+              "name": "thumbnail",
+              "type": "image",
+              "label": "Thumbnail"
+            },
+            {
+              "name": "id",
+              "type": "text",
+              "label": "ID"
+            },
+            {
+              "name": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "name": "descr",
+              "type": "text",
+              "label": "Description"
+            }
+          ]
+        },
+        "getSingle": {
+          "url": "/app/:id",
+          "queryParams": [],
+          "requestHeaders": {}
+        }
+      }
+    }
+  ]
+}

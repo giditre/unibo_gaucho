@@ -1,0 +1,39 @@
+{
+  "name": "FORCH REST API",
+  "favicon": "FORCH_logo.ico",
+  "baseUrl": "https://api.jsonbin.io/b",
+  "pages": [
+    {
+      "name": "Apps",
+      "id": "applications",
+      "description": "View APPS",
+      "methods": {
+        "getAll": {
+          "label": "Get All",
+          "dataPath": "items",
+          "url": "/5ed8c516655d87580c43a043",
+          "display": {
+            "type": "table"
+          },
+          "fields": [
+            {
+              "name": "id",
+              "type": "text",
+              "label": "ID"
+            },
+            {
+              "name": "name",
+              "type": "text",
+              "label": "Name"
+            }
+          ]
+        },
+        "getSingle": {
+          "url": "/app/:id",
+          "queryParams": [],
+          "requestHeaders": {}
+        }
+      }
+    }
+  ]
+}

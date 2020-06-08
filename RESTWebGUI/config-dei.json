@@ -1,0 +1,39 @@
+{
+  "name": "FORCH REST API",
+  "favicon": "FORCH_logo.ico",
+  "baseUrl": "http://dei057073.ing.unibo.it/restooltest",
+  "pages": [
+    {
+      "name": "Apps",
+      "id": "applications",
+      "description": "View APPS",
+      "methods": {
+        "getAll": {
+          "label": "Get All",
+          "dataPath": "people",
+          "url": "/astros2.json",
+          "display": {
+            "type": "table"
+          },
+          "fields": [
+            {
+              "name": "craft",
+              "type": "text",
+              "label": "Craft"
+            },
+            {
+              "name": "name",
+              "type": "text",
+              "label": "Name"
+            }
+          ]
+        },
+        "getSingle": {
+          "url": "/app/:id",
+          "queryParams": [],
+          "requestHeaders": {}
+        }
+      }
+    }
+  ]
+}
