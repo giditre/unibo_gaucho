@@ -1,0 +1,256 @@
+{
+  "name": "FORCH REST API",
+  "favicon": "FORCH_logo.ico",
+  "baseUrl": "http://137.204.57.80:51117",
+  "requestHeaders": {
+    "Authorization": "Basic YWRtaW46Z2F1Y2hvYWRtaW4xMjM="
+  },
+  "pages": [
+    {
+      "name": "APPlications",
+      "id": "apps",
+      "description": "View APPs",
+      "methods": {
+        "getAll": {
+          "label": "Get All",
+          "dataPath": "items",
+          "url": "/apps",
+          "display": {
+            "type": "cards"
+          },
+          "fields": [
+            {
+              "name": "thumbnail",
+              "type": "image",
+              "label": "Thumbnail"
+            },
+            {
+              "name": "id",
+              "type": "text",
+              "label": "ID"
+            },
+            {
+              "name": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "name": "descr",
+              "type": "text",
+              "label": "Description"
+            }
+          ]
+        },
+        "getSingle": {
+          "url": "/app/:id",
+          "queryParams": [],
+          "requestHeaders": {}
+        }
+      },
+      "customActions": [
+        {
+          "name": "Deploy",
+          "url": "/app/:id",
+          "actualMethod": "post",
+          "icon": "plus",
+          "fields": [
+            {
+              "name": "id",
+              "type": "text",
+              "label": "ID",
+              "readonly": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Software Development Platforms",
+      "id": "sdps",
+      "description": "View SDPs",
+      "methods": {
+        "getAll": {
+          "label": "Get All",
+          "dataPath": "items",
+          "url": "/sdps",
+          "display": {
+            "type": "cards"
+          },
+          "fields": [
+            {
+              "name": "thumbnail",
+              "type": "image",
+              "label": "Thumbnail"
+            },
+            {
+              "name": "id",
+              "type": "text",
+              "label": "ID"
+            },
+            {
+              "name": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "name": "descr",
+              "type": "text",
+              "label": "Description"
+            }
+          ]
+        },
+        "getSingle": {
+          "url": "/sdp/:id",
+          "queryParams": [],
+          "requestHeaders": {}
+        }
+      },
+      "customActions": [
+        {
+          "name": "Deploy",
+          "url": "/sdp/:id",
+          "actualMethod": "post",
+          "icon": "plus",
+          "fields": [
+            {
+              "name": "id",
+              "type": "text",
+              "label": "ID",
+              "readonly": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fog Virtualization Engines",
+      "id": "fves",
+      "description": "View FVEs",
+      "methods": {
+        "getAll": {
+          "label": "Get All",
+          "dataPath": "items",
+          "url": "/fves",
+          "display": {
+            "type": "cards"
+          },
+          "fields": [
+            {
+              "name": "thumbnail",
+              "type": "image",
+              "label": "Thumbnail"
+            },
+            {
+              "name": "id",
+              "type": "text",
+              "label": "ID"
+            },
+            {
+              "name": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "name": "descr",
+              "type": "text",
+              "label": "Description"
+            }
+          ]
+        },
+        "getSingle": {
+          "url": "/fve/:id",
+          "queryParams": [],
+          "requestHeaders": {}
+        }
+      },
+      "customActions": [
+        {
+          "name": "Deploy",
+          "url": "/fve/:id",
+          "actualMethod": "post",
+          "icon": "plus",
+          "fields": [
+            {
+              "name": "id",
+              "type": "text",
+              "label": "ID",
+              "readonly": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Active Services",
+      "id": "activeservices",
+      "description": "View active services",
+      "methods": {
+        "getAll": {
+          "label": "Get All",
+          "dataPath": "items",
+          "url": "/activeservices",
+          "display": {
+            "type": "table"
+          },
+          "fields": [
+            {
+              "name": "service_id",
+              "type": "text",
+              "label": "Service ID"
+            },
+            {
+              "name": "message",
+              "type": "text",
+              "label": "Message"
+            },
+            {
+              "name": "type",
+              "type": "text",
+              "label": "Message type"
+            },
+            {
+              "name": "node_class",
+              "type": "text",
+              "label": "Node class"
+            },
+            {
+              "name": "node_id",
+              "type": "text",
+              "label": "Node ID"
+            },
+            {
+              "name": "service_port",
+              "type": "text",
+              "label": "Service port"
+            }
+          ]
+        },
+        "delete": {
+          "url": "/fomg/127.0.0.1/5003/nodes"
+        }
+      },
+      "customActions": [
+        {
+          "name": "Action",
+          "url": "/fgw/:node_id/:service_port/app-:service_id",
+          "actualMethod": "post",
+          "icon": "upload",
+          "fields": [
+            {
+              "name": "params",
+              "type": "object",
+              "label": "Parameters"
+            }
+          ]
+        },
+        {
+          "name": "Remove",
+          "url": "/app/:id",
+          "actualMethod": "delete",
+          "icon": "minus",
+          "fields": []
+        }
+      ]
+    }
+  ]
+}
