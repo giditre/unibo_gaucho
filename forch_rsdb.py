@@ -78,6 +78,7 @@ class Zabbix():
     
   def get_nodes(self, server_name = "Zabbix Server"):
     fields = ["hostid", "name", "status", "available"]
+    #fields = ["hostid", "name", "status"]
     nodes = { h["hostid"]: { f: h[f] for f in fields } for h in self.zapi.host.get(search={"name": server_name}, excludeSearch=True) }
     interfaces = self.zapi.hostinterface.get()
     for i in interfaces:
@@ -254,6 +255,8 @@ class RSDB():
     for fve in rsdb["fve_catalog"]:
       rsdb["fves"][fve]["nodes"] = []    
 
+    rsdb["activeservices"] = []
+
     return rsdb   
 
   def get_node_fields(self):
@@ -263,7 +266,7 @@ class RSDB():
     with self.db_lock:
       #logger.debug("Gathering node list from monitoring collector")
       self.rsdb["nodes"] = self.collector.get_nodes()
-      logger.debug("Gathered node list from monitoring collector")
+      #logger.debug("Gathered node list from monitoring collector")
       # maybe avoid asking nodes directly, but go through forch_iaas_mgmt? - but then what about non-IaaS nodes?
 
       for node_id in self.rsdb["nodes"]:
@@ -274,140 +277,141 @@ class RSDB():
         self.rsdb["nodes"][node_id]["sdps"] = []
         self.rsdb["nodes"][node_id]["fves"] = []
 
-        try:
-          node_info = requests.get("http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])).json()
-        except requests.exceptions.ConnectionError:
-          logger.debug("Node {} not responding at {}".format(node_id, "http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])))
-          self.rsdb["nodes"][node_id]["class"] = ""
-          self.rsdb["nodes"][node_id]["available"] = "0"
-          continue
-
-        #logger.debug("Info {}".format(node_id, node_info))
-
-        if node_info["class"] == "S":
-          self.rsdb["nodes"][node_id]["class"] = node_info["class"]
+        if self.rsdb["nodes"][node_id]["available"] == "1":
           try:
-            node_apps = requests.get("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"])).json()
+            node_info = requests.get("http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])).json()
           except requests.exceptions.ConnectionError:
-            # TODO signal the error
-            logger.debug("Error in connecting to http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"]))
+            logger.debug("Node {} not responding at {}".format(node_id, "http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])))
+            self.rsdb["nodes"][node_id]["class"] = ""
+            self.rsdb["nodes"][node_id]["available"] = "0"
             continue
-          for app_id in node_apps["apps"]:
-            self.rsdb["nodes"][node_id]["apps"].append(app_id)
-          # get monitoring information
-          self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
-          # update apps database
-          for app in self.rsdb["nodes"][node_id]["apps"]:
-            if app in self.rsdb["apps"]:
-              if node_id not in self.rsdb["apps"][app]["nodes"]:
-                self.rsdb["apps"][app]["nodes"].append(node_id)
-            else:
-              # get app structure from catalog
-              self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
-              self.rsdb["apps"][app]["nodes"] = [node_id]
-          # remove node from app db if it does no longer offer that app
-          for app in self.rsdb["apps"]:
-            if app not in self.rsdb["nodes"][node_id]["apps"] and node_id in self.rsdb["apps"][app]["nodes"]:
-              self.rsdb["apps"][app]["nodes"].remove(node_id)
 
-        elif node_info["class"] == "P":
-          self.rsdb["nodes"][node_id]["class"] = node_info["class"]
-          try:
-            node_sdps = requests.get("http://{}:5005/sdps".format(self.rsdb["nodes"][node_id]["ip"])).json()
-          except requests.exceptions.ConnectionError:
-            # TODO signal the error
-            logger.debug("Error in connecting to http://{}:5005/sdps".format(self.rsdb["nodes"][node_id]["ip"]))
-            continue
-          for sdp_id in node_sdps["sdps"]:
-            self.rsdb["nodes"][node_id]["sdps"].append(sdp_id)
-          # get monitoring information 
-          self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
-          # update sdps database
-          for sdp in self.rsdb["nodes"][node_id]["sdps"]:
-            if sdp in self.rsdb["sdps"]:
-              if node_id not in self.rsdb["sdps"][sdp]["nodes"]:
-                self.rsdb["sdps"][sdp]["nodes"].append(node_id)
-            else:
-              # get sdp structure from catalog
-              self.rsdb["sdps"][sdp] = deepcopy(self.rsdb["sdp_catalog"][sdp])
-              self.rsdb["sdps"][sdp]["nodes"] = [node_id]
-          # remove node from sdp db if it does no longer offer that sdp
-          for sdp in self.rsdb["sdps"]:
-            if sdp not in self.rsdb["nodes"][node_id]["sdps"] and node_id in self.rsdb["sdps"][sdp]["nodes"]:
-              self.rsdb["sdps"][sdp]["nodes"].remove(node_id)
+          #logger.debug("Info {}".format(node_id, node_info))
+
+          if node_info["class"] == "S":
+            self.rsdb["nodes"][node_id]["class"] = node_info["class"]
+            try:
+              node_apps = requests.get("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"])).json()
+            except requests.exceptions.ConnectionError:
+              # TODO signal the error
+              logger.debug("Error in connecting to http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"]))
+              continue
+            for app_id in node_apps["apps"]:
+              self.rsdb["nodes"][node_id]["apps"].append(app_id)
+            # get monitoring information
+            self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
+            # update apps database
+            for app in self.rsdb["nodes"][node_id]["apps"]:
+              if app in self.rsdb["apps"]:
+                if node_id not in self.rsdb["apps"][app]["nodes"]:
+                  self.rsdb["apps"][app]["nodes"].append(node_id)
+              else:
+                # get app structure from catalog
+                self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
+                self.rsdb["apps"][app]["nodes"] = [node_id]
+            # remove node from app db if it does no longer offer that app
+            for app in self.rsdb["apps"]:
+              if app not in self.rsdb["nodes"][node_id]["apps"] and node_id in self.rsdb["apps"][app]["nodes"]:
+                self.rsdb["apps"][app]["nodes"].remove(node_id)
+
+          elif node_info["class"] == "P":
+            self.rsdb["nodes"][node_id]["class"] = node_info["class"]
+            try:
+              node_sdps = requests.get("http://{}:5005/sdps".format(self.rsdb["nodes"][node_id]["ip"])).json()
+            except requests.exceptions.ConnectionError:
+              # TODO signal the error
+              logger.debug("Error in connecting to http://{}:5005/sdps".format(self.rsdb["nodes"][node_id]["ip"]))
+              continue
+            for sdp_id in node_sdps["sdps"]:
+              self.rsdb["nodes"][node_id]["sdps"].append(sdp_id)
+            # get monitoring information 
+            self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
+            # update sdps database
+            for sdp in self.rsdb["nodes"][node_id]["sdps"]:
+              if sdp in self.rsdb["sdps"]:
+                if node_id not in self.rsdb["sdps"][sdp]["nodes"]:
+                  self.rsdb["sdps"][sdp]["nodes"].append(node_id)
+              else:
+                # get sdp structure from catalog
+                self.rsdb["sdps"][sdp] = deepcopy(self.rsdb["sdp_catalog"][sdp])
+                self.rsdb["sdps"][sdp]["nodes"] = [node_id]
+            # remove node from sdp db if it does no longer offer that sdp
+            for sdp in self.rsdb["sdps"]:
+              if sdp not in self.rsdb["nodes"][node_id]["sdps"] and node_id in self.rsdb["sdps"][sdp]["nodes"]:
+                self.rsdb["sdps"][sdp]["nodes"].remove(node_id)
       
-        elif node_info["class"] == "I":
-          self.rsdb["nodes"][node_id]["class"] = node_info["class"]
-          try:
-            node_apps = requests.get("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"])).json()
-            node_sdps = requests.get("http://{}:5005/sdps".format(self.rsdb["nodes"][node_id]["ip"])).json()
-            node_fves = requests.get("http://{}:5005/fves".format(self.rsdb["nodes"][node_id]["ip"])).json()
-          except requests.exceptions.ConnectionError:
-            # TODO signal the error
-            logger.debug("Error in connecting to {}".format(self.rsdb["nodes"][node_id]["ip"]))
-            continue
+          elif node_info["class"] == "I":
+            self.rsdb["nodes"][node_id]["class"] = node_info["class"]
+            try:
+              node_apps = requests.get("http://{}:5005/apps".format(self.rsdb["nodes"][node_id]["ip"])).json()
+              node_sdps = requests.get("http://{}:5005/sdps".format(self.rsdb["nodes"][node_id]["ip"])).json()
+              node_fves = requests.get("http://{}:5005/fves".format(self.rsdb["nodes"][node_id]["ip"])).json()
+            except requests.exceptions.ConnectionError:
+              # TODO signal the error
+              logger.debug("Error in connecting to {}".format(self.rsdb["nodes"][node_id]["ip"]))
+              continue
 
-          # APPs
-          for app_id in node_apps["apps"]:
-            self.rsdb["nodes"][node_id]["apps"].append(app_id)
-          # get monitoring information
-          self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
-          # update apps database
-          for app in self.rsdb["nodes"][node_id]["apps"]:
-            if app in self.rsdb["apps"]:
-              if node_id not in self.rsdb["apps"][app]["nodes"]:
-                self.rsdb["apps"][app]["nodes"].append(node_id)
-            else:
-              # get app structure from catalog
-              self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
-              self.rsdb["apps"][app]["nodes"] = [node_id]
-          # remove node from app db if it does no longer offer that app
-          for app in self.rsdb["apps"]:
-            if app not in self.rsdb["nodes"][node_id]["apps"] and node_id in self.rsdb["apps"][app]["nodes"]:
-              self.rsdb["apps"][app]["nodes"].remove(node_id)
+            # APPs
+            for app_id in node_apps["apps"]:
+              self.rsdb["nodes"][node_id]["apps"].append(app_id)
+            # get monitoring information
+            self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
+            # update apps database
+            for app in self.rsdb["nodes"][node_id]["apps"]:
+              if app in self.rsdb["apps"]:
+                if node_id not in self.rsdb["apps"][app]["nodes"]:
+                  self.rsdb["apps"][app]["nodes"].append(node_id)
+              else:
+                # get app structure from catalog
+                self.rsdb["apps"][app] = deepcopy(self.rsdb["app_catalog"][app])
+                self.rsdb["apps"][app]["nodes"] = [node_id]
+            # remove node from app db if it does no longer offer that app
+            for app in self.rsdb["apps"]:
+              if app not in self.rsdb["nodes"][node_id]["apps"] and node_id in self.rsdb["apps"][app]["nodes"]:
+                self.rsdb["apps"][app]["nodes"].remove(node_id)
 
-          # SDPs
-          for sdp_id in node_sdps["sdps"]:
-            self.rsdb["nodes"][node_id]["sdps"].append(sdp_id)
-          # get monitoring information 
-          self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
-          # update sdps database
-          for sdp in self.rsdb["nodes"][node_id]["sdps"]:
-            if sdp in self.rsdb["sdps"]:
-              if node_id not in self.rsdb["sdps"][sdp]["nodes"]:
-                self.rsdb["sdps"][sdp]["nodes"].append(node_id)
-            else:
-              # get sdp structure from catalog
-              self.rsdb["sdps"][sdp] = deepcopy(self.rsdb["sdp_catalog"][sdp])
-              self.rsdb["sdps"][sdp]["nodes"] = [node_id]
-          # remove node from sdp db if it does no longer offer that sdp
-          for sdp in self.rsdb["sdps"]:
-            if sdp not in self.rsdb["nodes"][node_id]["sdps"] and node_id in self.rsdb["sdps"][sdp]["nodes"]:
-              self.rsdb["sdps"][sdp]["nodes"].remove(node_id)
+            # SDPs
+            for sdp_id in node_sdps["sdps"]:
+              self.rsdb["nodes"][node_id]["sdps"].append(sdp_id)
+            # get monitoring information 
+            self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
+            # update sdps database
+            for sdp in self.rsdb["nodes"][node_id]["sdps"]:
+              if sdp in self.rsdb["sdps"]:
+                if node_id not in self.rsdb["sdps"][sdp]["nodes"]:
+                  self.rsdb["sdps"][sdp]["nodes"].append(node_id)
+              else:
+                # get sdp structure from catalog
+                self.rsdb["sdps"][sdp] = deepcopy(self.rsdb["sdp_catalog"][sdp])
+                self.rsdb["sdps"][sdp]["nodes"] = [node_id]
+            # remove node from sdp db if it does no longer offer that sdp
+            for sdp in self.rsdb["sdps"]:
+              if sdp not in self.rsdb["nodes"][node_id]["sdps"] and node_id in self.rsdb["sdps"][sdp]["nodes"]:
+                self.rsdb["sdps"][sdp]["nodes"].remove(node_id)
 
-          # FVEs
-          for fve_id in node_fves["fves"]:
-            self.rsdb["nodes"][node_id]["fves"].append(fve_id)
-          # get monitoring information
-          self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
-          # update fves database
-          for fve in self.rsdb["nodes"][node_id]["fves"]:
-            if fve in self.rsdb["fves"]:
-              if node_id not in self.rsdb["fves"][fve]["nodes"]:
-                self.rsdb["fves"][fve]["nodes"].append(node_id)
-            else:
-              # get fve structure from catalog
-              self.rsdb["fves"][fve] = deepcopy(self.rsdb["fve_catalog"][fve])
-              self.rsdb["fves"][fve]["nodes"] = [node_id]
-          # remove node from fve db if it does no longer offer that fve
-          for fve in self.rsdb["fves"]:
-            if fve not in self.rsdb["nodes"][node_id]["fves"] and node_id in self.rsdb["fves"][fve]["nodes"]:
-              self.rsdb["fves"][fve]["nodes"].remove(node_id)
-        else:
-          # TODO handle error
-          logger.debug("Unhandled class {}".format(node_info["class"]))
+            # FVEs
+            for fve_id in node_fves["fves"]:
+              self.rsdb["nodes"][node_id]["fves"].append(fve_id)
+            # get monitoring information
+            self.rsdb["nodes"][node_id]["resources"] = self.rsdm.get_last_measurements(node_id)
+            # update fves database
+            for fve in self.rsdb["nodes"][node_id]["fves"]:
+              if fve in self.rsdb["fves"]:
+                if node_id not in self.rsdb["fves"][fve]["nodes"]:
+                  self.rsdb["fves"][fve]["nodes"].append(node_id)
+              else:
+                # get fve structure from catalog
+                self.rsdb["fves"][fve] = deepcopy(self.rsdb["fve_catalog"][fve])
+                self.rsdb["fves"][fve]["nodes"] = [node_id]
+            # remove node from fve db if it does no longer offer that fve
+            for fve in self.rsdb["fves"]:
+              if fve not in self.rsdb["nodes"][node_id]["fves"] and node_id in self.rsdb["fves"][fve]["nodes"]:
+                self.rsdb["fves"][fve]["nodes"].remove(node_id)
+          else:
+            # TODO handle error
+            logger.debug("Unhandled class {}".format(node_info["class"]))
 
-        #logger.debug(self.rsdb["nodes"][node_id])
+          #logger.debug(self.rsdb["nodes"][node_id])
 
     return self.rsdb["nodes"]
 
@@ -431,7 +435,7 @@ class RSDB():
   def get_app(self, app_id):
     if app_id not in self.rsdb["apps"]:
       return {
-        "message": "APP {} not found.".format(app_id)
+        "message": "APP {} not found".format(app_id)
       }, 404
     return self.rsdb["apps"][app_id]
 
@@ -528,6 +532,39 @@ class RSDB():
       p.join()
     return {"message": "FVEs deleted on all nodes"}, 200
 
+  def get_active_service_list(self):
+    return {
+      "items": self.rsdb["activeservices"]
+    }, 200
+
+  def post_active_service(self):
+    # retrieve information from POST body
+    req_json = request.get_json(force=True)
+    logger.debug("post_active_service", req_json)
+    with self.db_lock:
+      self.rsdb["activeservices"].append(req_json)
+    return {
+        "message": "Services updated"
+      }, 200
+
+  def put_active_service(self):
+    # retrieve information from POST body
+    req_json = request.get_json(force=True)
+    logger.debug("put_active_service", req_json)
+    with self.db_lock:
+      # look for relevant active service based on node_id and service_port
+      for i in range(len(self.rsdb["activeservices"])):
+        service = self.rsdb["activeservices"][i]
+        if service["node_id"] == req_json["node_id"] and service["service_port"] == req_json["service_port"]:
+          # found relevant service
+          #self.rsdb["activeservices"][i]["message"] = req_json["message"]
+          #self.rsdb["activeservices"][i] = { **self.rsdb["activeservices"][i], **req_json }
+          self.rsdb["activeservices"][i].update(req_json)
+          break
+    return {
+        "message": "Services updated"
+      }, 201
+
   def delete_images_node(self, node_id):
     node_ip = self.rsdb["nodes"][node_id]["ip"]
     try:
@@ -540,7 +577,7 @@ class RSDB():
   def delete_images(self):
     process_list = []
     for node_id in self.rsdb["nodes"]:
-      if self.rsdb["nodes"][node_id]["class"] == "I":
+      if self.rsdb["nodes"][node_id]["available"] == "1" and self.rsdb["nodes"][node_id]["class"] == "I":
         p = Process(target=self.delete_images_node, args=(node_id,))
         p.start()
         process_list.append(p)
@@ -651,6 +688,17 @@ class FogVirtEngineList(Resource):
     #resp.update({"type": "ORD_FVE_DEL"})
     return resp
 
+class ActiveServiceList(Resource):
+  def get(self):
+    resp = rsdb.get_active_service_list()
+    return resp
+  def post(self):
+    resp = rsdb.post_active_service()
+    return resp
+  def put(self):
+    resp = rsdb.put_active_service()
+    return resp
+
 class FogVirtEngine(Resource):
   def get(self, fve_id):
     resp = rsdb.get_fve(fve_id)
@@ -692,6 +740,8 @@ if __name__ == '__main__':
   api.add_resource(FogVirtEngineCatalog, '/fvecat')
   api.add_resource(FogVirtEngineList, '/fves')
   api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+
+  api.add_resource(ActiveServiceList, '/activeservices')
 
   app.run(host=ep_address, port=ep_port, debug=debug)
 

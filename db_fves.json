@@ -1,10 +1,12 @@
 {
   "fves": {
     "FVE001": {
+      "thumbnail": "http://137.204.57.73/restooltest/thumb_docker.jpg",
       "name": "docker",
       "descr": "Docker engine"
     },
     "FVE002": {
+      "thumbnail": "http://137.204.57.73/restooltest/thumb_fog05.jpg",
       "name": "fog05",
       "descr": "Eclipse fog05"
     }

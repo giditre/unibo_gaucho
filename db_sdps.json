@@ -1,10 +1,12 @@
 {
   "sdps": {
     "SDP001": {
+      "thumbnail": "http://137.204.57.73/restooltest/thumb_python.jpg",
       "name": "python",
       "descr": "Python3"
     },
     "SDP002": {
+      "thumbnail": "http://137.204.57.73/restooltest/thumb_alpine.jpg",
       "name": "alpine",
       "descr": "Lightweight Ubuntu"
     }

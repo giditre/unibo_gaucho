@@ -148,7 +148,8 @@ class FogApplicationList(Resource):
 
 class FogApplication(Resource):
   @authenticate
-  def get(self, app_id):
+  #def get(self, app_id):
+  def post(self, app_id):
     # get node id from broker
     r = requests.get("http://{}:{}/app/{}".format(broker_address, broker_port, app_id))
     return r.json(), r.status_code
@@ -174,7 +175,8 @@ class SoftDevPlatformList(Resource):
 
 class SoftDevPlatform(Resource):
   @authenticate
-  def get(self, sdp_id):
+  #def get(self, sdp_id):
+  def post(self, sdp_id):
     # get node id from broker
     r = requests.get("http://{}:{}/sdp/{}".format(broker_address, broker_port, sdp_id))
     return r.json(), r.status_code
@@ -200,10 +202,19 @@ class FogVirtEngineList(Resource):
 
 class FogVirtEngine(Resource):
   @authenticate
-  def get(self, fve_id):
+  #def get(self, fve_id):
+  def post(self, fve_id):
     # get node id from broker
     r = requests.get("http://{}:{}/fve/{}".format(broker_address, broker_port, fve_id))
     return r.json(), r.status_code
+
+class ActiveServiceList(Resource):
+  @authenticate
+  def get(self):
+    # get active service list from database
+    r = requests.get("http://{}:{}/activeservices".format(db_address, db_port))
+    items_dict = r.json()
+    return items_dict, r.status_code
 
 class FogGateway(Resource):
 
@@ -241,15 +252,24 @@ class FogGateway(Resource):
     path = path.replace("-", "/")
 
     # retrieve additional data from request
-    # force parsing json ignring mimetype and return None if parsing fails
+    # force parsing json ignoring mimetype and return None if parsing fails
     req_json = request.get_json(force=True, silent=True)
+    if "params" in req_json:
+      for k,v in req_json["params"].items():
+        req_json[k] = v
+      del req_json["params"]
     if not req_json:
       req_json = {"test": "test"}
 
     try:
       r = requests.post("http://{}:{}/{}".format(node_ip, node_port, path), json=req_json)
-    except requests.exceptions.ConnectionError:
-      return {"Connection error"}, 500
+    except requests.exceptions.ConnectionError as ce:
+      return {"message": "Connection error: {}".format(ce)}, 500
+
+    try:
+      requests.put("http://{}:{}/activeservices".format(db_address, db_port), json=r.json())
+    except:
+      return {"message": "Failed PUT http://{}:{}/activeservices".format(db_address, db_port)}, 500
 
     try:
       return r.json(), r.status_code
@@ -340,6 +360,8 @@ api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
 
 api.add_resource(FogVirtEngineList, '/fves')
 api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+
+api.add_resource(ActiveServiceList, '/activeservices')
 
 api.add_resource(FogGateway, '/fgw/<node_id>/<node_port>', '/fgw/<node_id>/<node_port>/<path>')
 
