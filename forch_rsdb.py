@@ -551,15 +551,18 @@ class RSDB():
     # retrieve information from POST body
     req_json = request.get_json(force=True)
     logger.debug("put_active_service", req_json)
+    logger.debug("Try to update {} with {}".format(self.rsdb["activeservices"], req_json))
     with self.db_lock:
       # look for relevant active service based on node_id and service_port
       for i in range(len(self.rsdb["activeservices"])):
         service = self.rsdb["activeservices"][i]
-        if service["node_id"] == req_json["node_id"] and service["service_port"] == req_json["service_port"]:
+        logger.debug("{} {} {} {}".format(service["node_id"], req_json["node_id"], service["service_port"], req_json["service_port"]))
+        if str(service["node_id"]) == str(req_json["node_id"]) and str(service["service_port"]) == str(req_json["service_port"]):
           # found relevant service
           #self.rsdb["activeservices"][i]["message"] = req_json["message"]
           #self.rsdb["activeservices"][i] = { **self.rsdb["activeservices"][i], **req_json }
-          self.rsdb["activeservices"][i].update(req_json)
+          for k in req_json:
+            self.rsdb["activeservices"][i][k] = str(req_json[k])
           break
     return {
         "message": "Services updated"

@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, make_response, Response
 from flask.logging import default_handler
 from flask_restful import Resource, Api, reqparse, abort
 from flask_cors import CORS
@@ -242,7 +242,8 @@ class FogGateway(Resource):
     try:
       return r.json(), r.status_code
     except json.decoder.JSONDecodeError:
-      return r.text, r.status_code
+      #logger.debug("{}".format(r.headers))
+      return make_response(r.text, r.status_code)
 
   @authenticate
   def post(self, node_id, node_port, path=""):
@@ -267,14 +268,22 @@ class FogGateway(Resource):
       return {"message": "Connection error: {}".format(ce)}, 500
 
     try:
-      requests.put("http://{}:{}/activeservices".format(db_address, db_port), json=r.json())
+      resp_json = r.json()
+    except json.decoder.JSONDecodeError:
+      resp_json = {"message": r.text}
+
+    # update active services
+    service_put_json = resp_json.copy()
+    service_put_json.update({
+      "node_id": node_id,
+      "service_port": node_port
+    })
+    try:
+      requests.put("http://{}:{}/activeservices".format(db_address, db_port), json=service_put_json)
     except:
       return {"message": "Failed PUT http://{}:{}/activeservices".format(db_address, db_port)}, 500
 
-    try:
-      return r.json(), r.status_code
-    except json.decoder.JSONDecodeError:
-      return r.text, r.status_code
+    return resp_json, r.status_code
 
   @authenticate_admin
   def delete(self, node_id, node_port, path=""):
