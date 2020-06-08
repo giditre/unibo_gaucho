@@ -736,13 +736,8 @@ The monitoring system [Zabbix](www.zabbix.com) must be configured on the node ru
       **Sample Request Data:**
       ```json
       {
-        "message": "Running app APP002'",
-        "type": "APP_STRS_EXEC",
-        "params": {
           "cpu": 1,
           "timeout": 10
-        },
-        "hostname": "gaucho-fnode-vm3"
       }
       ```
 
