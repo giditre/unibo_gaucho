@@ -177,7 +177,7 @@ if __name__ == '__main__':
   ### API definition
   app = Flask(__name__)
   api = Api(app)
-  api.add_resource(Test, '/test')
+  api.add_resource(Test, '/', '/test')
   api.add_resource(FogNodeInfo, '/info')
   api.add_resource(FogApplicationList, '/apps')
   api.add_resource(FogApplication, '/app/<app_id>')
