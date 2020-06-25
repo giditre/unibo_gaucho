@@ -317,7 +317,7 @@ class FORCHManagement(Resource):
   def post(self, comp_ip, comp_port, path=""):
     path = path.replace("-", "/")
     # retrieve additional data from request
-    # force parsing json ignring mimetype and return None if parsing fails
+    # force parsing json ignoring mimetype and return None if parsing fails
     req_json = request.get_json(force=True, silent=True)
     if not req_json:
       req_json = {"test": "test"}
