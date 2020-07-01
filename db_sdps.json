@@ -9,6 +9,11 @@
       "thumbnail": "http://137.204.57.73/restooltest/thumb_alpine.jpg",
       "name": "alpine",
       "descr": "Lightweight Ubuntu"
+    },
+   "SDP003": {
+      "thumbnail": "",
+      "name": "sleepython",
+      "descr": "Diesel Python3"
     }
   }
 }
