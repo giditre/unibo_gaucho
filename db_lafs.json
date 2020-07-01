@@ -1,0 +1,14 @@
+{
+  "lafs": {
+    "LAF001": {
+      "thumbnail": "",
+      "name": "objrec",
+      "descr": "Object recognition"
+    },
+    "LAF002": {
+      "thumbnail": "",
+      "name": "stress",
+      "descr": "Stress host"
+    }
+  }
+}
