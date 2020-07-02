@@ -99,8 +99,8 @@ for i in range(1, n_cycles+1):
 
   # request the allocation of new service
   url = fua_url + allocation_get
-  print_flush("POST", url)
-  r = requests.post(url, auth=(fua_user, fua_password), verify=False, json={"test": "test"})
+  print_flush("GET", url)
+  r = requests.get(url, auth=(fua_user, fua_password), verify=False)
   resp_json = r.json()
   print_flush(json.dumps(resp_json, indent=2))
 
