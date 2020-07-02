@@ -99,7 +99,7 @@ for t in sorted_t:
           if is_available:
             plot_dict[host_id][item["lastclock"]] = round(float(item["lastvalue"]))
           else:
-            plot_dict[host_id][item["lastclock"]] = -1
+            plot_dict[host_id][item["lastclock"]] = 0
 
 # trim length of plot_dict
 min_length = min( [ len(plot_dict[h_id]) for h_id in plot_dict ] )
@@ -146,6 +146,50 @@ for h_id in plot_dict:
   #print("plot_dict values", len(plot_dict[h_id].values()), plot_dict[h_id].values())
   print("plot_dict values", len(plot_dict[h_id]), plot_dict[h_id])
 
-with open(fname.replace(".json", "_pp.json"), "w") as f:
-  json.dump(plot_dict, f)
+x = np.arange(len(labels))  # the label locations
+width = width_factor/n_hosts  # the width of the bars
+
+fig, ax = plt.subplots()
+
+#if n_hosts == 1:
+#  rect_list = [ ax.bar(x, plot_dict[sorted_host_id_list[0]], width, label=sorted_host_id_list[0]) ]
+#else:
+#  rect_list = [ ax.bar(x - (n_hosts-1)/2 * width + i*width, plot_dict[sorted_host_id_list[i]], width, label=sorted_host_id_list[i]) for i in range(n_hosts) ]
+
+#rect_list = [ ax.bar( np.arange(len(plot_dict[sorted_host_id_list[i]].values())) - (n_hosts-1)/2 * width + i*width, list(plot_dict[sorted_host_id_list[i]].values()), width, label=legend[sorted_host_id_list[i]], hatch=patterns[i], alpha=.99) for i in range(n_hosts) ]
+rect_list = [ ax.bar( np.arange(len(plot_dict[sorted_host_id_list[i]])) - (n_hosts-1)/2 * width + i*width, plot_dict[sorted_host_id_list[i]], width, label=legend[sorted_host_id_list[i]], hatch=patterns[i], alpha=.99) for i in range(n_hosts) ]
+
+# Add some text for labels, title and custom x-axis tick labels, etc.
+#ax.set_title("CPU utilization")
+ax.set_xlabel("Time [min]")
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+ax.set_ylabel("CPU utilization [%]")
+ax.set_ylim([0, 120])
+ax.legend()
+
+
+#def autolabel(rects):
+#  """Attach a text label above each bar in *rects*, displaying its height."""
+#  for rect in rects:
+#    height = rect.get_height()
+#    ax.annotate('{}'.format(height),
+#      xy=(rect.get_x() + rect.get_width() / 2, height),
+#      xytext=(0, 3),  # 3 points vertical offset
+#      textcoords="offset points",
+#      ha='center', va='bottom')
+
+#for rect in rect_list:
+#  autolabel(rect)
+
+fig.tight_layout()
+#plt.margins(0)
+
+fig.set_size_inches(fig_width, fig_height)
+fig.set_dpi(fig_dpi)
+
+if plt_show:
+  plt.show()
+
+plt.savefig(fname.replace("json", "pdf"), bbox_inches='tight')
 

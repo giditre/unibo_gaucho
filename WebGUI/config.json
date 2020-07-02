@@ -9,7 +9,7 @@
     {
       "name": "APPlications",
       "id": "apps",
-      "description": "View APPs",
+      "description": "View and deploy available APPlications (APPs).",
       "methods": {
         "getAll": {
           "label": "Get All",
@@ -67,7 +67,7 @@
     {
       "name": "Software Development Platforms",
       "id": "sdps",
-      "description": "View SDPs",
+      "description": "View and deploy available Software Development Platforms (SDPs).",
       "methods": {
         "getAll": {
           "label": "Get All",
@@ -125,7 +125,7 @@
     {
       "name": "Fog Virtualization Engines",
       "id": "fves",
-      "description": "View FVEs",
+      "description": "View and deploy available Fog Virtualization Engines (FVEs).",
       "methods": {
         "getAll": {
           "label": "Get All",
@@ -183,7 +183,7 @@
     {
       "name": "Active Services",
       "id": "activeservices",
-      "description": "View active services",
+      "description": "Click on the ID of an active service to access its service URL, or send input data to the service with the relevant button.",
       "methods": {
         "getAll": {
           "label": "Get All",
@@ -225,14 +225,17 @@
               "label": "Service port"
             }
           ]
+        },
+        "delete": {
+          "url": "http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes"
         }
       },
       "customActions": [
         {
-          "name": "Action",
+          "name": "Input",
           "url": "/fgw/:node_id/:service_port/app-:service_id",
           "actualMethod": "post",
-          "icon": "upload",
+          "icon": "pencil",
           "fields": [
             {
               "name": "params",
