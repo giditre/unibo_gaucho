@@ -1,0 +1,664 @@
+ * Serving Flask app "forch_broker" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+[ 2020-07-03 01:36:10,571 ][ forch_broker.py       ][ INFO ]  * Running on http://127.0.0.1:5002/ (Press CTRL+C to quit)
+ * Serving Flask app "forch_user_access" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+[ 2020-07-03 01:36:10,654 ][ forch_user_access.py  ][ INFO ]  * Running on http://0.0.0.0:5001/ (Press CTRL+C to quit)
+ * Serving Flask app "forch_rsdb" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+[ 2020-07-03 01:36:10,783 ][ forch_rsdb.py         ][ INFO ]  * Running on http://127.0.0.1:5003/ (Press CTRL+C to quit)
+ * Serving Flask app "forch_iaas_mgmt" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+[ 2020-07-03 01:36:10,840 ][ forch_iaas_mgmt.py    ][ INFO ]  * Running on http://127.0.0.1:5004/ (Press CTRL+C to quit)
+FORCH is running - stop with Ctrl+C
+[ 2020-07-03 01:36:25,413 ][ forch_user_access.py  ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:36:25,423 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /appcat
+[ 2020-07-03 01:36:25,425 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /appcat
+[ 2020-07-03 01:36:25,426 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:25] "[37mGET /appcat HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:25,429 ][ forch_user_access.py  ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:36:25,430 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:36:25] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:53,598 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:36:53,604 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:36:53,613 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:36:53,766 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:36:53,767 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:53] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:53,773 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:36:53,774 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:36:53,774 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:53] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:53,776 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:36:53,776 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 3.8952%
+[ 2020-07-03 01:36:53,776 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:36:53,780 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:36:53,780 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:36:53,781 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:53] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:53,802 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:36:53,803 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:36:53,804 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:53] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:53,806 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:36:53,807 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:53] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:53,809 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:36:53,809 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:36:53] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:56,992 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:36:56,997 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:36:57,001 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:36:57,159 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:36:57,159 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:57] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:57,164 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:36:57,165 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:36:57,165 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:57] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:57,167 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:36:57,167 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 3.8952%
+[ 2020-07-03 01:36:57,167 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:36:57,171 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:36:57,171 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:36:57,172 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:57] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:57,192 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:36:57,193 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:36:57,193 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:57] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:57,195 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:36:57,196 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:36:57] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:36:57,198 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:36:57,198 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:36:57] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:00,304 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:00,309 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:00,313 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:00,450 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:00,451 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:00] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:00,456 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:00,456 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:00,457 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:00] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:00,458 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:00,459 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 3.8952%
+[ 2020-07-03 01:37:00,459 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:37:00,462 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:37:00,463 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:37:00,464 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:00] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:00,480 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:00,480 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:00,481 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:00] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:00,483 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:00,483 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:00] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:00,485 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:00,486 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:00] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:03,621 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:03,626 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:03,630 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:03,777 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:03,778 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:03] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:03,783 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:03,784 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:03,784 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:03] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:03,786 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:03,786 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 3.8952%
+[ 2020-07-03 01:37:03,786 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:37:03,790 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:37:03,790 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:37:03,791 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:03] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:03,811 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:03,812 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:03,812 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:03] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:03,814 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:03,815 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:03] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:03,817 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:03,817 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:03] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:06,934 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:06,938 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:06,942 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:07,121 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:07,121 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:07] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:07,126 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:07,127 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:07,128 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:07] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:07,129 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:07,129 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 3.8952%
+[ 2020-07-03 01:37:07,129 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:37:07,133 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:37:07,133 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:37:07,134 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:07] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:07,154 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:07,155 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:07,156 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:07] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:07,157 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:07,158 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:07] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:07,160 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:07,161 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:07] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:10,264 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:10,269 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:10,272 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:10,416 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:10,417 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:10] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:10,422 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:10,422 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:10,423 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:10] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:10,424 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:10,425 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 3.8952%
+[ 2020-07-03 01:37:10,425 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:37:10,428 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:37:10,429 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:37:10,429 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:10] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:10,448 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:10,448 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:10,449 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:10] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:10,451 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:10,451 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:10] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:10,453 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:10,454 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:10] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:13,578 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:13,583 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:13,587 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:13,729 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:13,730 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:13] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:13,735 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:13,736 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:13,736 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:13] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:13,738 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:13,738 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 3.8952%
+[ 2020-07-03 01:37:13,738 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:37:13,742 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:37:13,742 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:37:13,743 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:13] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:13,760 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:13,761 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:13,761 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:13] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:13,763 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:13,764 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:13] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:13,766 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:13,766 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:13] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:16,939 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:16,943 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:16,947 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:17,153 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:17,154 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:17] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:17,159 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:17,160 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:17,161 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:17] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:17,162 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:17,162 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 3.8952%
+[ 2020-07-03 01:37:17,163 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:37:17,166 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:37:17,167 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:37:17,167 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:17] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:17,188 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:17,189 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:17,190 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:17] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:17,191 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:17,192 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:17] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:17,194 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:17,195 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:17] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:20,291 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:20,296 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:20,300 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:20,441 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:20,442 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:20] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:20,447 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:20,448 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:20,448 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:20] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:20,449 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:20,450 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:20,450 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:37:20,454 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:37:20,454 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:37:20,455 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:20] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:20,472 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:20,473 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:20,473 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:20] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:20,475 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:20,476 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:20] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:20,478 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:20,478 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:20] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:23,577 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:23,581 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:23,586 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:23,736 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:23,737 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:23] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:23,742 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:23,743 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:23,743 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:23] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:23,744 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:23,745 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:23,745 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:37:23,748 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:37:23,749 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:37:23,750 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:23] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:23,771 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:23,771 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:23,772 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:23] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:23,774 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:23,774 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:23] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:23,777 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:23,777 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:23] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:26,880 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:26,884 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:26,888 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:27,085 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:27,085 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:27] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:27,091 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:27,091 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:27,092 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:27] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:27,093 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:27,094 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:27,094 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:37:27,097 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:37:27,098 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:37:27,098 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:27] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:27,116 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:27,117 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:27,117 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:27] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:27,119 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:27,120 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:27] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:27,122 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:27,123 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:27] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:30,218 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:30,222 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:30,226 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:30,371 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:30,372 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:30] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:30,377 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:30,377 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:30,378 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:30] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:30,380 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:30,380 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:30,380 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:37:30,383 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:37:30,384 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:37:30,385 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:30] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:30,405 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:30,406 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:30,406 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:30] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:30,408 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:30,408 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:30] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:30,410 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:30,411 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:30] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:33,505 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:33,510 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:33,514 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:33,663 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:33,663 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:33] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:33,669 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:33,670 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:33,670 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:33] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:33,672 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:33,672 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:33,672 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:37:33,676 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:37:33,676 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:37:33,677 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:33] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:33,696 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:33,696 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:33,697 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:33] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:33,699 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:33,699 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:33] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:33,701 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:33,702 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:33] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:36,915 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:36,920 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:36,923 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:37,066 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:37,067 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:37] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:37,072 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:37,072 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:37,073 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:37] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:37,074 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:37,075 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:37,075 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:37:37,078 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:37:37,079 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:37:37,080 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:37] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:37,101 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:37,102 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:37,102 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:37] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:37,104 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:37,105 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:37] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:37,107 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:37,108 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:37] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:40,247 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:40,252 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:40,256 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:40,397 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:40,397 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:40] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:40,402 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:40,403 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:40,404 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:40] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:40,405 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:40,405 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:40,406 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:37:40,409 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:37:40,410 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:37:40,410 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:40] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:40,432 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:40,433 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:40,433 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:40] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:40,435 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:40,436 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:40] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:40,438 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:40,439 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:40] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:43,562 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:43,566 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:43,570 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:43,712 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:43,713 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:43] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:43,718 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:43,719 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:43,719 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:43] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:43,721 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:43,721 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:43,721 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:37:43,725 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:37:43,725 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:37:43,726 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:43] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:43,740 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:43,741 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:43,741 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:43] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:43,743 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:43,743 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:43] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:43,746 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:43,746 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:43] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:46,940 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:46,944 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:46,948 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:47,095 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:47,095 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:47] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:47,100 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:47,101 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:47,101 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:47] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:47,103 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:47,103 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:47,104 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:37:47,107 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:37:47,108 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:37:47,108 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:47] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:47,129 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:47,130 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:47,130 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:47] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:47,132 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:47,133 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:47] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:47,135 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:47,135 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:47] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:50,353 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:50,358 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:50,362 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:50,511 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:50,511 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:50] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:50,516 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:50,517 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:50,517 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:50] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:50,519 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:50,519 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:50,519 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:37:50,523 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:37:50,523 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:37:50,524 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:50] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:50,538 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:50,538 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:50,539 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:50] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:50,541 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:50,541 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:50] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:50,543 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:50,544 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:50] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:53,704 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:37:53,709 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:37:53,713 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:37:59,180 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:37:59,181 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:59] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:59,186 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:37:59,187 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:37:59,187 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:59] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:59,189 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1354%
+[ 2020-07-03 01:37:59,189 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:37:59,189 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:37:59,193 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:37:59,194 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:37:59,194 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:59] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:59,213 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:37:59,214 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:37:59,214 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:59] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:59,216 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:37:59,217 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:37:59] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:37:59,219 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:37:59,220 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:37:59] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:02,420 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:02,425 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:02,429 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:02,722 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:02,722 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:02] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:02,728 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:02,728 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:02,729 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:02] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:02,730 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4647%
+[ 2020-07-03 01:38:02,730 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:38:02,731 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:38:02,734 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:38:02,735 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:38:02,735 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:02] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:02,757 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:02,757 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:02,758 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:02] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:02,760 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:02,760 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:02] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:02,763 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:02,763 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:02] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:05,900 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:05,905 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:05,909 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:06,063 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:06,064 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:06] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:06,069 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:06,069 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:06,070 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:06] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:06,072 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4647%
+[ 2020-07-03 01:38:06,072 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:38:06,072 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:38:06,076 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:38:06,077 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:38:06,077 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:06] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:06,098 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:06,099 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:06,100 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:06] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:06,101 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:06,102 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:06] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:06,104 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:06,105 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:06] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:09,205 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:09,209 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:09,213 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:09,368 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:09,368 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:09] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:09,373 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:09,374 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:09,374 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:09] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:09,376 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4647%
+[ 2020-07-03 01:38:09,376 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:38:09,376 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:38:09,380 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:38:09,380 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:38:09,381 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:09] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:09,403 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:09,404 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:09,404 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:09] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:09,406 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:09,407 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:09] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:09,409 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:09,410 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:09] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:12,551 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:12,556 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:12,560 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:12,721 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:12,721 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:12] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:12,726 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:12,727 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:12,728 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:12] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:12,729 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4647%
+[ 2020-07-03 01:38:12,729 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:38:12,730 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:38:12,733 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:38:12,734 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:38:12,734 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:12] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:12,754 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:12,755 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:12,755 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:12] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:12,757 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:12,757 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:12] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:12,759 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:12,760 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:12] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:15,872 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:15,876 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:15,880 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:16,036 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:16,036 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:16] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:16,041 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:16,042 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:16,042 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:16] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:16,044 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4647%
+[ 2020-07-03 01:38:16,044 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:38:16,044 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:38:16,048 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:38:16,048 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:38:16,049 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:16] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:16,069 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:16,070 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:16,071 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:16] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:16,073 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:16,073 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:16] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:16,076 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:16,076 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:16] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:19,214 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:19,218 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:19,222 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:19,375 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:19,375 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:19] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:19,381 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:19,381 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:19,382 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:19] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:19,383 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4647%
+[ 2020-07-03 01:38:19,384 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 6.4513%
+[ 2020-07-03 01:38:19,384 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:38:19,387 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:38:19,388 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:38:19,388 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:19] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:19,410 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:19,411 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:19,411 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:19] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:19,413 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:19,414 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:19] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:19,416 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:19,416 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:19] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:22,522 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:22,527 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:22,531 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:22,713 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:22,713 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:22] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:22,718 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:22,719 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:22,719 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:22] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:22,721 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4647%
+[ 2020-07-03 01:38:22,722 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 46.2054%
+[ 2020-07-03 01:38:22,722 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:38:22,725 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:38:22,726 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:38:22,727 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:22] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:22,748 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:22,749 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:22,750 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:22] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:22,751 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:22,752 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:22] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:22,754 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:22,754 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:22] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:25,872 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:25,876 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:25,880 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:26,029 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:26,030 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:26] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:26,035 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:26,035 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:26,036 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:26] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:26,037 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4647%
+[ 2020-07-03 01:38:26,037 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 46.2054%
+[ 2020-07-03 01:38:26,038 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:38:26,041 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:38:26,042 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:38:26,042 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:26] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:26,061 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:26,062 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:26,062 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:26] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:26,064 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:26,064 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:26] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:26,067 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:26,067 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:26] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:29,176 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:29,180 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:29,184 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:48,723 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:48,723 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:48] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:48,728 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:48,729 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:48,730 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:48] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:48,731 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4647%
+[ 2020-07-03 01:38:48,731 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 46.2054%
+[ 2020-07-03 01:38:48,731 ][ forch_broker.py       ][ DEBUG ] Picked node 10313
+[ 2020-07-03 01:38:48,735 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10313
+[ 2020-07-03 01:38:48,736 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10313
+[ 2020-07-03 01:38:48,736 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:48] "[37mGET /node/10313 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:48,755 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:48,756 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:48,756 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:48] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:48,758 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:48,759 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:48] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:48,761 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:48,762 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:48] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:51,881 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:51,886 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:51,890 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:38:52,052 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:38:52,053 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:52] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:52,058 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:38:52,058 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:38:52,059 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:52] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:52,061 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4419%
+[ 2020-07-03 01:38:52,061 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 46.2054%
+[ 2020-07-03 01:38:52,061 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:38:52,065 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:38:52,065 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:38:52,066 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:52] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:52,130 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:38:52,130 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:38:52,131 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:52] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:52,133 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:38:52,133 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:38:52] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:52,135 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:38:52,136 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:38:52] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:38:55,249 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 01:38:55,253 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 01:38:55,257 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 01:40:05,554 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 01:40:05,555 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:40:05] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:40:05,560 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 01:40:05,561 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 01:40:05,562 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:40:05] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:40:05,563 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.4419%
+[ 2020-07-03 01:40:05,564 ][ forch_broker.py       ][ DEBUG ] Node 10314 CPU 46.2054%
+[ 2020-07-03 01:40:05,564 ][ forch_broker.py       ][ DEBUG ] Picked node 10314
+[ 2020-07-03 01:40:05,567 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /node/10314
+[ 2020-07-03 01:40:05,568 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /node/10314
+[ 2020-07-03 01:40:05,568 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:40:05] "[37mGET /node/10314 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:40:08,003 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 01:40:08,004 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 01:40:08,004 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:40:08] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:40:08,006 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 01:40:08,007 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 01:40:08] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
+[ 2020-07-03 01:40:08,010 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 01:40:08,010 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 01:40:08] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
+
+Cleaning up...
+Done.
