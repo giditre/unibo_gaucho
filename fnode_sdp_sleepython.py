@@ -29,6 +29,9 @@ class PythonSDP():
     self.output = []
     self.done = False
 
+    # sleep
+    time.sleep(6)
+
   def exec_code(self, code):
     exec(code, {'__builtins__': __builtins__}, {"print": self.store_output, "time": time.time, "sleep": time.sleep})
     self.done = True
@@ -61,14 +64,14 @@ class Test(Resource):
   def get(self):
     return {
       "message": "This endpoint ({} at {}) is up!".format(os.path.basename(__file__), socket.gethostname()),
-      "type": "SDP_PYTH_TEST_OK"
+      "type": "SDP_SLPY_TEST_OK"
     }
 
 class FogNodeInfo(Resource):
   def get(self):
     return {
-      "sdp": "SDP002",
-      "type": "SDP_PYTH_INFO"
+      "sdp": "SDP003",
+      "type": "SDP_SLPY_INFO"
     }
 
 class SoftDevPlatform(Resource):
@@ -80,7 +83,7 @@ class SoftDevPlatform(Resource):
     if sdp_process and sdp_process.is_alive():
       return {
         "message": "Busy",
-        "type": "SDP_PYTH_BUSY",
+        "type": "SDP_SLPY_BUSY",
         "hostname": socket.gethostname()
       }, 503
 
@@ -109,7 +112,7 @@ class SoftDevPlatform(Resource):
 
     return {
       "message": msg,
-      "type": "SDP_PYTH_EXEC",
+      "type": "SDP_SLPY_EXEC",
       "params": req_json,
       "hostname": socket.gethostname(),
       "output": output
@@ -123,7 +126,7 @@ class SoftDevPlatform(Resource):
       msg = "No running SDP to terminate"
     return {
       "message": msg,
-      "type": "SDP_PYTH_DEL",
+      "type": "SDP_SLPY_DEL",
       "hostname": socket.gethostname()
     }, 200
 

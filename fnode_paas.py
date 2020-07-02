@@ -52,7 +52,7 @@ class Test(Resource):
 
 class FogNodeInfo(Resource):
   def get(self):
-    return {"class": "P"}
+    return { "class": "P" }
 
 # TODO transform FogApplication into SoftDevPlatform
 
@@ -60,8 +60,11 @@ class SoftDevPlatformList(Resource):
   def get(self):
     # TODO make it not hardcoded but get the identifier somewhere (SDP001 is python)
     # TODO count the instances of each app currently running on this node
-    sdps = {"SDP001": 1}
-    return {"sdps": sdps}
+    sdps = {
+      "SDP001": 1,
+      "SDP003": 1
+    }
+    return { "sdps": sdps }
       
   def delete(self):
     # remove instances of running sdps if possible
@@ -69,7 +72,7 @@ class SoftDevPlatformList(Resource):
     for t in thread_list:
       r = requests.delete("http://127.0.0.1:{}/sdp/{}".format(t.get_port(), t.get_sdp_id()))
     resp = "Stopped all SDPs"
-    return {"message": resp}, 200
+    return { "message": resp }, 200
 
 class SoftDevPlatform(Resource):
 
@@ -83,6 +86,25 @@ class SoftDevPlatform(Resource):
       logger.debug(msg)
       
       t = PythonSDPThread(sdp_id, **req_json)
+      t.start()
+      thread_list.append(t)
+
+      return {
+        "message": msg,
+        "hostname": socket.gethostname(),
+        "port": t.get_port()
+      }, 201
+
+    elif sdp_id == "SDP003":
+      
+      msg = "Deployed SDP {}".format(sdp_id, req_json)
+      logger.debug(msg)
+      
+      t = SleePythonSDPThread(sdp_id, **req_json)
+
+      # sleep
+      sleep(5)
+
       t.start()
       thread_list.append(t)
 
@@ -143,6 +165,39 @@ class PythonSDPThread(threading.Thread):
 
   def get_port(self):
     return self.port
+
+class SleePythonSDPThread(threading.Thread):
+  def __init__(self, sdp_id, *args, **kwargs):
+    super().__init__()
+
+    # parse handled parameters (application specific)
+    _handled_parameters = [ "timeout", "cpu" ]
+    self.parameters_dict = {}
+    for p in _handled_parameters:
+      if p in kwargs:
+        self.parameters_dict[p] = kwargs[p]
+
+    self.sdp_id = sdp_id
+
+    # select random port
+    self.port = random.randint(30000, 40000)
+    # check if port is in use and keep selecting new port until free port found
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+      while s.connect_ex(('localhost', self.port)) == 0:
+        self.port = random.randint(30000, 40000)
+          
+    # TODO find better way of running a separate thread offering its own API
+    self.cmd = "python3 fnode_sdp_sleepython.py 0.0.0.0 {}".format(self.port)
+
+  def run(self):
+    shell_command(self.cmd)
+
+  def get_sdp_id(self):
+    return self.sdp_id
+
+  def get_port(self):
+    return self.port
+
 
 ### MAIN
 

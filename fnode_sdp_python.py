@@ -67,7 +67,7 @@ class Test(Resource):
 class FogNodeInfo(Resource):
   def get(self):
     return {
-      "sdp": "SDP002",
+      "sdp": "SDP001",
       "type": "SDP_PYTH_INFO"
     }
 
