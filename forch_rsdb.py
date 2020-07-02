@@ -482,7 +482,7 @@ class RSDB():
 
   def delete_apps(self):
     process_list = []
-    print(self.rsdb["nodes"])
+    #print(self.rsdb["nodes"])
     for node_id in self.rsdb["nodes"]:
       if "apps" in self.rsdb["nodes"][node_id] and self.rsdb["nodes"][node_id]["apps"]:
         p = Process(target=self.delete_apps_node, args=(node_id,))
@@ -719,9 +719,6 @@ if __name__ == '__main__':
   
   app = Flask(__name__)
   
-  #@app.teardown_appcontext
-  #def shutdown_session(exception=None):
-  #  print("TEARDOWN!")
   @app.before_request
   def before():
     logger.debug("marker start {} {}".format(request.method, request.path))
