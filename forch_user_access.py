@@ -351,34 +351,43 @@ def wait_for_remote_endpoint(ep_address, ep_port, path="test"):
     logger.warning("Remote endpoint ({}) not ready (reponse code {}), retrying soon...".format(url, resp_code))
     sleep(random.randint(5,15))
 
-### API definition
-
-app = Flask(__name__)
-
-CORS(app)
-
-api = Api(app)
-
-api.add_resource(Test, '/test', resource_class_kwargs={'logger': logging.getLogger(os.path.basename(__file__))})
-
-api.add_resource(FogApplicationList, '/apps', "/api/apps")
-api.add_resource(FogApplication, '/app/<app_id>')
-
-api.add_resource(SoftDevPlatformList, '/sdps')
-api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
-
-api.add_resource(FogVirtEngineList, '/fves')
-api.add_resource(FogVirtEngine, '/fve/<fve_id>')
-
-api.add_resource(ActiveServiceList, '/activeservices')
-
-api.add_resource(FogGateway, '/fgw/<node_id>/<node_port>', '/fgw/<node_id>/<node_port>/<path>')
-
-api.add_resource(FORCHManagement, '/fomg/<comp_ip>/<comp_port>', '/fomg/<comp_ip>/<comp_port>/<path>')
-
 ### MAIN
 
 if __name__ == '__main__':
+
+  ### API definition
+  
+  app = Flask(__name__)
+  
+  @app.before_request
+  def before():
+    logger.debug("marker start {} {}".format(request.method, request.path))
+  
+  @app.after_request
+  def after(response):
+    logger.debug("marker end {} {}".format(request.method, request.path))
+    return response
+  
+  CORS(app)
+  
+  api = Api(app)
+  
+  api.add_resource(Test, '/test', resource_class_kwargs={'logger': logging.getLogger(os.path.basename(__file__))})
+  
+  api.add_resource(FogApplicationList, '/apps', "/api/apps")
+  api.add_resource(FogApplication, '/app/<app_id>')
+  
+  api.add_resource(SoftDevPlatformList, '/sdps')
+  api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
+  
+  api.add_resource(FogVirtEngineList, '/fves')
+  api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+  
+  api.add_resource(ActiveServiceList, '/activeservices')
+  
+  api.add_resource(FogGateway, '/fgw/<node_id>/<node_port>', '/fgw/<node_id>/<node_port>/<path>')
+  
+  api.add_resource(FORCHManagement, '/fomg/<comp_ip>/<comp_port>', '/fomg/<comp_ip>/<comp_port>/<path>')
 
   ### Command line argument parsing
   

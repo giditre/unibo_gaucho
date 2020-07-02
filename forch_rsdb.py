@@ -540,7 +540,7 @@ class RSDB():
   def post_active_service(self):
     # retrieve information from POST body
     req_json = request.get_json(force=True)
-    logger.debug("post_active_service", req_json)
+    #logger.debug("post_active_service", req_json)
     with self.db_lock:
       self.rsdb["activeservices"].append(req_json)
     return {
@@ -722,7 +722,15 @@ if __name__ == '__main__':
   #@app.teardown_appcontext
   #def shutdown_session(exception=None):
   #  print("TEARDOWN!")
+  @app.before_request
+  def before():
+    logger.debug("marker start {} {}".format(request.method, request.path))
   
+  @app.after_request
+  def after(response):
+    logger.debug("marker end {} {}".format(request.method, request.path))
+    return response
+
   api = Api(app)
   
   api.add_resource(Test, '/test')

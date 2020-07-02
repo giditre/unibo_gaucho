@@ -25,7 +25,7 @@ cat /tmp/forch.pid | while read line; do
   pid="$(echo $line | cut -d" " -f1)"
   module="$(echo $line | cut -d" " -f2)"
   port="$(echo $line | cut -d" " -f4)"
-  [ "$(lsof -ti :$port)" = "$pid" ] && echo "PID mismatch for module $module" && exit 1
+  [ "$(lsof -ti :$port)" != "$pid" ] && echo "PID mismatch for module $module" && exit 1
 done
 
 echo "FORCH is running - stop with Ctrl+C"

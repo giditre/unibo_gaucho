@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Resource, Api, reqparse, abort
 import json
 import argparse
@@ -416,6 +416,16 @@ if __name__ == '__main__':
   ### API definition
   
   app = Flask(__name__)
+
+  @app.before_request
+  def before():
+    logger.debug("marker start {} {}".format(request.method, request.path))
+
+  @app.after_request
+  def after(response):
+    logger.debug("marker end {} {}".format(request.method, request.path))
+    return response
+
   api = Api(app)
   
   api.add_resource(Test, '/test')
