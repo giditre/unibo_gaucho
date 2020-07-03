@@ -1,0 +1,60 @@
+ * Serving Flask app "forch_broker" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+[ 2020-07-03 14:02:27,684 ][ forch_broker.py       ][ INFO ]  * Running on http://127.0.0.1:5002/ (Press CTRL+C to quit)
+ * Serving Flask app "forch_user_access" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+[ 2020-07-03 14:02:27,694 ][ forch_user_access.py  ][ INFO ]  * Running on http://0.0.0.0:5001/ (Press CTRL+C to quit)
+ * Serving Flask app "forch_rsdb" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+[ 2020-07-03 14:02:27,808 ][ forch_rsdb.py         ][ INFO ]  * Running on http://127.0.0.1:5003/ (Press CTRL+C to quit)
+ * Serving Flask app "forch_iaas_mgmt" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+[ 2020-07-03 14:02:27,952 ][ forch_iaas_mgmt.py    ][ INFO ]  * Running on http://127.0.0.1:5004/ (Press CTRL+C to quit)
+FORCH is running - stop with Ctrl+C
+[ 2020-07-03 14:02:33,207 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 14:02:33,217 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
+[ 2020-07-03 14:02:33,226 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 14:02:33,336 ][ forch_rsdb.py         ][ DEBUG ] Node 10314 not responding at http://192.168.10.118:5005/info
+[ 2020-07-03 14:02:33,396 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 14:02:33,397 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 14:02:33] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 14:02:33,402 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /apps
+[ 2020-07-03 14:02:33,403 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /apps
+[ 2020-07-03 14:02:33,403 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 14:02:33] "[37mGET /apps HTTP/1.1[0m" 200 -
+[ 2020-07-03 14:02:33,405 ][ forch_broker.py       ][ DEBUG ] APP not deployed on any node
+[ 2020-07-03 14:02:33,406 ][ forch_broker.py       ][ DEBUG ] Node 10313 CPU 0.1563%
+[ 2020-07-03 14:02:33,406 ][ forch_broker.py       ][ DEBUG ] Node 10317 CPU 0.6594%
+[ 2020-07-03 14:02:33,406 ][ forch_broker.py       ][ DEBUG ] Picked node 10317
+[ 2020-07-03 14:02:33,406 ][ forch_broker.py       ][ DEBUG ] Chosen node: 10317
+[ 2020-07-03 14:02:33,411 ][ forch_iaas_mgmt.py    ][ DEBUG ] marker start GET /images
+[ 2020-07-03 14:02:33,413 ][ forch_iaas_mgmt.py    ][ DEBUG ] marker end GET /images
+[ 2020-07-03 14:02:33,414 ][ forch_iaas_mgmt.py    ][ INFO ] 127.0.0.1 - - [03/Jul/2020 14:02:33] "[37mGET /images HTTP/1.1[0m" 200 -
+[ 2020-07-03 14:02:33,419 ][ forch_iaas_mgmt.py    ][ DEBUG ] marker start POST /app/APP002
+[ 2020-07-03 14:02:48,165 ][ forch_iaas_mgmt.py    ][ DEBUG ] Response from node 192.168.10.122: {'message': 'Deployed APP APP002 with image giditre/gaucho-stress', 'type': 'NIM_APP_DEPL', 'name': 'APP002_giditre-gaucho-stress_20200703-120245-002782', 'cont_ip': '172.17.0.2', 'port_mappings': ['0.0.0.0:32769->5100/tcp']}
+[ 2020-07-03 14:02:48,166 ][ forch_iaas_mgmt.py    ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 14:02:48,166 ][ forch_iaas_mgmt.py    ][ INFO ] 127.0.0.1 - - [03/Jul/2020 14:02:48] "[37mPOST /app/APP002 HTTP/1.1[0m" 201 -
+[ 2020-07-03 14:02:48,171 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
+[ 2020-07-03 14:02:48,272 ][ forch_rsdb.py         ][ DEBUG ] Node 10314 not responding at http://192.168.10.118:5005/info
+[ 2020-07-03 14:02:48,342 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /nodes
+[ 2020-07-03 14:02:48,342 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 14:02:48] "[37mGET /nodes HTTP/1.1[0m" 200 -
+[ 2020-07-03 14:02:48,348 ][ forch_rsdb.py         ][ DEBUG ] marker start POST /activeservices
+[ 2020-07-03 14:02:48,349 ][ forch_rsdb.py         ][ DEBUG ] marker end POST /activeservices
+[ 2020-07-03 14:02:48,349 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [03/Jul/2020 14:02:48] "[37mPOST /activeservices HTTP/1.1[0m" 200 -
+[ 2020-07-03 14:02:48,351 ][ forch_broker.py       ][ DEBUG ] marker end GET /app/APP002
+[ 2020-07-03 14:02:48,352 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [03/Jul/2020 14:02:48] "[37mGET /app/APP002 HTTP/1.1[0m" 201 -
+[ 2020-07-03 14:02:48,356 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
+[ 2020-07-03 14:02:48,357 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [03/Jul/2020 14:02:48] "[37mPOST /app/APP002 HTTP/1.1[0m" 201 -
+
+Cleaning up...
+Done.
