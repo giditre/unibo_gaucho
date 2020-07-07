@@ -103,11 +103,13 @@ print("tot_cpu", len(tot_cpu), tot_cpu)
 width = width_factor
 ind = np.arange(len(tot_cpu))
 
+patterns = [ "////", "\\\\\\\\", "++++", "xxxx", "||||", "/", "-", ".", "o", "O", "*" ]
+
 plot_handle_dict = {
   "0": plt.bar(ind, tot_cpu, width, color="w", edgecolor="k", label="Total CPUs")
 }
 
-plot_handle_dict[node_id_list[0]] = plt.bar(ind, plot_dict[node_id_list[0]], width, label=legend[node_id_list[0]])
+plot_handle_dict[node_id_list[0]] = plt.bar(ind, plot_dict[node_id_list[0]], width, label=legend[node_id_list[0]], hatch=patterns[0], alpha=.99)
 
 bottom_values = [0] * len(tot_cpu)
 
@@ -115,11 +117,12 @@ for i in range(1, len(node_id_list)):
   prev_node_id = node_id_list[i-1]
   bottom_values = [ sum(x) for x in zip(bottom_values, plot_dict[prev_node_id]) ]
   node_id = node_id_list[i]
-  plot_handle_dict[node_id] = plt.bar(ind, plot_dict[node_id], width, bottom=bottom_values, label=legend[node_id])
+  plot_handle_dict[node_id] = plt.bar(ind, plot_dict[node_id], width, bottom=bottom_values, label=legend[node_id], hatch=patterns[i], alpha=.99)
 
 plt.xlabel('Time [min]')
 plt.ylabel('Number of CPUs')
 plt.legend()
 
-plt.show()
+#plt.show()
 
+plt.savefig(fname.replace("json", "pdf"), bbox_inches='tight')
