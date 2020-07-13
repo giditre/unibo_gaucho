@@ -110,7 +110,58 @@ class FogApplication(Resource):
 
     # getting here means this app is not implemented/deployed on any node
     logger.debug("APP not deployed on any node")
-    # try installing image on a IaaS node to implement this app
+
+    # if the code for this APP is available, try running it on a PaaS node
+    # TODO actually check if code for the requested APP is available
+    if app_id == "APP002":
+      # look for a PaaS node
+      node_id = ""
+      candidate_node_list = []
+      for h_id in node_dict:
+        node = node_dict[h_id]
+        if node["available"] == "1" and node["class"] == "P":
+          for item_id in node["resources"]:
+            if node["resources"][item_id]["name"] == "CPU utilization":
+              logger.debug("Node {} CPU {}%".format(h_id, node["resources"][item_id]["lastvalue"]))
+              if float(node["resources"][item_id]["lastvalue"]) < 90:
+                # we have found a candidate node
+                candidate_node_list.append(h_id)
+
+      if candidate_node_list:
+        # TODO implement heuristic picking method
+        #node_id = candidate_node_list[0]
+        node_id = random.choice(candidate_node_list)
+        logger.debug("Picked node {}".format(node_id))
+
+      if node_id:
+        # load code to pass to PaaS node
+        with open("fnode_app_stress.py") as f:
+          code = "".join(f.readlines())
+ 
+        node = requests.get("http://{}:{}/node/{}".format(db_address, db_port, node_id)).json()
+        node_ip = node["ip"]
+        # TODO avoid hardcoding sdp_id SDP001
+        r = requests.post("http://{}:{}/sdp/{}".format(node_ip, 5005, "SDP001"), json={"code": code})
+        resp_json = r.json()
+        port = int(resp_json["port"])
+        # create response
+        resp_json = {
+          "service_id": app_id,
+          "message": "APP {} allocated".format(app_id),
+          "type": "OBR_APP_ALLC_P",
+          "node_class": "P",
+          "node_id": node_id,
+          "service_port": port
+        }
+        # update active services on database
+        requests.post("http://{}:{}/activeservices".format(db_address, db_port), json=resp_json)
+        # return previously created response
+        return resp_json, 200
+
+    # getting here means this app is not implemented/deployed on any node
+    logger.debug("APP not deployable on a PaaS node")
+
+    # try installing image on a IaaS node to deploy this app
     # get list of nodes and pick the first available IaaS nodes having CPU utilization lower than a threshold
     # TODO implement a better picking method
     node_id = ""
