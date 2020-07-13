@@ -138,12 +138,12 @@ class PythonSDPThread(threading.Thread):
   def __init__(self, sdp_id, *args, **kwargs):
     super().__init__()
 
-    # parse handled parameters (application specific)
-    _handled_parameters = [ "timeout", "cpu" ]
-    self.parameters_dict = {}
-    for p in _handled_parameters:
-      if p in kwargs:
-        self.parameters_dict[p] = kwargs[p]
+    ## parse handled parameters (application specific)
+    #_handled_parameters = [ "timeout", "cpu" ]
+    #self.parameters_dict = {}
+    #for p in _handled_parameters:
+    #  if p in kwargs:
+    #    self.parameters_dict[p] = kwargs[p]
 
     self.sdp_id = sdp_id
 
@@ -153,9 +153,19 @@ class PythonSDPThread(threading.Thread):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
       while s.connect_ex(('localhost', self.port)) == 0:
         self.port = random.randint(30000, 40000)
-          
+    
     # TODO find better way of running a separate thread offering its own API
-    self.cmd = "python3 fnode_sdp_python.py 0.0.0.0 {}".format(self.port)
+    if "code" in kwargs:
+      code = kwargs["code"]
+      code = code.replace("\\n", "\n")
+      # write code to temporary file
+      code_file_name = "/tmp/fnode_sdp_{}_{}.py".format(sdp_id, self.port)
+      with open(code_file_name, "w") as f:
+        f.write(code)
+      self.cmd = "python3 {} 0.0.0.0 {}".format(code_file_name, self.port)
+
+    else:
+      self.cmd = "python3 fnode_sdp_python.py 0.0.0.0 {}".format(self.port)
 
   def run(self):
     shell_command(self.cmd)
