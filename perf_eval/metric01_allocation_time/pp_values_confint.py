@@ -17,13 +17,14 @@ def mean_std_confidence_interval(data, confidence=0.95):
 parser = argparse.ArgumentParser()
 
 parser.add_argument("data_fname", help="Filename with input data")
+parser.add_argument("-o", "--output-fname", help="Filename of post processed data", nargs="?", default=None)
 
 args = parser.parse_args()
 print("CLI args: {}".format(vars(args)))
 
 data_fname = args.data_fname
 
-output_fname = "pp_" + data_fname
+output_fname = args.output_fname if args.output_fname else "pp_" + data_fname
 
 with open(data_fname) as f:
   data = json.load(f)
