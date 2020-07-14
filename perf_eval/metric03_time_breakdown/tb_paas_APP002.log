@@ -1,40 +1,3 @@
- * Serving Flask app "forch_broker" (lazy loading)
- * Environment: production
-   WARNING: This is a development server. Do not use it in a production deployment.
-   Use a production WSGI server instead.
- * Debug mode: off
-[ 2020-07-14 02:53:36,713 ][ forch_broker.py       ][ INFO ]  * Running on http://127.0.0.1:5002/ (Press CTRL+C to quit)
- * Serving Flask app "forch_user_access" (lazy loading)
- * Environment: production
-   WARNING: This is a development server. Do not use it in a production deployment.
-   Use a production WSGI server instead.
- * Debug mode: off
-[ 2020-07-14 02:53:36,728 ][ forch_user_access.py  ][ INFO ]  * Running on http://0.0.0.0:5001/ (Press CTRL+C to quit)
- * Serving Flask app "forch_rsdb" (lazy loading)
- * Environment: production
-   WARNING: This is a development server. Do not use it in a production deployment.
-   Use a production WSGI server instead.
- * Debug mode: off
-[ 2020-07-14 02:53:36,816 ][ forch_rsdb.py         ][ INFO ]  * Running on http://127.0.0.1:5003/ (Press CTRL+C to quit)
- * Serving Flask app "forch_iaas_mgmt" (lazy loading)
- * Environment: production
-   WARNING: This is a development server. Do not use it in a production deployment.
-   Use a production WSGI server instead.
- * Debug mode: off
-[ 2020-07-14 02:53:36,918 ][ forch_iaas_mgmt.py    ][ INFO ]  * Running on http://127.0.0.1:5004/ (Press CTRL+C to quit)
-FORCH is running - stop with Ctrl+C
-[ 2020-07-14 02:53:52,717 ][ forch_user_access.py  ][ DEBUG ] marker start DELETE /fomg/127.0.0.1/5003/nodes
-[ 2020-07-14 02:53:52,727 ][ forch_rsdb.py         ][ DEBUG ] marker start DELETE /nodes
-[ 2020-07-14 02:53:52,729 ][ forch_rsdb.py         ][ DEBUG ] marker end DELETE /nodes
-[ 2020-07-14 02:53:52,729 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [14/Jul/2020 02:53:52] "[37mDELETE /nodes HTTP/1.1[0m" 200 -
-[ 2020-07-14 02:53:52,732 ][ forch_user_access.py  ][ DEBUG ] marker end DELETE /fomg/127.0.0.1/5003/nodes
-[ 2020-07-14 02:53:52,733 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [14/Jul/2020 02:53:52] "[37mDELETE /fomg/127.0.0.1/5003/nodes HTTP/1.1[0m" 200 -
-[ 2020-07-14 02:53:53,773 ][ forch_user_access.py  ][ DEBUG ] marker start GET /apps
-[ 2020-07-14 02:53:53,778 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /appcat
-[ 2020-07-14 02:53:53,779 ][ forch_rsdb.py         ][ DEBUG ] marker end GET /appcat
-[ 2020-07-14 02:53:53,780 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [14/Jul/2020 02:53:53] "[37mGET /appcat HTTP/1.1[0m" 200 -
-[ 2020-07-14 02:53:53,782 ][ forch_user_access.py  ][ DEBUG ] marker end GET /apps
-[ 2020-07-14 02:53:53,783 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [14/Jul/2020 02:53:53] "[37mGET /apps HTTP/1.1[0m" 200 -
 [ 2020-07-14 02:53:54,829 ][ forch_user_access.py  ][ DEBUG ] marker start POST /app/APP002
 [ 2020-07-14 02:53:54,833 ][ forch_broker.py       ][ DEBUG ] marker start GET /app/APP002
 [ 2020-07-14 02:53:54,840 ][ forch_rsdb.py         ][ DEBUG ] marker start GET /nodes
@@ -3129,18 +3092,3 @@ FORCH is running - stop with Ctrl+C
 [ 2020-07-14 02:57:33,921 ][ forch_broker.py       ][ INFO ] 127.0.0.1 - - [14/Jul/2020 02:57:33] "[37mGET /app/APP002 HTTP/1.1[0m" 200 -
 [ 2020-07-14 02:57:33,923 ][ forch_user_access.py  ][ DEBUG ] marker end POST /app/APP002
 [ 2020-07-14 02:57:33,923 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [14/Jul/2020 02:57:33] "[37mPOST /app/APP002 HTTP/1.1[0m" 200 -
-[ 2020-07-14 02:57:34,974 ][ forch_user_access.py  ][ DEBUG ] marker start DELETE /fomg/127.0.0.1/5003/nodes
-[ 2020-07-14 02:57:34,977 ][ forch_rsdb.py         ][ DEBUG ] marker start DELETE /nodes
-[ 2020-07-14 02:57:35,422 ][ forch_rsdb.py         ][ DEBUG ] marker end DELETE /nodes
-[ 2020-07-14 02:57:35,423 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [14/Jul/2020 02:57:35] "[37mDELETE /nodes HTTP/1.1[0m" 200 -
-[ 2020-07-14 02:57:35,425 ][ forch_user_access.py  ][ DEBUG ] marker end DELETE /fomg/127.0.0.1/5003/nodes
-[ 2020-07-14 02:57:35,425 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [14/Jul/2020 02:57:35] "[37mDELETE /fomg/127.0.0.1/5003/nodes HTTP/1.1[0m" 200 -
-[ 2020-07-14 03:00:06,569 ][ forch_user_access.py  ][ DEBUG ] marker start DELETE /fomg/127.0.0.1/5003/nodes
-[ 2020-07-14 03:00:06,573 ][ forch_rsdb.py         ][ DEBUG ] marker start DELETE /nodes
-[ 2020-07-14 03:00:06,574 ][ forch_rsdb.py         ][ DEBUG ] marker end DELETE /nodes
-[ 2020-07-14 03:00:06,574 ][ forch_rsdb.py         ][ INFO ] 127.0.0.1 - - [14/Jul/2020 03:00:06] "[37mDELETE /nodes HTTP/1.1[0m" 200 -
-[ 2020-07-14 03:00:06,576 ][ forch_user_access.py  ][ DEBUG ] marker end DELETE /fomg/127.0.0.1/5003/nodes
-[ 2020-07-14 03:00:06,577 ][ forch_user_access.py  ][ INFO ] 93.66.200.64 - - [14/Jul/2020 03:00:06] "[37mDELETE /fomg/127.0.0.1/5003/nodes HTTP/1.1[0m" 200 -
-
-Cleaning up...
-Done.
