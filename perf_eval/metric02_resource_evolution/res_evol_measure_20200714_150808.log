@@ -1,0 +1,29 @@
+--- ni 2, ec 5, cpu 2, to 960
+CLI args: {'allocation_get': '/app/APP002', 'preliminary_get': '/apps', 'fua_url': 'http://137.204.57.80:51117', 'fua_user': 'admin', 'fua_password': 'gauchoadmin123', 'fgw_url': 'http://137.204.57.80:51117/fgw', 'fgw_user': None, 'fgw_password': None, 'fomg_url': 'http://137.204.57.80:51117/fomg', 'fomg_user': None, 'fomg_password': None, 'service_data': '{"cpu":2,"timeout":960}', 'pre_delete': False, 'post_delete': True, 'test_delete': True, 'assume_yes': True, 'cycle_delete': False, 'num_cycles': 100, 'node_list': '10314,10315,10317,10318', 'nnic': 2, 'end_cycles': 5, 'output_fname': 'test_delete_ni2_ec5_cpu2_to960.json'}
+
+### START MEASUREMENTS ###
+
+
+# Cycle 1 (100 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_AVLB_S",
+  "node_class": "S",
+  "node_id": "10317",
+  "service_port": 35324
+}
+POST http://137.204.57.80:51117/fgw/10317/35324/app-APP002
+{
+  "message": "Running app APP002 with parameters '{'cpu': 2, 'timeout': 960}'",
+  "type": "APP_STRS_EXEC",
+  "params": {
+    "cpu": 2,
+    "timeout": 960
+  },
+  "hostname": "gaucho-fnode-vm3"
+}
+Sleep for 2 minutes

@@ -1,0 +1,131 @@
+--- ni 2, ec 5, cpu 2, to 960
+CLI args: {'allocation_get': '/app/APP002', 'preliminary_get': '/apps', 'fua_url': 'http://137.204.57.80:51117', 'fua_user': 'admin', 'fua_password': 'gauchoadmin123', 'fgw_url': 'http://137.204.57.80:51117/fgw', 'fgw_user': None, 'fgw_password': None, 'fomg_url': 'http://137.204.57.80:51117/fomg', 'fomg_user': None, 'fomg_password': None, 'service_data': '{"cpu":2,"timeout":960}', 'pre_delete': True, 'post_delete': True, 'test_delete': True, 'assume_yes': True, 'cycle_delete': False, 'num_cycles': 100, 'node_list': '10314,10315,10317,10318', 'nnic': 2, 'end_cycles': 5, 'output_fname': 'test_delete_ni2_ec5_cpu2_to960.json'}
+DELETE http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+Sleep for 4 minutes
+
+### START MEASUREMENTS ###
+
+
+# Cycle 1 (100 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+Sleep for 2 minutes
+
+# Cycle 2 (99 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+GET http://137.204.57.80:51117/fgw/10314/8000
+Sleep for 2 minutes
+
+# Cycle 3 (98 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+Sleep for 2 minutes
+
+# Cycle 4 (97 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+GET http://137.204.57.80:51117/fgw/10315/8000
+Sleep for 2 minutes
+
+# Cycle 5 (96 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+Sleep for 2 minutes
+
+# Cycle 6 (95 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+GET http://137.204.57.80:51117/fgw/10317/8000
+Sleep for 2 minutes
+
+# Cycle 7 (94 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+Sleep for 2 minutes
+
+# Cycle 8 (93 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+GET http://137.204.57.80:51117/fgw/10318/8000
+WARNING: new_node_id_list is empty
+Sleep for 2 minutes
+
+# Cycle 9 (4 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+Sleep for 2 minutes
+
+# Cycle 10 (3 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+Sleep for 2 minutes
+
+# Cycle 11 (2 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+Sleep for 2 minutes
+
+# Cycle 12 (1 remaining)
+
+GET http://137.204.57.80:51117/apps
+GET http://137.204.57.80:51117/app/APP002
+{
+  "message": "The method is not allowed for the requested URL."
+}
+Sleep for 2 minutes
+DELETE http://137.204.57.80:51117/fgw/10314/5005/test
+DELETE http://137.204.57.80:51117/fgw/10315/5005/test
+DELETE http://137.204.57.80:51117/fgw/10317/5005/test
+DELETE http://137.204.57.80:51117/fgw/10318/5005/test
+DELETE http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+GET http://137.204.57.80:51117/fomg/127.0.0.1/5003/meas
+Measurement data written to file test_delete_ni2_ec5_cpu2_to960.json
+--- ni 2, ec 5, cpu 2, to 1920
+CLI args: {'allocation_get': '/app/APP002', 'preliminary_get': '/apps', 'fua_url': 'http://137.204.57.80:51117', 'fua_user': 'admin', 'fua_password': 'gauchoadmin123', 'fgw_url': 'http://137.204.57.80:51117/fgw', 'fgw_user': None, 'fgw_password': None, 'fomg_url': 'http://137.204.57.80:51117/fomg', 'fomg_user': None, 'fomg_password': None, 'service_data': '{"cpu":2,"timeout":1920}', 'pre_delete': True, 'post_delete': True, 'test_delete': True, 'assume_yes': True, 'cycle_delete': False, 'num_cycles': 100, 'node_list': '10314,10315,10317,10318', 'nnic': 2, 'end_cycles': 5, 'output_fname': 'test_delete_ni2_ec5_cpu2_to1920.json'}
+DELETE http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+Sleep for 4 minutes
