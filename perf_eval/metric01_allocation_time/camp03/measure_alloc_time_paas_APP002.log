@@ -1,0 +1,1510 @@
+CLI args: {'allocation_get': '/app/APP002', 'preliminary_get': '/apps', 'fua_url': 'http://137.204.57.80:51117', 'fua_user': 'admin', 'fua_password': 'gauchoadmin123', 'fgw_url': 'http://137.204.57.80:51117/fgw', 'fgw_user': None, 'fgw_password': None, 'fomg_url': 'http://137.204.57.80:51117/fomg', 'fomg_user': None, 'fomg_password': None, 'service_data': '{}', 'pre_delete': True, 'post_delete': True, 'assume_yes': True, 'cycle_delete': False, 'num_cycles': 100, 'output_fname': 'res_alloc_time_paas_APP002.json'}
+DELETE http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+
+### START MEASUREMENTS ###
+
+
+# Cycle 1
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33305
+}
+Cycle 1: 174 ms
+
+# Cycle 2
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35590
+}
+Cycle 2: 150 ms
+
+# Cycle 3
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35572
+}
+Cycle 3: 146 ms
+
+# Cycle 4
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36327
+}
+Cycle 4: 145 ms
+
+# Cycle 5
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 32073
+}
+Cycle 5: 151 ms
+
+# Cycle 6
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35214
+}
+Cycle 6: 184 ms
+
+# Cycle 7
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 30968
+}
+Cycle 7: 157 ms
+
+# Cycle 8
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35097
+}
+Cycle 8: 152 ms
+
+# Cycle 9
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33673
+}
+Cycle 9: 149 ms
+
+# Cycle 10
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 30204
+}
+Cycle 10: 149 ms
+
+# Cycle 11
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37414
+}
+Cycle 11: 223 ms
+
+# Cycle 12
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38934
+}
+Cycle 12: 143 ms
+
+# Cycle 13
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37800
+}
+Cycle 13: 161 ms
+
+# Cycle 14
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35360
+}
+Cycle 14: 147 ms
+
+# Cycle 15
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35001
+}
+Cycle 15: 168 ms
+
+# Cycle 16
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36583
+}
+Cycle 16: 143 ms
+
+# Cycle 17
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31295
+}
+Cycle 17: 172 ms
+
+# Cycle 18
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39464
+}
+Cycle 18: 150 ms
+
+# Cycle 19
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35840
+}
+Cycle 19: 137 ms
+
+# Cycle 20
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35416
+}
+Cycle 20: 148 ms
+
+# Cycle 21
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 30510
+}
+Cycle 21: 143 ms
+
+# Cycle 22
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31587
+}
+Cycle 22: 152 ms
+
+# Cycle 23
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38820
+}
+Cycle 23: 152 ms
+
+# Cycle 24
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31889
+}
+Cycle 24: 160 ms
+
+# Cycle 25
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34520
+}
+Cycle 25: 201 ms
+
+# Cycle 26
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39776
+}
+Cycle 26: 153 ms
+
+# Cycle 27
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36879
+}
+Cycle 27: 149 ms
+
+# Cycle 28
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33626
+}
+Cycle 28: 157 ms
+
+# Cycle 29
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35742
+}
+Cycle 29: 181 ms
+
+# Cycle 30
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34910
+}
+Cycle 30: 224 ms
+
+# Cycle 31
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31783
+}
+Cycle 31: 158 ms
+
+# Cycle 32
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36673
+}
+Cycle 32: 181 ms
+
+# Cycle 33
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38903
+}
+Cycle 33: 146 ms
+
+# Cycle 34
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34086
+}
+Cycle 34: 138 ms
+
+# Cycle 35
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39917
+}
+Cycle 35: 155 ms
+
+# Cycle 36
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36889
+}
+Cycle 36: 146 ms
+
+# Cycle 37
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31727
+}
+Cycle 37: 204 ms
+
+# Cycle 38
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34388
+}
+Cycle 38: 154 ms
+
+# Cycle 39
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 30750
+}
+Cycle 39: 141 ms
+
+# Cycle 40
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37655
+}
+Cycle 40: 177 ms
+
+# Cycle 41
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34602
+}
+Cycle 41: 145 ms
+
+# Cycle 42
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38446
+}
+Cycle 42: 146 ms
+
+# Cycle 43
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36485
+}
+Cycle 43: 153 ms
+
+# Cycle 44
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37608
+}
+Cycle 44: 151 ms
+
+# Cycle 45
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37962
+}
+Cycle 45: 211 ms
+
+# Cycle 46
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36425
+}
+Cycle 46: 152 ms
+
+# Cycle 47
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37607
+}
+Cycle 47: 153 ms
+
+# Cycle 48
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 32417
+}
+Cycle 48: 145 ms
+
+# Cycle 49
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39402
+}
+Cycle 49: 172 ms
+
+# Cycle 50
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31392
+}
+Cycle 50: 155 ms
+
+# Cycle 51
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 30947
+}
+Cycle 51: 152 ms
+
+# Cycle 52
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34470
+}
+Cycle 52: 151 ms
+
+# Cycle 53
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31240
+}
+Cycle 53: 145 ms
+
+# Cycle 54
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39783
+}
+Cycle 54: 199 ms
+
+# Cycle 55
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39564
+}
+Cycle 55: 145 ms
+
+# Cycle 56
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38045
+}
+Cycle 56: 181 ms
+
+# Cycle 57
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 32351
+}
+Cycle 57: 153 ms
+
+# Cycle 58
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31189
+}
+Cycle 58: 153 ms
+
+# Cycle 59
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31278
+}
+Cycle 59: 153 ms
+
+# Cycle 60
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31710
+}
+Cycle 60: 148 ms
+
+# Cycle 61
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31496
+}
+Cycle 61: 150 ms
+
+# Cycle 62
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38381
+}
+Cycle 62: 166 ms
+
+# Cycle 63
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34998
+}
+Cycle 63: 145 ms
+
+# Cycle 64
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34420
+}
+Cycle 64: 181 ms
+
+# Cycle 65
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35153
+}
+Cycle 65: 151 ms
+
+# Cycle 66
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36520
+}
+Cycle 66: 148 ms
+
+# Cycle 67
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37844
+}
+Cycle 67: 148 ms
+
+# Cycle 68
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34995
+}
+Cycle 68: 142 ms
+
+# Cycle 69
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 32005
+}
+Cycle 69: 173 ms
+
+# Cycle 70
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 32876
+}
+Cycle 70: 150 ms
+
+# Cycle 71
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39717
+}
+Cycle 71: 145 ms
+
+# Cycle 72
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35095
+}
+Cycle 72: 151 ms
+
+# Cycle 73
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34777
+}
+Cycle 73: 152 ms
+
+# Cycle 74
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31733
+}
+Cycle 74: 259 ms
+
+# Cycle 75
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39068
+}
+Cycle 75: 155 ms
+
+# Cycle 76
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34452
+}
+Cycle 76: 149 ms
+
+# Cycle 77
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33037
+}
+Cycle 77: 144 ms
+
+# Cycle 78
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 30196
+}
+Cycle 78: 189 ms
+
+# Cycle 79
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38846
+}
+Cycle 79: 154 ms
+
+# Cycle 80
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36834
+}
+Cycle 80: 151 ms
+
+# Cycle 81
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39385
+}
+Cycle 81: 266 ms
+
+# Cycle 82
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35843
+}
+Cycle 82: 173 ms
+
+# Cycle 83
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37314
+}
+Cycle 83: 370 ms
+
+# Cycle 84
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39508
+}
+Cycle 84: 157 ms
+
+# Cycle 85
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37565
+}
+Cycle 85: 190 ms
+
+# Cycle 86
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38273
+}
+Cycle 86: 152 ms
+
+# Cycle 87
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33272
+}
+Cycle 87: 159 ms
+
+# Cycle 88
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34410
+}
+Cycle 88: 171 ms
+
+# Cycle 89
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31083
+}
+Cycle 89: 157 ms
+
+# Cycle 90
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36578
+}
+Cycle 90: 157 ms
+
+# Cycle 91
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33067
+}
+Cycle 91: 229 ms
+
+# Cycle 92
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36014
+}
+Cycle 92: 150 ms
+
+# Cycle 93
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 30237
+}
+Cycle 93: 150 ms
+
+# Cycle 94
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 30452
+}
+Cycle 94: 159 ms
+
+# Cycle 95
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33221
+}
+Cycle 95: 148 ms
+
+# Cycle 96
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34504
+}
+Cycle 96: 180 ms
+
+# Cycle 97
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35529
+}
+Cycle 97: 148 ms
+
+# Cycle 98
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31050
+}
+Cycle 98: 150 ms
+
+# Cycle 99
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33515
+}
+Cycle 99: 153 ms
+
+# Cycle 100
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36266
+}
+Cycle 100: 158 ms
+DELETE http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+{
+  "values": [
+    174,
+    150,
+    146,
+    145,
+    151,
+    184,
+    157,
+    152,
+    149,
+    149,
+    223,
+    143,
+    161,
+    147,
+    168,
+    143,
+    172,
+    150,
+    137,
+    148,
+    143,
+    152,
+    152,
+    160,
+    201,
+    153,
+    149,
+    157,
+    181,
+    224,
+    158,
+    181,
+    146,
+    138,
+    155,
+    146,
+    204,
+    154,
+    141,
+    177,
+    145,
+    146,
+    153,
+    151,
+    211,
+    152,
+    153,
+    145,
+    172,
+    155,
+    152,
+    151,
+    145,
+    199,
+    145,
+    181,
+    153,
+    153,
+    153,
+    148,
+    150,
+    166,
+    145,
+    181,
+    151,
+    148,
+    148,
+    142,
+    173,
+    150,
+    145,
+    151,
+    152,
+    259,
+    155,
+    149,
+    144,
+    189,
+    154,
+    151,
+    266,
+    173,
+    370,
+    157,
+    190,
+    152,
+    159,
+    171,
+    157,
+    157,
+    229,
+    150,
+    150,
+    159,
+    148,
+    180,
+    148,
+    150,
+    153,
+    158
+  ]
+}

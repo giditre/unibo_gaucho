@@ -1,0 +1,16 @@
+
+
+--- ni 1, ec 5, cpu 1, to 60
+
+File test_delete_ni1_ec5_cpu1_to60.json not found\n
+CLI args: {'allocation_get': '/app/APP002', 'preliminary_get': '/apps', 'fua_url': 'https://137.204.57.80:51117', 'fua_user': 'admin', 'fua_password': 'gauchoadmin123', 'fgw_url': 'https://137.204.57.80:51117/fgw', 'fgw_user': None, 'fgw_password': None, 'fomg_url': 'https://137.204.57.80:51117/fomg', 'fomg_user': None, 'fomg_password': None, 'service_data': '{"cpu":1,"timeout":60}', 'pre_delete': True, 'post_delete': True, 'test_delete': True, 'assume_yes': True, 'cycle_delete': False, 'num_cycles': 100, 'node_list': '10314,10317,10318', 'nnic': 1, 'end_cycles': 5, 'output_fname': 'test_delete_ni1_ec5_cpu1_to60.json'}
+DELETE https://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+Sleep for 4 minutes
+
+### START MEASUREMENTS ###
+
+
+# Cycle 1 (100 remaining)
+
+GET https://137.204.57.80:51117/apps
+GET https://137.204.57.80:51117/app/APP002

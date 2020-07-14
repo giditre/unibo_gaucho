@@ -1,0 +1,1503 @@
+CLI args: {'allocation_get': '/sdp/SDP001', 'preliminary_get': '/sdps', 'fua_url': 'http://137.204.57.80:51117', 'fua_user': 'admin', 'fua_password': 'gauchoadmin123', 'fgw_url': 'http://137.204.57.80:51117/fgw', 'fgw_user': None, 'fgw_password': None, 'fomg_url': 'http://137.204.57.80:51117/fomg', 'fomg_user': None, 'fomg_password': None, 'service_data': '{}', 'pre_delete': True, 'post_delete': True, 'assume_yes': True, 'cycle_delete': False, 'num_cycles': 100, 'output_fname': 'res_alloc_time_paas_SDP001.json'}
+DELETE http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+
+### START MEASUREMENTS ###
+
+
+# Cycle 1
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 38871
+}
+Cycle 1: 214 ms
+
+# Cycle 2
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 31524
+}
+Cycle 2: 198 ms
+
+# Cycle 3
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 39805
+}
+Cycle 3: 195 ms
+
+# Cycle 4
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35158
+}
+Cycle 4: 197 ms
+
+# Cycle 5
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35704
+}
+Cycle 5: 196 ms
+
+# Cycle 6
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 38049
+}
+Cycle 6: 194 ms
+
+# Cycle 7
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 39793
+}
+Cycle 7: 194 ms
+
+# Cycle 8
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39650
+}
+Cycle 8: 198 ms
+
+# Cycle 9
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 32682
+}
+Cycle 9: 201 ms
+
+# Cycle 10
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 39490
+}
+Cycle 10: 193 ms
+
+# Cycle 11
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34857
+}
+Cycle 11: 194 ms
+
+# Cycle 12
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36742
+}
+Cycle 12: 191 ms
+
+# Cycle 13
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36180
+}
+Cycle 13: 190 ms
+
+# Cycle 14
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 36724
+}
+Cycle 14: 203 ms
+
+# Cycle 15
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 33309
+}
+Cycle 15: 175 ms
+
+# Cycle 16
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34146
+}
+Cycle 16: 243 ms
+
+# Cycle 17
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35264
+}
+Cycle 17: 204 ms
+
+# Cycle 18
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 36810
+}
+Cycle 18: 217 ms
+
+# Cycle 19
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 35682
+}
+Cycle 19: 190 ms
+
+# Cycle 20
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 35310
+}
+Cycle 20: 194 ms
+
+# Cycle 21
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 33040
+}
+Cycle 21: 234 ms
+
+# Cycle 22
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36546
+}
+Cycle 22: 188 ms
+
+# Cycle 23
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 38597
+}
+Cycle 23: 184 ms
+
+# Cycle 24
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 33906
+}
+Cycle 24: 195 ms
+
+# Cycle 25
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 35350
+}
+Cycle 25: 307 ms
+
+# Cycle 26
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 31468
+}
+Cycle 26: 195 ms
+
+# Cycle 27
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 30498
+}
+Cycle 27: 190 ms
+
+# Cycle 28
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33199
+}
+Cycle 28: 204 ms
+
+# Cycle 29
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 38575
+}
+Cycle 29: 249 ms
+
+# Cycle 30
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33381
+}
+Cycle 30: 215 ms
+
+# Cycle 31
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 33335
+}
+Cycle 31: 276 ms
+
+# Cycle 32
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 37269
+}
+Cycle 32: 214 ms
+
+# Cycle 33
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 32900
+}
+Cycle 33: 193 ms
+
+# Cycle 34
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38493
+}
+Cycle 34: 262 ms
+
+# Cycle 35
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 34610
+}
+Cycle 35: 202 ms
+
+# Cycle 36
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 32592
+}
+Cycle 36: 191 ms
+
+# Cycle 37
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 31201
+}
+Cycle 37: 177 ms
+
+# Cycle 38
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 35791
+}
+Cycle 38: 180 ms
+
+# Cycle 39
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 33363
+}
+Cycle 39: 192 ms
+
+# Cycle 40
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37243
+}
+Cycle 40: 228 ms
+
+# Cycle 41
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 30891
+}
+Cycle 41: 184 ms
+
+# Cycle 42
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36319
+}
+Cycle 42: 197 ms
+
+# Cycle 43
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37538
+}
+Cycle 43: 242 ms
+
+# Cycle 44
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 33056
+}
+Cycle 44: 191 ms
+
+# Cycle 45
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 35752
+}
+Cycle 45: 215 ms
+
+# Cycle 46
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 30630
+}
+Cycle 46: 192 ms
+
+# Cycle 47
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 31405
+}
+Cycle 47: 200 ms
+
+# Cycle 48
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 32689
+}
+Cycle 48: 220 ms
+
+# Cycle 49
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 33751
+}
+Cycle 49: 189 ms
+
+# Cycle 50
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 36866
+}
+Cycle 50: 204 ms
+
+# Cycle 51
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34002
+}
+Cycle 51: 194 ms
+
+# Cycle 52
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35165
+}
+Cycle 52: 215 ms
+
+# Cycle 53
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 39618
+}
+Cycle 53: 187 ms
+
+# Cycle 54
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 32043
+}
+Cycle 54: 195 ms
+
+# Cycle 55
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37811
+}
+Cycle 55: 188 ms
+
+# Cycle 56
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 37461
+}
+Cycle 56: 191 ms
+
+# Cycle 57
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 35931
+}
+Cycle 57: 193 ms
+
+# Cycle 58
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 32924
+}
+Cycle 58: 193 ms
+
+# Cycle 59
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 39234
+}
+Cycle 59: 194 ms
+
+# Cycle 60
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 30487
+}
+Cycle 60: 198 ms
+
+# Cycle 61
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 34485
+}
+Cycle 61: 233 ms
+
+# Cycle 62
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39435
+}
+Cycle 62: 197 ms
+
+# Cycle 63
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 30706
+}
+Cycle 63: 223 ms
+
+# Cycle 64
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 33847
+}
+Cycle 64: 215 ms
+
+# Cycle 65
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 35993
+}
+Cycle 65: 195 ms
+
+# Cycle 66
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 32450
+}
+Cycle 66: 202 ms
+
+# Cycle 67
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 36958
+}
+Cycle 67: 196 ms
+
+# Cycle 68
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "message": "Internal Server Error"
+}
+
+# Cycle 69
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 37926
+}
+Cycle 69: 200 ms
+
+# Cycle 70
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 34056
+}
+Cycle 70: 190 ms
+
+# Cycle 71
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 39920
+}
+Cycle 71: 202 ms
+
+# Cycle 72
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 33781
+}
+Cycle 72: 187 ms
+
+# Cycle 73
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 32590
+}
+Cycle 73: 194 ms
+
+# Cycle 74
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 30750
+}
+Cycle 74: 204 ms
+
+# Cycle 75
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 34081
+}
+Cycle 75: 187 ms
+
+# Cycle 76
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 31935
+}
+Cycle 76: 197 ms
+
+# Cycle 77
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 30068
+}
+Cycle 77: 190 ms
+
+# Cycle 78
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 36374
+}
+Cycle 78: 198 ms
+
+# Cycle 79
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 36029
+}
+Cycle 79: 225 ms
+
+# Cycle 80
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 38651
+}
+Cycle 80: 191 ms
+
+# Cycle 81
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 34474
+}
+Cycle 81: 196 ms
+
+# Cycle 82
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 36561
+}
+Cycle 82: 198 ms
+
+# Cycle 83
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 31062
+}
+Cycle 83: 196 ms
+
+# Cycle 84
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 38235
+}
+Cycle 84: 191 ms
+
+# Cycle 85
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 34761
+}
+Cycle 85: 194 ms
+
+# Cycle 86
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 39855
+}
+Cycle 86: 185 ms
+
+# Cycle 87
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 35613
+}
+Cycle 87: 190 ms
+
+# Cycle 88
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 34612
+}
+Cycle 88: 237 ms
+
+# Cycle 89
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 32172
+}
+Cycle 89: 183 ms
+
+# Cycle 90
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 31699
+}
+Cycle 90: 192 ms
+
+# Cycle 91
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 32679
+}
+Cycle 91: 198 ms
+
+# Cycle 92
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31484
+}
+Cycle 92: 268 ms
+
+# Cycle 93
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 31990
+}
+Cycle 93: 187 ms
+
+# Cycle 94
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 31952
+}
+Cycle 94: 193 ms
+
+# Cycle 95
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 30594
+}
+Cycle 95: 190 ms
+
+# Cycle 96
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 32945
+}
+Cycle 96: 190 ms
+
+# Cycle 97
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 39948
+}
+Cycle 97: 218 ms
+
+# Cycle 98
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 35754
+}
+Cycle 98: 183 ms
+
+# Cycle 99
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 34020
+}
+Cycle 99: 188 ms
+
+# Cycle 100
+
+GET http://137.204.57.80:51117/sdps
+POST http://137.204.57.80:51117/sdp/SDP001
+{
+  "service_id": "SDP001",
+  "message": "SDP SDP001 available",
+  "type": "OBR_SDP_AVLB_P",
+  "node_class": "P",
+  "node_id": "10313",
+  "service_port": 37317
+}
+Cycle 100: 195 ms
+DELETE http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+{
+  "values": [
+    214,
+    198,
+    195,
+    197,
+    196,
+    194,
+    194,
+    198,
+    201,
+    193,
+    194,
+    191,
+    190,
+    203,
+    175,
+    243,
+    204,
+    217,
+    190,
+    194,
+    234,
+    188,
+    184,
+    195,
+    307,
+    195,
+    190,
+    204,
+    249,
+    215,
+    276,
+    214,
+    193,
+    262,
+    202,
+    191,
+    177,
+    180,
+    192,
+    228,
+    184,
+    197,
+    242,
+    191,
+    215,
+    192,
+    200,
+    220,
+    189,
+    204,
+    194,
+    215,
+    187,
+    195,
+    188,
+    191,
+    193,
+    193,
+    194,
+    198,
+    233,
+    197,
+    223,
+    215,
+    195,
+    202,
+    196,
+    200,
+    190,
+    202,
+    187,
+    194,
+    204,
+    187,
+    197,
+    190,
+    198,
+    225,
+    191,
+    196,
+    198,
+    196,
+    191,
+    194,
+    185,
+    190,
+    237,
+    183,
+    192,
+    198,
+    268,
+    187,
+    193,
+    190,
+    190,
+    218,
+    183,
+    188,
+    195
+  ]
+}
