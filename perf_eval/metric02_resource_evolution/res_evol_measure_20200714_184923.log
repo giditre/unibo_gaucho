@@ -1,0 +1,231 @@
+--- ni 2, ec 5, cpu 2, to 1920
+CLI args: {'allocation_get': '/app/APP002', 'preliminary_get': '/apps', 'fua_url': 'http://137.204.57.80:51117', 'fua_user': 'admin', 'fua_password': 'gauchoadmin123', 'fgw_url': 'http://137.204.57.80:51117/fgw', 'fgw_user': None, 'fgw_password': None, 'fomg_url': 'http://137.204.57.80:51117/fomg', 'fomg_user': None, 'fomg_password': None, 'service_data': '{"cpu":2,"timeout":1920}', 'pre_delete': True, 'post_delete': True, 'test_delete': True, 'assume_yes': True, 'cycle_delete': False, 'num_cycles': 100, 'node_list': '10314,10315,10317,10318', 'nnic': 2, 'end_cycles': 5, 'output_fname': 'test_delete_ni2_ec5_cpu2_to1920.json'}
+DELETE http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+Sleep for 4 minutes
+
+### START MEASUREMENTS ###
+
+
+# Cycle 1 (100 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_I",
+  "node_class": "I",
+  "node_id": "10313",
+  "service_port": 32798
+}
+POST http://137.204.57.80:51117/fgw/10313/32798/app-APP002
+{
+  "message": "Running app APP002 with parameters '{'cpu': 2, 'timeout': 1920}'",
+  "hostname": "APP002_giditre-gaucho-stress_20200714-185335-009424"
+}
+Sleep for 2 minutes
+
+# Cycle 2 (99 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_I",
+  "node_class": "I",
+  "node_id": "10313",
+  "service_port": 32799
+}
+POST http://137.204.57.80:51117/fgw/10313/32799/app-APP002
+{
+  "message": "Running app APP002 with parameters '{'cpu': 2, 'timeout': 1920}'",
+  "hostname": "APP002_giditre-gaucho-stress_20200714-185539-347049"
+}
+GET http://137.204.57.80:51117/fgw/10314/8000
+Sleep for 2 minutes
+
+# Cycle 3 (98 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_AVLB_S",
+  "node_class": "S",
+  "node_id": "10314",
+  "service_port": 39428
+}
+POST http://137.204.57.80:51117/fgw/10314/39428/app-APP002
+{
+  "message": "Running app APP002 with parameters '{'cpu': 2, 'timeout': 1920}'",
+  "type": "APP_STRS_EXEC",
+  "params": {
+    "cpu": 2,
+    "timeout": 1920
+  },
+  "hostname": "gaucho-fnode-vm1"
+}
+Sleep for 2 minutes
+
+# Cycle 4 (97 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_I",
+  "node_class": "I",
+  "node_id": "10313",
+  "service_port": 32800
+}
+POST http://137.204.57.80:51117/fgw/10313/32800/app-APP002
+{
+  "message": "Running app APP002 with parameters '{'cpu': 2, 'timeout': 1920}'",
+  "hostname": "APP002_giditre-gaucho-stress_20200714-185946-812711"
+}
+GET http://137.204.57.80:51117/fgw/10315/8000
+Sleep for 2 minutes
+
+# Cycle 5 (96 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10315",
+  "service_port": 31275
+}
+POST http://137.204.57.80:51117/fgw/10315/31275/app-APP002
+{
+  "message": "Running app APP002 with parameters '{'cpu': 2, 'timeout': 1920}'",
+  "type": "APP_STRS_EXEC",
+  "params": {
+    "cpu": 2,
+    "timeout": 1920
+  },
+  "hostname": "gaucho-fnode-vm2"
+}
+Sleep for 2 minutes
+
+# Cycle 6 (95 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_I",
+  "node_class": "I",
+  "node_id": "10313",
+  "service_port": 32801
+}
+POST http://137.204.57.80:51117/fgw/10313/32801/app-APP002
+{
+  "message": "Running app APP002 with parameters '{'cpu': 2, 'timeout': 1920}'",
+  "hostname": "APP002_giditre-gaucho-stress_20200714-190354-720376"
+}
+GET http://137.204.57.80:51117/fgw/10317/8000
+Sleep for 2 minutes
+
+# Cycle 7 (94 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_AVLB_S",
+  "node_class": "S",
+  "node_id": "10317",
+  "service_port": 35574
+}
+POST http://137.204.57.80:51117/fgw/10317/35574/app-APP002
+{
+  "message": "Running app APP002 with parameters '{'cpu': 2, 'timeout': 1920}'",
+  "type": "APP_STRS_EXEC",
+  "params": {
+    "cpu": 2,
+    "timeout": 1920
+  },
+  "hostname": "gaucho-fnode-vm3"
+}
+Sleep for 2 minutes
+
+# Cycle 8 (93 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "message": "APP APP002 not deployed and no available IaaS node",
+  "type": "OBR_APP_NAVL_I"
+}
+GET http://137.204.57.80:51117/fgw/10318/8000
+WARNING: new_node_id_list is empty
+Sleep for 2 minutes
+
+# Cycle 9 (4 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "service_id": "APP002",
+  "message": "APP APP002 allocated",
+  "type": "OBR_APP_ALLC_P",
+  "node_class": "P",
+  "node_id": "10318",
+  "service_port": 39416
+}
+POST http://137.204.57.80:51117/fgw/10318/39416/app-APP002
+{
+  "message": "Running app APP002 with parameters '{'cpu': 2, 'timeout': 1920}'",
+  "type": "APP_STRS_EXEC",
+  "params": {
+    "cpu": 2,
+    "timeout": 1920
+  },
+  "hostname": "gaucho-fnode-vm4"
+}
+Sleep for 2 minutes
+
+# Cycle 10 (3 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "message": "APP APP002 not deployed and no available IaaS node",
+  "type": "OBR_APP_NAVL_I"
+}
+Sleep for 2 minutes
+
+# Cycle 11 (2 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "message": "APP APP002 not deployed and no available IaaS node",
+  "type": "OBR_APP_NAVL_I"
+}
+Sleep for 2 minutes
+
+# Cycle 12 (1 remaining)
+
+GET http://137.204.57.80:51117/apps
+POST http://137.204.57.80:51117/app/APP002
+{
+  "message": "APP APP002 not deployed and no available IaaS node",
+  "type": "OBR_APP_NAVL_I"
+}
+Sleep for 2 minutes
+DELETE http://137.204.57.80:51117/fgw/10314/5005/test
+DELETE http://137.204.57.80:51117/fgw/10315/5005/test
+DELETE http://137.204.57.80:51117/fgw/10317/5005/test
+DELETE http://137.204.57.80:51117/fgw/10318/5005/test
+DELETE http://137.204.57.80:51117/fomg/127.0.0.1/5003/nodes
+GET http://137.204.57.80:51117/fomg/127.0.0.1/5003/meas
+Measurement data written to file test_delete_ni2_ec5_cpu2_to1920.json
