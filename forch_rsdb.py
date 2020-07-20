@@ -278,10 +278,14 @@ class RSDB():
         self.rsdb["nodes"][node_id]["fves"] = []
 
         if self.rsdb["nodes"][node_id]["available"] == "1":
+          url = "http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])
           try:
-            node_info = requests.get("http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])).json()
+            logger.debug("marker start {} {}".format("GET", url))
+            node_info = requests.get(url).json()
+            logger.debug("marker end {} {}".format("GET", url))
           except requests.exceptions.ConnectionError:
-            logger.debug("Node {} not responding at {}".format(node_id, "http://{}:5005/info".format(self.rsdb["nodes"][node_id]["ip"])))
+            logger.debug("marker end {} {}".format("GET", url))
+            logger.debug("Node {} not responding at {}".format(node_id, url))
             self.rsdb["nodes"][node_id]["class"] = ""
             self.rsdb["nodes"][node_id]["available"] = "0"
             continue
