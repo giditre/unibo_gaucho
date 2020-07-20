@@ -28,7 +28,7 @@ print("CLI args: {}".format(vars(args)))
 
 data_fname = args.data_fname
 
-output_fname = "pp_" + data_fname.replace("log", "json")
+output_fname = data_fname.replace(".log", "_pp.json")
 
 # TODO get from argument
 user_call = "forch_user_access.py " + "POST /app/APP002"
@@ -112,7 +112,7 @@ if typ_entry:
   
   print(json.dumps(typ_entry, indent=2))
   
-  output_fname = "typ_" + data_fname.replace("log", "json")
+  output_fname = data_fname.replace(".log", "_typ.json")
   
   with open(output_fname, "w") as f:
     json.dump(typ_entry, f)
