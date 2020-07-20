@@ -50,7 +50,7 @@ print("call_duration", call_duration)
 call_start = { call: data_dict["start"][call] for call in calls }
 print("call_start", call_start)
 
-rects = ax.barh(y_pos, [call_duration[c] for c in calls],
+rects = ax.barh(y_pos[::-1], [call_duration[c] for c in calls],
   left=[call_start[c] for c in calls], height = 0.5,
   linewidth=3, color="w", edgecolor="k", hatch="/")
 
@@ -60,6 +60,7 @@ rects = ax.barh(y_pos, [call_duration[c] for c in calls],
 
 ax.set_xlabel('Time [ms]')
 
+ax.set_ylabel('Call sequence')
 ax.set_yticks([])
 #ax.set_yticklabels(calls_short)
 ax.invert_yaxis()  # labels read top-to-bottom
