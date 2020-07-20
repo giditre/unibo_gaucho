@@ -98,7 +98,7 @@ print(json.dumps(data_list, indent=2))
 
 typ_entry = None
 for entry in data_list:
-  if entry["elaps"][user_call] == 154:
+  if entry["elaps"][user_call] == 10237:
     typ_entry = entry
     break
 
