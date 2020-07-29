@@ -29,9 +29,6 @@ class PythonSDP():
     self.output = []
     self.done = False
 
-    # sleep
-    time.sleep(6)
-
   def exec_code(self, code):
     exec(code, {'__builtins__': __builtins__}, {"print": self.store_output, "time": time.time, "sleep": time.sleep})
     self.done = True
