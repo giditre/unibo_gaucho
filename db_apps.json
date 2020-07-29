@@ -9,6 +9,11 @@
       "thumbnail": "http://137.204.57.73/restooltest/thumb_stress.jpg",
       "name": "stress",
       "descr": "Stress host"
-    }
-  }
+    },
+    "APP003": {
+      "thumbnail": "",
+      "name": "ffmpeg",
+      "descr": "Multimedia transcoder ffmpeg"
+   }
+ }
 }
