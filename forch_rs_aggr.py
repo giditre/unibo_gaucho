@@ -737,26 +737,42 @@ if __name__ == '__main__':
 
   api = Api(app)
   
+  # just to test that the endpoint is up, this endpoint returns "this endpoint is up"
   api.add_resource(Test, '/test')
   
+  # interact with discovered nodes and services
+  # e.g.: GET list of node and services that they offer (taking info from Zabbix and asking each node)
+  #   DELETE list of node i.e. clear database
   api.add_resource(FogNodeList, '/nodes')
+  # same, but single node
   api.add_resource(FogNode, '/node/<node_id>')
   
-  api.add_resource(FogMeasurements, '/meas')
+  # # interact with monitoring data
+  # # e.g.: GET all monitoring info collected by Zabbix on all nodes
+  # api.add_resource(FogMeasurements, '/meas')
   
+  # the Catalog is the list of APPs that the system knows and can support (not necessarily deployed at the moment)
+  # the User Access module can request the catalog to pass to the user before they request an allocation
   api.add_resource(FogApplicationCatalog, '/appcat')
+  # the APP list is the list of currently deployed APPs
   api.add_resource(FogApplicationList, '/apps')
-  api.add_resource(FogApplication, '/app/<app_id>')
+  # api.add_resource(FogApplication, '/app/<app_id>')
   
+  # similar to APP Catalog
   api.add_resource(SoftDevPlatformCatalog, '/sdpcat')
+  # similar to APP list
   api.add_resource(SoftDevPlatformList, '/sdps')
-  api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
+  # api.add_resource(SoftDevPlatform, '/sdp/<sdp_id>')
   
+  # similar to APP Catalog
   api.add_resource(FogVirtEngineCatalog, '/fvecat')
+  # similar to APP list
   api.add_resource(FogVirtEngineList, '/fves')
-  api.add_resource(FogVirtEngine, '/fve/<fve_id>')
+  # api.add_resource(FogVirtEngine, '/fve/<fve_id>')
 
-  api.add_resource(ActiveServiceList, '/activeservices')
+  # summary of the deployed services (including APPs, SDPs, FVEs) updated after every allocation
+  # this is only useful for the Demo GUI
+  # api.add_resource(ActiveServiceList, '/activeservices')
 
   app.run(host=ep_address, port=ep_port, debug=debug)
 
