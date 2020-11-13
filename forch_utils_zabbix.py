@@ -155,34 +155,46 @@ class ZabbixController:
 
 
 if __name__ == "__main__":
+  def truncated_str(elem):
+    s = str(elem)
+    if len(s) < 600:
+      return s
+    else:
+      return s[:600] + " [...]"
+
   # instantiate Zabbix controller
   zc = ZabbixController()
 
-  # print("List of all known nodes:")
-  # print(zc.get_nodes())
-  # print()
-
-  print("Details on some nodes (got by IP):")
-  node_ip = "192.168.10.120"
-  node1 = zc.get_node_by_ip(node_ip)
-  print(node1)
-  node_ip = "192.168.10.123"
-  node2 = zc.get_node_by_ip(node_ip)
-  print(node2)
+  print("List of all known nodes:")
+  print(zc.get_nodes())
   print()
 
-  # # print("Details on node having address 192.168.10.120:\n", node.to_json())
+  node_ip = "192.168.10.120"
+  print("Details on node having address {}:".format(node_ip))
+  node1 = zc.get_node_by_ip(node_ip)
+  print("As a string: ", node1)
+  print("As a dict: ", node1.to_dict())
+  print("As a JSON: ", node1.to_json())
+  node_ip = "192.168.10.123"
+  print("Details on node having address {}:".format(node_ip))
+  node2 = zc.get_node_by_ip(node_ip)
+  print("As a string: ", node2)
+  print("As a dict: ", node2.to_dict())
+  print("As a JSON: ", node2.to_json())
+  print()
 
   print("Different ways to get measurements:")
   print("--- by node, e.g.: get_measurements_by_node(node1)")
-  print(zc.get_measurements_by_node(node1))
+  print(truncated_str(zc.get_measurements_by_node(node1)))
   print("--- by node list, e.g.: get_measurements_by_node_list([node1, node2])")
-  print(zc.get_measurements_by_node_list([node1, node2]))
+  print(truncated_str(zc.get_measurements_by_node_list([node1, node2])))
   print("--- by node or node list with item names, e.g.: get_measurements_by_node_list([node1, node2], [\"CPU utilization\", \"Memory utilization\"])")
-  print(zc.get_measurements_by_node_list([node1, node2], ["CPU utilization", "Memory utilization"]))
+  print(truncated_str(zc.get_measurements_by_node_list([node1, node2], ["CPU utilization", "Memory utilization"])))
   print("--- by item ID, e.g.: get_measurements_by_item_id(\"30254\")")
-  print(zc.get_measurements_by_item_id("30254"))
+  print(truncated_str(zc.get_measurements_by_item_id("30254")))
   print("--- by item ID list, e.g.: get_measurements_by_item_id_list([\"30251\",\"31007\"])")
-  print(zc.get_measurements_by_item_id_list(["30251","31007"]))
+  print(truncated_str(zc.get_measurements_by_item_id_list(["30251","31007"])))
+  print()
 
-  # print(zc.get_item_id_by_node_and_item_name(node1, "CPU utilization"))
+  print("Getting item ID by node and item name, e.g.: get_item_id_by_node_and_item_name(node1, \"CPU utilization\")")
+  print(zc.get_item_id_by_node_and_item_name(node1, "CPU utilization"))
