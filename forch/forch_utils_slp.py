@@ -281,7 +281,6 @@ class SLPController:
         warnings.warn("Known service attribute {} not used.".format(attrs_list[i]))
       else:
         raise_error(__class__, "Unexpected service attribute received!") # TODO M: forse mettere un semplice warning?
-        
 
     return srvc
       
