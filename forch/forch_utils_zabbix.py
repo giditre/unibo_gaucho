@@ -80,6 +80,9 @@ class ZabbixController:
   def __repr__(self):
     return "ZabbixController on URL {} with user {}".format(self.__url, self.__user)
 
+  def get_url(self):
+    return self.__url
+
   def get_nodes(self, server_name="Zabbix Server"):
     # fields=["hostid", "name", "available"]
 

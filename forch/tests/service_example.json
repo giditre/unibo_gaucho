@@ -1,0 +1,19 @@
+{
+    "apps": {
+      "APP001": {
+        "protocol": "http",
+        "path": "/restooltest/thumb_httpd.jpg",
+        "name": "httpd",
+        "descr": "Apache web server",
+        "lifetime": 2
+      },
+      "APP002": {
+        "protocol": "http",
+        "path": "/restooltest/thumb_stress.jpg",
+        "name": "stress",
+        "descr": "Stress host",
+        "lifetime": 4
+      }
+    }
+  }
+  

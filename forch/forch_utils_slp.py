@@ -6,31 +6,43 @@ import sys
 import shlex
 import subprocess
 import re
-import abc
-import slp # TODO G: è slp o pyslp?
+from enum import IntEnum, Enum
+from abc import ABCMeta, abstractmethod
+import warnings
 
-#import forch_utils_service as fus
-from forch_utils_service import Service
-from forch_tools import raise_error
+import slp
 
-from enum import IntEnum
+from forch.forch_utils_service import Service
+from forch.forch_tools import raise_error
+
+class SLPAgentType(IntEnum):
+  UA = 1
+  SA = 2
+  DA = 3
+
+# SLP services known attributes
+class SLPAttributes(Enum):
+  ID = "id"
+  CATEGORY = "category"
+  DESCRIPTION = "descr"
+
+  # https://stackoverflow.com/questions/43634618/how-do-i-test-if-int-value-exists-in-python-enum-without-using-try-catch/43634746
+  @classmethod
+  def has_value(cls, value):
+    return value in cls._value2member_map_ # pylint: disable=no-member
 
 # This class exposes methods dedicated to the different types of agents.
 # If a method is used in a wrong agent context, Python will return errors
 # saying that one or more methods are not defined
 # More or less SLPController is a _SLPAgent wrapper
 class SLPController:
-  class SLPAgentType(IntEnum):
-    UA = 1
-    SA = 2
-    DA = 3
-
   #TODO M: se la storia degli abstract da troppi problemi toglierla. Proviamo a tenerla per il momento. Override dentro _SLPActiveAgent nuovamente abstract necessario?
   class _SLPAgent(metaclass=ABCMeta):
     def __init__(self, slp_handler=None):
       self.__hslp = slp_handler
       if self.__hslp == None:
         self.__hslp = self.__hslp = slp.SLPOpen("en", False) #TODO M: valutare se usare OpenSLP in maniera sincrona o asincrona. Con False è sincrona
+        print(self.__hslp)
 
     def __del__(self):
       slp.SLPClose(self.__hslp)
@@ -39,7 +51,7 @@ class SLPController:
       return self.__hslp
 
     # This method is intended as abstract
-    @abc.abstractmethod
+    @abstractmethod
     def get_type(self):
       return
 
@@ -90,12 +102,11 @@ class SLPController:
       
   class _UA(_SLPAgent):
     # Warning! static vars
-    _discovered_service_types_list = []
-    _discovered_service_tuple_list = []
-    _discovered_attributes_list = []
+    # TODO M: valutare se servono 3 liste o ne basta una
+    __discovery_list = None
 
     def get_type(self):
-      return SLPController.SLPAgentType.UA
+      return SLPAgentType.UA
       
     # Expected inputs: string, {key1:value1, key2:value2, ...}, string
     # prints, count and rqst_type are only for debug
@@ -106,7 +117,7 @@ class SLPController:
       if errcode == slp.SLP_OK:
         for key in param_dict:
           print("{}: {}".format(key,param_dict[key]), end=", ")
-        count += 1
+        count += 1 # pylint: disable=undefined-variable
         rv = True
       elif errcode == slp.SLP_LAST_CALL:
         if count == 0:
@@ -119,55 +130,58 @@ class SLPController:
     
     @staticmethod
     def __srvc_types_callback(h, srvc_type, errcode, cookie_data):
-      SLPController._UA._discovered_service_types_list = []
       res = SLPController._UA.__rqsts_callback_core({"srvc_type":srvc_type},str(errcode),"service types")
       if res == True:
-        SLPController._UA._discovered_service_types_list.append(srvc_type)
+        SLPController._UA.__discovery_list.append(srvc_type)
       return res
 
     @staticmethod
     def __service_callback(h, srvurl, lifetime, errcode, cookie_data):
-      SLPController._UA._discovered_service_tuple_list = []
       res = SLPController._UA.__rqsts_callback_core({"url":srvurl, "timeout":lifetime},str(errcode),"service")
       if res == True:
-        SLPController._UA._discovered_service_tuple_list.append((srvurl,lifetime))
+        SLPController._UA.__discovery_list.append((srvurl,lifetime))
       return res
 
     @staticmethod
     def __attr_callback(h, attrs, errcode, cookie_data):
-      SLPController._UA._discovered_attributes_list = []
       res = SLPController._UA.__rqsts_callback_core({"attrs":attrs},str(errcode),"attribute lists")
       if res == True:
-        SLPController._UA._discovered_attributes_list.append(attrs)
+        SLPController._UA.__discovery_list.append(attrs)
       return res
 
     def find_srvc_types(self):
+      count = 0 # pylint: disable=unused-variable
+      self.__discovery_list = []
       try:
-        slp.SLPFindSrvTypes(self.__hslp, None, None, self.__srvc_types_callback, None)
+        slp.SLPFindSrvTypes(self.get_handler(), "*", "", self.__srvc_types_callback, None)
       except RuntimeError as e:
-        print("Error discovering the service type: " + str(e))
+        print("Error discovering the service types: " + str(e))
         return None
-      return self._discovered_service_types_list
+      return self.__discovery_list
       
     def find_service(self, service_type):
+      count = 0 # pylint: disable=unused-variable
+      self.__discovery_list = []
       try:
-        slp.SLPFindSrvs(self.__hslp, service_type, None, None, self.__service_callback, None)
+        slp.SLPFindSrvs(self.get_handler(), service_type, None, None, self.__service_callback, None)
       except RuntimeError as e:
         print("Error discovering the service: " + str(e))
         return None
-      return self._discovered_service_tuple_list
+      return self.__discovery_list
 
     def find_attr_list(self, srvurl):
+      count = 0 # pylint: disable=unused-variable
+      self.__discovery_list = []
       try:
-        slp.SLPFindAttrs(self.__hslp, srvurl, None, None, self.__attr_callback, None)
+        slp.SLPFindAttrs(self.get_handler(), srvurl, None, None, self.__attr_callback, None)
       except RuntimeError as e:
         print("Error discovering the service attributes: " + str(e))
         return None
-      return self._discovered_attributes_list
+      return self.__discovery_list
   
   class _SA(_SLPActiveAgent):
     def get_type(self):
-      return SLPController.SLPAgentType.SA
+      return SLPAgentType.SA
 
     @staticmethod
     def __reg_callback(h, errcode, data):
@@ -177,37 +191,37 @@ class SLPController:
 
     def register_service(self, srvurl, attrs="", lifetime=slp.SLP_LIFETIME_DEFAULT):
       try:
-        slp.SLPReg(self.__hslp, srvurl, lifetime, None, attrs, True, self.__reg_callback, None)
+        slp.SLPReg(self.get_handler(), srvurl, lifetime, None, attrs, True, self.__reg_callback, None)
       except RuntimeError as e:
         print("Error registering new service: " + str(e))
 
     def deregister_service(self, srvurl):
       try:
-        slp.SLPDereg(self.__hslp, srvurl, self.__reg_callback, None)
+        slp.SLPDereg(self.get_handler(), srvurl, self.__reg_callback, None)
       except RuntimeError as e:
         print("Error deregistering service: " + str(e))
 
   class _DA(_SLPActiveAgent):
-    def __init__(self,slp_handler=None):
+    def __init__(self, slp_handler=None):
       slp.SLPSetProperty("net.slp.isDA", "true")
-      super().__init__()
+      super().__init__(slp_handler)
 
     def get_type(self):
-      return SLPController.SLPAgentType.DA
+      return SLPAgentType.DA
 
   # Begin of SLPController class code
 
   _ATTRIBUTES_SEPARATOR = ','
 
   def __init__(self,agent,slp_handler = None):
-    if agent == self.SLPAgentType.UA:
+    if agent == SLPAgentType.UA:
       #TODO M: in teoria queste non dovrebbero essere necessarie perchè il protocollo dovrebbe trovare il DA locale e parlare solo con lui in unicast. Verificare
       #slp.SLPSetProperty("net.slp.interfaces", "127.0.0.1")
       #slp.SLPSetProperty("net.slp.DAAddresses", "127.0.0.1")
       self.__agent = self._UA(slp_handler)
-    elif agent == self.SLPAgentType.SA:
+    elif agent == SLPAgentType.SA:
       self.__agent = self._SA(slp_handler)
-    elif agent == self.SLPAgentType.DA:
+    elif agent == SLPAgentType.DA:
       self.__agent = self._DA(slp_handler)
     else:
       raise_error(__class__,'Passed an invalid agent parameter')
@@ -226,19 +240,23 @@ class SLPController:
     srvurl_list = []
     lifetime_list = []
     for node in service.get_node_list():
-      srvurl_list.append(srvc_type + "://" + node.get_ip() + ":" + node.get_port())
+      path = node.get_path()
+      if not path.startswith("/"):
+        path = "/" + path
+      srvurl_list.append(srvc_type + "://" + node.get_ip() + ":" + node.get_port() + path)
       lifetime_list.append(node.get_lifetime())
 
-    attrs = "id=" + service.get_id() + SLPController._ATTRIBUTES_SEPARATOR + "category=" + service.get_category() + SLPController._ATTRIBUTES_SEPARATOR + "descr=" + service.get_descr()
+    attrs = SLPAttributes.ID + service.get_id() + SLPController._ATTRIBUTES_SEPARATOR + SLPAttributes.CATEGORY + service.get_category() + SLPController._ATTRIBUTES_SEPARATOR + SLPAttributes.DESCRIPTION + service.get_descr()
 
     return (srvurl_list, attrs, lifetime_list)
 
   @staticmethod
   def __srvurl_to_service(srvurl):
-    srvc_type, host_ipv4, host_port = slp.SLPParseSrvURL(srvurl)
+    srvc_type, url, host_port = slp.SLPParseSrvURL(srvurl)
     assert re.match("^service(:[a-zA-Z0-9.]+){2,2}$", srvc_type), "Service type is not custom. It must contain at least two ':'"
+    host_ipv4, path = url.split("/", 1)
     srvc = Service(name=srvc_type.split(":")[1], protocol=srvc_type.split(":")[2])
-    srvc.add_node(ipv4=host_ipv4, port=host_port)
+    srvc.add_node(ipv4=host_ipv4, port=host_port, path=path)
     # TODO: maybe check return value se Zabbix non trova il nodo che ha trovato SLP e in caso exception?
     return srvc
 
@@ -253,12 +271,17 @@ class SLPController:
     srvc = Service()
 
     for i in range(0, len(attrs_list), 2):
-      if attrs_list[i] == "id":
+      if attrs_list[i] == SLPAttributes.ID:
         srvc.set_id(attrs_list[i+1])
-      elif attrs_list[i] == "category":
+      elif attrs_list[i] == SLPAttributes.CATEGORY:
         srvc.set_category(attrs_list[i+1])
-      elif attrs_list[i] == "descr":
+      elif attrs_list[i] == SLPAttributes.DESCRIPTION:
         srvc.set_descr(attrs_list[i+1])
+      elif SLPAttributes.has_value(attrs_list[i]):
+        warnings.warn("Known service attribute {} not used.".format(attrs_list[i]))
+      else:
+        raise_error(__class__, "Unexpected service attribute received!") # TODO M: forse mettere un semplice warning?
+        
 
     return srvc
       
@@ -281,8 +304,8 @@ class SLPController:
       srvc = None
       if key.split("#")[0] != "lifetime":
         srvc = self.__srvurl_to_service(key) # in this case key = srvurl
-
         tmp_srvc = self.__attrs_to_service(srvs_dict[key])
+        
         srvc.set_id(tmp_srvc.get_id())
         srvc.set_category(tmp_srvc.get_category())
         srvc.set_descr(tmp_srvc.get_descr())

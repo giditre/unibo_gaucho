@@ -3,21 +3,17 @@
 #TODO M: Se serve: override __repr__ di tutte le classi?
 #TODO M: aggiungere zc al costruttore di Service
 
-#TODO M: importare da pyslp invece che fare questa def
-def get_lst(item):
-    if item is None:
-        return item
-    return [item] if not isinstance(item, list) else item
-    
-from enum import Enum, IntEnum
-
-from forch_tools import raise_error
-
+import copy
 from ipaddress import IPv4Address
-# from copy import deepcopy
+from enum import Enum, IntEnum
+from forch.forch_tools import raise_error
+from forch.forch_utils_zabbix import ZabbixNode, ZabbixController
 
-# import forch_utils_zabbix as fuz
-from forch_utils_zabbix import ZabbixNode, ZabbixController
+from forch.forch_tools import get_lst
+import os
+import json
+
+# from forch.forch_utils_slp import SLPController
 
 #from https://docs.python.org/3/library/enum.html
 class MetricType(Enum):
@@ -95,14 +91,15 @@ class Service:
       #     pass      
   
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM
-    def __init__(self, id="", name="", available=False, ipv4=IPv4Address(""), port=None, lifetime=0xffff, metrics_list=[]):
-      assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must me an IPv4Address!"
+    def __init__(self, id="", name="", available=False, ipv4=None, port=None, path="", lifetime=0xffff, metrics_list=[]):
+      assert isinstance(ipv4, IPv4Address) and ipv4 != None, "Parameter ipv4 must me an IPv4Address!"
       
       self.__id = id
       self.__name = name
       self.__available = available
       self.__ip = ipv4
       self.__port = port
+      self.__path = path
       self.__lifetime = lifetime
       # self.__metrics_list = get_lst(metric) # TODO M: da rivedere
       # "metrics" is expected to be formatted as { metric_id: metric_type }
@@ -139,6 +136,11 @@ class Service:
     def set_port(self, port):
       self.__port = port
 
+    def get_path(self):
+      return self.__path
+    def set_path(self, path):
+      self.__path = path
+
     def get_lifetime(self):
       return self.__lifetime
     def set_lifetime(self, lifetime):
@@ -172,8 +174,6 @@ class Service:
     #       pass
 
   def __init__(self, name="", protocol="", node_list=[], id="", category="", descr=""):
-    assert self.__zc != None, "Zabbix controller not assigned yet. Call before Service.set_zabbix_controller()"
-
     for node in node_list:
       assert isinstance(node, self._ServiceNode), "Parameter node_list must be a list of ServiceNode!"
 
@@ -220,8 +220,9 @@ class Service:
     self.__descr = descr
 
   # This is the convergence point between Zabbix and SLP
-  def add_node(self, ipv4=IPv4Address(""), port=None):
-    assert isinstance(ipv4, list), "Parameter node_ip_list must be a list of IPv4Address objects!"
+  def add_node(self, ipv4=None, port=None, path="", lifetime=0xffff):
+    assert self.__zc != None, "Zabbix controller not assigned yet. Call before Service.set_zabbix_controller()"
+    assert isinstance(ipv4, list) and ipv4 != None, "Parameter node_ip_list must be a list of IPv4Address objects!"
 
     node = self.__zc.get_node_by_ip(ipv4)
     node_dict = node.to_dict()
@@ -231,9 +232,9 @@ class Service:
     m_list = [ self._ServiceNode._Metric(id=self.__zc.get_item_id_by_node_and_item_name(node_dict["node_id"], elem.value), m_type=elem) for elem in MetricType ]
     
     # instatiate new ServiceNode and append it to node list
-    self.__node_list.append(self._ServiceNode(id=node_dict["node_id"], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, metrics_list=m_list))
+    self.__node_list.append(self._ServiceNode(id=node_dict["node_id"], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
        
-    # TODO M: vedere se ritornare qualcosa
+    # TODO M: ritornare qualcosa?
 
   # TODO M: se questo metodo è usato solo da SLPController, decidere se tenerlo qui o metterlo li
   # Useful links:
@@ -291,6 +292,7 @@ class Service:
         return node
         
   def retrieve_measurements(self, mode=MeasurementRetrievalMode.SERVICE):
+    assert self.__zc != None, "Zabbix controller not assigned yet. Call before Service.set_zabbix_controller()"
     assert isinstance(mode, MeasurementRetrievalMode), "Parameter mode must be a MeasurementRetrievalMode!"
     # check retrieval mode
     if mode == MeasurementRetrievalMode.SERVICE:
@@ -321,13 +323,37 @@ class Service:
       # should never happen
       pass
 
+  @classmethod
+  def parse_json_services_file(cls, json_services_file):
+    assert isinstance(json_services_file, str), "Parameter json_service_file must be a string!"
+    assert os.path.isfile(json_services_file), '"{}" is not a file or it doesn\'t exist.'.format(json_services_file)
+
+    services_list = []
+    paths_list = []
+    lifetimes_list = []
+
+    with open(json_services_file, 'r') as f:
+      jsonDict = json.load(f)     
+
+    for as_a_service_type in jsonDict:
+      for service_id in jsonDict[as_a_service_type]:
+        name = jsonDict[as_a_service_type][service_id]['name']
+        protocol = jsonDict[as_a_service_type][service_id]['protocol']
+        descr = jsonDict[as_a_service_type][service_id]['descr']
+
+        services_list.append(cls(name=name, protocol=protocol, id=service_id, category=as_a_service_type, descr=descr))
+        paths_list.append(jsonDict[as_a_service_type][service_id]['path'])
+        lifetimes_list.append(int(jsonDict[as_a_service_type][service_id]['lifetime']))
+
+    return (services_list, paths_list, lifetimes_list)
+
 if __name__ == "__main__":
-  def truncated_str(elem):
-    s = str(elem)
-    if len(s) < 600:
-      return s
-    else:
-      return s[:600] + " [...]"
+  # def truncated_str(elem):
+  #   s = str(elem)
+  #   if len(s) < 600:
+  #     return s
+  #   else:
+  #     return s[:600] + " [...]"
 
   # instantiate Zabbix controller
   zc = ZabbixController()
