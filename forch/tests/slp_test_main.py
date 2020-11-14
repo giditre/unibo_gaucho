@@ -30,7 +30,7 @@ def service_callback(h, srvurl, lifetime, errcode, data):
     if errcode == slp.SLP_OK:
         print("Url: " + srvurl + ", timeout " + str(lifetime))
         print(slp.SLPParseSrvURL(srvurl))
-        count += 1
+        count += 1 # pylint: disable=undefined-variable
         rv = True
     elif errcode == slp.SLP_LAST_CALL:
         if count == 0:
@@ -81,21 +81,21 @@ except RuntimeError as e:
 
 ############
 
-count = 0;
+count = 0
 try:
     slp.SLPFindSrvTypes(hslp, "*", "", srvc_types_callback, None)
 except RuntimeError as e:
     print("Error discovering the service: " + str(e))
 
-count = 0;
+count = 0
 try:
     slp.SLPFindSrvs(hslp, url, None, None, service_callback, None)
 except RuntimeError as e:
     print("Error discovering the service: " + str(e))
 
-count = 0;
+count = 0
 try:
-    slp.SLPFindAttrs(hslp, url, None, None, attr_callback, None);
+    slp.SLPFindAttrs(hslp, url, None, None, attr_callback, None)
 except RuntimeError as e:
     print("Error discovering the service attributes: " + str(e))
 
@@ -112,13 +112,13 @@ try:
 except RuntimeError as e:
     print("Error registering new service: " + str(e))
 
-count = 0;
+count = 0
 try:
     slp.SLPFindSrvTypes(hslp, "*", "", srvc_types_callback, None)
 except RuntimeError as e:
     print("Error discovering the service: " + str(e))
 
-count = 0;
+count = 0
 try:
     slp.SLPFindSrvs(hslp, testSrvUrl, None, None, service_callback, None)
 except RuntimeError as e:
@@ -127,7 +127,7 @@ except RuntimeError as e:
 if count == 0:
     print("Could not find the registered service!")
 
-count = 0;
+count = 0
 try:
     slp.SLPFindAttrs(hslp, testSrvUrl, None, None, attr_callback, None)
 except RuntimeError as e:
@@ -138,4 +138,4 @@ if count == 0:
 
 ############
 
-slp.SLPClose(hslp);
+slp.SLPClose(hslp)

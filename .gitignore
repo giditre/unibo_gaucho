@@ -58,3 +58,4 @@ docs/_build/
 target/
 
 *.swp
+forch/tests/slp_test_main.py
