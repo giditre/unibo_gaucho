@@ -14,12 +14,12 @@ def test_service_cache_list_out():
   assert isinstance(sc_list, list), ""
   assert all([isinstance(service, Service) for service in sc_list]), ""
 
-def test_parse_json_services_file_out():
-  s_list, paths_list, lifetimes_list = Service.parse_json_services_file("tests/service_example.json")
-  assert isinstance(s_list, list), ""
-  assert all([isinstance(service, Service) for service in s_list]), ""
-  assert all([isinstance(path, str) for path in paths_list]), ""
-  assert all([isinstance(lifetime, int) for lifetime in lifetimes_list]), ""
+# def test_parse_json_services_file_out():
+#   s_list, paths_list, lifetimes_list = Service.parse_json_services_file("tests/service_example.json")
+#   assert isinstance(s_list, list), ""
+#   assert all([isinstance(service, Service) for service in s_list]), ""
+#   assert all([isinstance(path, str) for path in paths_list]), ""
+#   assert all([isinstance(lifetime, int) for lifetime in lifetimes_list]), ""
 
 def test_add_node_none_zc():
   pass

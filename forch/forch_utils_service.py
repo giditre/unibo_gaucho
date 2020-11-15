@@ -1,17 +1,16 @@
-#TODO M: ricompilare OpenSLP per correggere alcuni bug: https://github.com/openslp-org/openslp
 #TODO M: Se serve: mettere controllo dei parametri di input nei vari metodi (soprattutto i costruttori)
 #TODO M: Se serve: override __repr__ di tutte le classi?
-#TODO M: aggiungere zc al costruttore di Service
 
 import copy
 from ipaddress import IPv4Address
 from enum import Enum, IntEnum
 from forch.forch_tools import raise_error
-from forch.forch_utils_zabbix import ZabbixNode, ZabbixController
+from forch.forch_utils_zabbix import ZabbixNode, ZabbixController, MesurementsFields
 
 from forch.forch_tools import get_lst
 import os
 import json
+from pathlib import Path
 
 # from forch.forch_utils_slp import SLPController
 
@@ -71,10 +70,10 @@ class Service:
         # measurements_dict is expected to be a dictionary formatted as {'30254': {'node_id': '10313', 'metric_id': '30254', 'metric_name': 'CPU utilization', 'timestamp': '0', 'value': '0', 'unit': '%'}}
         m_id = self.get_id()
         assert m_id in measurements_dict, "Measurement of metric {} is not in provided measurements!".format(m_id)
-        self.set_timestamp(measurements_dict[m_id]["timestamp"])
-        self.set_value(measurements_dict[m_id]["value"])
+        self.set_timestamp(measurements_dict[m_id][MesurementsFields.TIMESTAMP])
+        self.set_value(measurements_dict[m_id][MesurementsFields.VALUE])
         if self.get_unit() == "":
-          self.set_unit(measurements_dict[m_id]["unit"])
+          self.set_unit(measurements_dict[m_id][MesurementsFields.UNIT])
         
         
       # def retrieve_measurements(self): # TODO G: tenere questo metodo o no?
@@ -83,16 +82,16 @@ class Service:
       #   # populate the data structure
       #   m_id = self.get_id()
       #   if m_id in measurements:
-      #     metric.set_timestamp(measurements[m_id]["timestamp"])
-      #     metric.set_value(measurements[m_id]["value"])
-      #     metric.set_unit(measurements[m_id]["unit"]) # TODO G: inutile settare ogni volta le unità (?)
+      #     metric.set_timestamp(measurements[m_id][MesurementsFields.TIMESTAMP])
+      #     metric.set_value(measurements[m_id][MesurementsFields.VALUE])
+      #     metric.set_unit(measurements[m_id][MesurementsFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
       #   else:
       #     # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
       #     pass      
   
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM
     def __init__(self, id="", name="", available=False, ipv4=None, port=None, path="", lifetime=0xffff, metrics_list=[]):
-      assert isinstance(ipv4, IPv4Address) and ipv4 != None, "Parameter ipv4 must me an IPv4Address!"
+      assert isinstance(ipv4, IPv4Address) or ipv4 == None, "Parameter ipv4 must me an IPv4Address!"
       
       self.__id = id
       self.__name = name
@@ -101,7 +100,6 @@ class Service:
       self.__port = port
       self.__path = path
       self.__lifetime = lifetime
-      # self.__metrics_list = get_lst(metric) # TODO M: da rivedere
       # "metrics" is expected to be formatted as { metric_id: metric_type }
       self.__metrics_list = metrics_list
 
@@ -166,9 +164,9 @@ class Service:
     #   for metric in node.get_metrics_list():
     #     m_id = metric.get_id()
     #     if m_id in measurements:
-    #       metric.set_timestamp(measurements[m_id]["timestamp"])
-    #       metric.set_value(measurements[m_id]["value"])
-    #       metric.set_unit(measurements[m_id]["unit"]) # TODO G: inutile settare ogni volta le unità (?)
+    #       metric.set_timestamp(measurements[m_id][MesurementsFields.TIMESTAMP])
+    #       metric.set_value(measurements[m_id][MesurementsFields.VALUE])
+    #       metric.set_unit(measurements[m_id][MesurementsFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
     #     else:
     #       # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
     #       pass
@@ -220,23 +218,22 @@ class Service:
     self.__descr = descr
 
   # This is the convergence point between Zabbix and SLP
-  def add_node(self, ipv4=None, port=None, path="", lifetime=0xffff):
+  def add_node(self, ipv4, port=None, path="", lifetime=0xffff):
     assert self.__zc != None, "Zabbix controller not assigned yet. Call before Service.set_zabbix_controller()"
-    assert isinstance(ipv4, list) and ipv4 != None, "Parameter node_ip_list must be a list of IPv4Address objects!"
+    assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
 
     node = self.__zc.get_node_by_ip(ipv4)
     node_dict = node.to_dict()
     node_dict["available"] = node_dict["available"] == "1"
     
     # create metrics list for this node
-    m_list = [ self._ServiceNode._Metric(id=self.__zc.get_item_id_by_node_and_item_name(node_dict["node_id"], elem.value), m_type=elem) for elem in MetricType ]
+    m_list = [ self._ServiceNode._Metric(id=self.__zc.get_item_id_by_node_and_item_name(node_dict[MesurementsFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
     
     # instatiate new ServiceNode and append it to node list
-    self.__node_list.append(self._ServiceNode(id=node_dict["node_id"], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
+    self.__node_list.append(self._ServiceNode(id=node_dict[MesurementsFields.NODE_ID], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
        
     # TODO M: ritornare qualcosa?
 
-  # TODO M: se questo metodo è usato solo da SLPController, decidere se tenerlo qui o metterlo li
   # Useful links:
   # https://stackoverflow.com/questions/9835762/how-do-i-find-the-duplicates-in-a-list-and-create-another-list-with-them
   # https://stackoverflow.com/questions/9542738/python-find-in-list
@@ -324,13 +321,13 @@ class Service:
       pass
 
   @classmethod
-  def parse_json_services_file(cls, json_services_file):
+  def create_services_from_json(cls, ipv4, json_services_file):
+    assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
     assert isinstance(json_services_file, str), "Parameter json_service_file must be a string!"
-    assert os.path.isfile(json_services_file), '"{}" is not a file or it doesn\'t exist.'.format(json_services_file)
+    assert Path(json_services_file).is_file(), "{} is not a file or it does not exist.".format(json_services_file) # TODO G: attenzione al path
 
     services_list = []
-    paths_list = []
-    lifetimes_list = []
+    node_list = []
 
     with open(json_services_file, 'r') as f:
       jsonDict = json.load(f)     
@@ -341,21 +338,34 @@ class Service:
         protocol = jsonDict[as_a_service_type][service_id]['protocol']
         descr = jsonDict[as_a_service_type][service_id]['descr']
 
-        services_list.append(cls(name=name, protocol=protocol, id=service_id, category=as_a_service_type, descr=descr))
-        paths_list.append(jsonDict[as_a_service_type][service_id]['path'])
-        lifetimes_list.append(int(jsonDict[as_a_service_type][service_id]['lifetime']))
+        services_list.append(cls(name=name, protocol=protocol, id=service_id, category=as_a_service_type, descr=descr,node_list=[cls._ServiceNode(ipv4=ipv4, path=jsonDict[as_a_service_type][service_id]['path'], lifetime=int(jsonDict[as_a_service_type][service_id]['lifetime']), port=int(jsonDict[as_a_service_type][service_id]['port']))]))
 
-    return (services_list, paths_list, lifetimes_list)
+    return services_list
 
 if __name__ == "__main__":
-  # def truncated_str(elem):
-  #   s = str(elem)
-  #   if len(s) < 600:
-  #     return s
-  #   else:
-  #     return s[:600] + " [...]"
+  pass
+# UA MAIN
+  # # def truncated_str(elem):
+  # #   s = str(elem)
+  # #   if len(s) < 600:
+  # #     return s
+  # #   else:
+  # #     return s[:600] + " [...]"
 
-  # instantiate Zabbix controller
-  zc = ZabbixController()
+  # # instantiate Zabbix controller
+  # zc = ZabbixController()
 
-  Service.set_zabbix_controller(zc)
+  # Service.set_zabbix_controller(zc)
+
+# SA MAIN
+# sc = SLPController(SLPAgentType.SA)
+# zc = ZabbixController()
+# Service.set_zabbix_controller(zc)
+
+# tp_list = Service.parse_json_services_file(sys.argv[1])
+
+# for tp in tp_list:
+#   service = tp[0]
+#   node = tp[1]
+#   service.add_node(ipv4="",port=node.get_port(),path=node.get_path(),lifetime=node.get_lifetime()) # TODO M: prendere una config per ip (magari tramite netiface)
+#   sc.register_service(service)

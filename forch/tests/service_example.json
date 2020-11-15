@@ -4,6 +4,7 @@
         "thumbnail": "",
         "protocol": "http",
         "path": "",
+        "port": 80,
         "name": "httpd",
         "descr": "Apache web server",
         "lifetime": 2
@@ -12,6 +13,7 @@
         "thumbnail": "",
         "protocol": "http",
         "path": "",
+        "port": 80,
         "name": "stress",
         "descr": "Stress host",
         "lifetime": 4

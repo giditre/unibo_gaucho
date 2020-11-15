@@ -1,6 +1,23 @@
+import logging
+from logging.config import fileConfig
+
+fileConfig("logging_config.ini")
+logger = logging.getLogger(__name__)
+
+logger.info("Load {} as {} with {}".format(__file__, __name__, logger))
+
 import json
 from pyzabbix import ZabbixAPI
 from ipaddress import IPv4Address
+from enum import Enum
+
+class MesurementsFields(Enum):
+  NODE_ID = "node_id"
+  ID = "metric_id"
+  NAME = "metric_name"
+  TIMESTAMP = "timestamp"
+  VALUE = "value"
+  UNIT = "unit"
 
 class ZabbixNode:
   def __init__(self, node_id="", node_name="", node_ipv4=None, is_available=""):
@@ -61,21 +78,20 @@ class ZabbixNode:
       raise TypeError # TODO G: rischiamo davvero di arrivare qui?
 
 class ZabbixController:
+  # Used as private static final dict
+  class _ItemFields(Enum):
+    hostid = MesurementsFields.NODE_ID.value
+    itemid = MesurementsFields.ID.value
+    name = MesurementsFields.NAME.value
+    lastclock = MesurementsFields.TIMESTAMP.value
+    lastvalue = MesurementsFields.VALUE.value
+    units = MesurementsFields.UNIT.value
+
   def __init__(self, url='http://localhost/zabbix/', user='Admin', password='zabbix'):
     self.__url = url
     self.__user = user
     self.__password = password
     self.__zapi = ZabbixAPI(url=self.__url, user=self.__user, password=self.__password)
-
-    self.__item_field_list = [ "hostid", "itemid", "name", "lastclock", "lastvalue", "units" ] # TODO G: meglio fare un Enum?
-    self.__field_to_metric_name_dict = {
-      "hostid": "node_id",
-      "itemid": "metric_id",
-      "name": "metric_name",
-      "lastclock": "timestamp",
-      "lastvalue": "value",
-      "units": "unit"
-    }
 
   def __repr__(self):
     return "ZabbixController on URL {} with user {}".format(self.__url, self.__user)
@@ -141,11 +157,11 @@ class ZabbixController:
     measurements = {}
 
     if not item_name_list:
-      measurements.update( { item["itemid"]: { m: item[f] for f, m in self.__field_to_metric_name_dict.items() } for item in self.__zapi.item.get(hostids=node_id_list) } )
+      measurements.update( { item["itemid"]: { f.value: item[f.name] for f in self._ItemFields } for item in self.__zapi.item.get(hostids=node_id_list) } )
 
     else:
       for item_name in item_name_list:
-        measurements.update( { item["itemid"]: { m: item[f] for f, m in self.__field_to_metric_name_dict.items() } for item in self.__zapi.item.get(hostids=node_id_list, search={"name": item_name}, searchWildcardsEnabled=True) } )
+        measurements.update( { item["itemid"]: { f.value: item[f.name] for f in self._ItemFields } for item in self.__zapi.item.get(hostids=node_id_list, search={"name": item_name}, searchWildcardsEnabled=True) } )
 
     return measurements
 
@@ -153,7 +169,7 @@ class ZabbixController:
     return self.get_measurements_by_item_id_list([item_id])
 
   def get_measurements_by_item_id_list(self, item_id_list):
-    measurements = { item["itemid"]: { m: item[f] for f, m in self.__field_to_metric_name_dict.items() } for item in self.__zapi.item.get(itemids=item_id_list) }
+    measurements = { item["itemid"]: { f.value: item[f.name] for f in self._ItemFields } for item in self.__zapi.item.get(itemids=item_id_list) }
     return measurements
 
 
@@ -165,39 +181,39 @@ if __name__ == "__main__":
     else:
       return s[:600] + " [...]"
 
-  # instantiate Zabbix controller
+  logger.info("Instantiate ZabbixController")
   zc = ZabbixController()
 
   print("List of all known nodes:")
   print(zc.get_nodes())
   print()
 
-  node_ip = "192.168.10.120"
-  print("Details on node having address {}:".format(node_ip))
-  node1 = zc.get_node_by_ip(node_ip)
-  print("As a string: ", node1)
-  print("As a dict: ", node1.to_dict())
-  print("As a JSON: ", node1.to_json())
-  node_ip = "192.168.10.123"
-  print("Details on node having address {}:".format(node_ip))
-  node2 = zc.get_node_by_ip(node_ip)
-  print("As a string: ", node2)
-  print("As a dict: ", node2.to_dict())
-  print("As a JSON: ", node2.to_json())
-  print()
+  # node_ip = "192.168.10.120"
+  # print("Details on node having address {}:".format(node_ip))
+  # node1 = zc.get_node_by_ip(node_ip)
+  # print("As a string: ", node1)
+  # print("As a dict: ", node1.to_dict())
+  # print("As a JSON: ", node1.to_json())
+  # node_ip = "192.168.10.123"
+  # print("Details on node having address {}:".format(node_ip))
+  # node2 = zc.get_node_by_ip(node_ip)
+  # print("As a string: ", node2)
+  # print("As a dict: ", node2.to_dict())
+  # print("As a JSON: ", node2.to_json())
+  # print()
 
-  print("Different ways to get measurements:")
-  print("--- by node, e.g.: get_measurements_by_node(node1)")
-  print(truncated_str(zc.get_measurements_by_node(node1)))
-  print("--- by node list, e.g.: get_measurements_by_node_list([node1, node2])")
-  print(truncated_str(zc.get_measurements_by_node_list([node1, node2])))
-  print("--- by node or node list with item names, e.g.: get_measurements_by_node_list([node1, node2], [\"CPU utilization\", \"Memory utilization\"])")
-  print(truncated_str(zc.get_measurements_by_node_list([node1, node2], ["CPU utilization", "Memory utilization"])))
-  print("--- by item ID, e.g.: get_measurements_by_item_id(\"30254\")")
-  print(truncated_str(zc.get_measurements_by_item_id("30254")))
-  print("--- by item ID list, e.g.: get_measurements_by_item_id_list([\"30251\",\"31007\"])")
-  print(truncated_str(zc.get_measurements_by_item_id_list(["30251","31007"])))
-  print()
+  # print("Different ways to get measurements:")
+  # print("--- by node, e.g.: get_measurements_by_node(node1)")
+  # print(truncated_str(zc.get_measurements_by_node(node1)))
+  # print("--- by node list, e.g.: get_measurements_by_node_list([node1, node2])")
+  # print(truncated_str(zc.get_measurements_by_node_list([node1, node2])))
+  # print("--- by node or node list with item names, e.g.: get_measurements_by_node_list([node1, node2], [\"CPU utilization\", \"Memory utilization\"])")
+  # print(truncated_str(zc.get_measurements_by_node_list([node1, node2], ["CPU utilization", "Memory utilization"])))
+  # print("--- by item ID, e.g.: get_measurements_by_item_id(\"30254\")")
+  # print(truncated_str(zc.get_measurements_by_item_id("30254")))
+  # print("--- by item ID list, e.g.: get_measurements_by_item_id_list([\"30251\",\"31007\"])")
+  # print(truncated_str(zc.get_measurements_by_item_id_list(["30251","31007"])))
+  # print()
 
-  print("Getting item ID by node and item name, e.g.: get_item_id_by_node_and_item_name(node1, \"CPU utilization\")")
-  print(zc.get_item_id_by_node_and_item_name(node1, "CPU utilization"))
+  # print("Getting item ID by node and item name, e.g.: get_item_id_by_node_and_item_name(node1, \"CPU utilization\")")
+  # print(zc.get_item_id_by_node_and_item_name(node1, "CPU utilization"))

@@ -41,6 +41,7 @@ class SLPController:
     def __init__(self, slp_handler=None):
       self.__hslp = slp_handler
       if self.__hslp == None:
+        # TODO G: verificare comando self.__hslp = self.__hslp = 
         self.__hslp = self.__hslp = slp.SLPOpen("en", False) #TODO M: valutare se usare OpenSLP in maniera sincrona o asincrona. Con False è sincrona
         print(self.__hslp)
 
@@ -56,7 +57,6 @@ class SLPController:
       return
 
   # TODO M: decidere se poter avere più demoni (max uno per ogni agente) o averne soltanto uno e basta. N.B.: credo che SLP non lo preveda. Cercare di capirlo
-  # This class is used like a sort of interface
   class _SLPActiveAgent(_SLPAgent):
     __daemon_process = None
 
@@ -101,8 +101,6 @@ class SLPController:
       return True
       
   class _UA(_SLPAgent):
-    # Warning! static vars
-    # TODO M: valutare se servono 3 liste o ne basta una
     __discovery_list = None
 
     def get_type(self):

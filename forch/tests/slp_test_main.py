@@ -9,14 +9,14 @@ def srvc_types_callback(h, srvc_type, errcode, cookie_data):
       rv = False
       if errcode == slp.SLP_OK:
         print(srvc_type)
-        # count += 1
+        count += 1 # pylint: disable=undefined-variable
         rv = True
       elif errcode == slp.SLP_LAST_CALL:
-        # if count == 0:
-        #   print(rqst_type + ": Nothing found")
-        # else:
-        #   print("Found " + str(count) + " " + rqst_type)
-        pass # TODO G: fix count
+        if count == 0:
+          print(srvc_type + ": Nothing found")
+        else:
+          print("Found " + str(count) + " " + srvc_type)
+        pass
       else:
         print("Error: " + str(errcode))
       
