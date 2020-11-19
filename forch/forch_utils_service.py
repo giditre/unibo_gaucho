@@ -1,13 +1,21 @@
+import logging
+from logging.config import fileConfig
+fileConfig("logging_config.ini")
+logger = logging.getLogger("fuservice")
+logger.info("Load {} with {}".format(__name__, logger))
+
 #TODO M: Se serve: mettere controllo dei parametri di input nei vari metodi (soprattutto i costruttori)
 #TODO M: Se serve: override __repr__ di tutte le classi?
 
 import copy
 from ipaddress import IPv4Address
+from socket import getservbyname
 from enum import Enum, IntEnum
 from forch.forch_tools import raise_error
 from forch.forch_utils_zabbix import ZabbixNode, ZabbixController, MesurementsFields
 
 from forch.forch_tools import get_lst
+from forch import IS_ORCHESTRATOR
 import os
 import json
 from pathlib import Path
@@ -38,7 +46,7 @@ class Service:
 
       def __eq__(self, obj):
         if isinstance(obj, self.__class__):
-          return self.__id == obj.get_id()
+          return self.get_id() == obj.get_id()
         return False
       
       def get_id(self):
@@ -78,7 +86,7 @@ class Service:
         
       # def retrieve_measurements(self): # TODO G: tenere questo metodo o no?
       #   # method to refresh the value of a single metric
-      #   measurements = Service.__zc.get_measurements_by_item_id(self.get_id()) # TODO G: si fa così ad invocare __zc da dentro una sottoclasse?
+      #   measurements = self.__class__.__zc.get_measurements_by_item_id(self.get_id())
       #   # populate the data structure
       #   m_id = self.get_id()
       #   if m_id in measurements:
@@ -90,8 +98,14 @@ class Service:
       #     pass      
   
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM
-    def __init__(self, id="", name="", available=False, ipv4=None, port=None, path="", lifetime=0xffff, metrics_list=[]):
-      assert isinstance(ipv4, IPv4Address) or ipv4 == None, "Parameter ipv4 must me an IPv4Address!"
+    def __init__(self, port, id, name="", available=False, ipv4=None, path="", lifetime=0xffff, metrics_list=None):
+      if metrics_list is None:
+        metrics_list = []
+      for metric in metrics_list:
+        assert isinstance(metric, self._Metric), "Parameter metrics_list must be a list of Metric objects!"
+      if isinstance(ipv4, str):
+        ipv4 = IPv4Address(ipv4)
+      assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
       
       self.__id = id
       self.__name = name
@@ -105,8 +119,16 @@ class Service:
 
     def __eq__(self, obj):
       if isinstance(obj, self.__class__):
-        return self.__id == obj.get_id()
+        return self.get_id() == obj.get_id()
       return False
+
+    # def fully_equals_to(self, node):
+    #   if not self.__eq__(node):
+    #     return False
+
+    #   check_list = [self.get_name()==node.get_name(), self.get_available()==node.get_available(), self.get_ip()==node.get_ip(), self.get_port()==node.get_port(), self.get_path()==node.get_path(), self.get_lifetime()==node.get_lifetime(), self.get_metrics_list()==node.get_metrics_list()]
+
+    #   return all(check_list)
       
     def get_id(self):
  	    return self.__id 
@@ -126,6 +148,8 @@ class Service:
     def get_ip(self):
       return self.__ip
     def set_ip(self, ipv4):
+      if isinstance(ipv4, str):
+        ipv4 = IPv4Address(ipv4)
       assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must me an IPv4Address!"
       self.__ip = ipv4
 
@@ -159,7 +183,7 @@ class Service:
       
     # def retrieve_measurements(self): # TODO G: tenere questo metodo o no?
     #   # method to refresh the value of all metrics of a node
-    #   measurements = Service.__zc.get_measurements_by_item_id([m.get_id() for m in self.get_metrics_list()]) # TODO G: si fa così ad invocare __zc da dentro una sottoclasse?
+    #   measurements = self.__class__.__zc.get_measurements_by_item_id([m.get_id() for m in self.get_metrics_list()])da dentro una sottoclasse?
     #   # populate the data structure
     #   for metric in node.get_metrics_list():
     #     m_id = metric.get_id()
@@ -171,7 +195,9 @@ class Service:
     #       # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
     #       pass
 
-  def __init__(self, name="", protocol="", node_list=[], id="", category="", descr=""):
+  def __init__(self, name="", protocol="", node_list=None, id="", category="", descr=""):
+    if node_list is None:
+      node_list = []
     for node in node_list:
       assert isinstance(node, self._ServiceNode), "Parameter node_list must be a list of ServiceNode!"
 
@@ -184,7 +210,7 @@ class Service:
  
   def __eq__(self, obj):
     if isinstance(obj, self.__class__):
-      return self.__id == obj.get_id()
+      return self.get_id() == obj.get_id()
     return False
 
   def get_name(self):
@@ -218,19 +244,25 @@ class Service:
     self.__descr = descr
 
   # This is the convergence point between Zabbix and SLP
-  def add_node(self, ipv4, port=None, path="", lifetime=0xffff):
-    assert self.__zc != None, "Zabbix controller not assigned yet. Call before Service.set_zabbix_controller()"
+  def add_node(self, ipv4, port, path="", lifetime=0xffff, merge_with_zabbix=IS_ORCHESTRATOR):
+    if isinstance(ipv4, str):
+      ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
 
-    node = self.__zc.get_node_by_ip(ipv4)
-    node_dict = node.to_dict()
-    node_dict["available"] = node_dict["available"] == "1"
-    
-    # create metrics list for this node
-    m_list = [ self._ServiceNode._Metric(id=self.__zc.get_item_id_by_node_and_item_name(node_dict[MesurementsFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
-    
-    # instatiate new ServiceNode and append it to node list
-    self.__node_list.append(self._ServiceNode(id=node_dict[MesurementsFields.NODE_ID], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
+    if merge_with_zabbix:
+      assert self.__class__.__zc != None, "Zabbix controller not assigned yet. Call before Service.set_zabbix_controller()"
+      node = self.__class__.__zc.get_node_by_ip(ipv4)
+      node_dict = node.to_dict()
+      node_dict["available"] = node_dict["available"] == "1"
+      
+      # create metrics list for this node
+      m_list = [ self._ServiceNode._Metric(id=self.__class__.__zc.get_item_id_by_node_and_item_name(node_dict[MesurementsFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
+
+      # instatiate new ServiceNode and append it to node list
+      self.get_node_list().append(self._ServiceNode(id=node_dict[MesurementsFields.NODE_ID], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
+    else:
+      # instatiate new ServiceNode and append it to node list
+      self.get_node_list().append(self._ServiceNode(id=str(ipv4), ipv4=ipv4, port=port, path=path, lifetime=lifetime))
        
     # TODO M: ritornare qualcosa?
 
@@ -252,13 +284,14 @@ class Service:
         ret_list[ret_list.index(srvc)] = cls(name=srvc.get_name(), protocol=srvc.get_protocol(), node_list=new_node_list, id=srvc.get_id(), category=srvc.get_category(), descr=srvc.get_descr())
     return ret_list
 
-  @staticmethod
-  def get_zabbix_controller():
-    return Service.__zc
-  @staticmethod
-  def set_zabbix_controller(zc):
+  @classmethod
+  def get_zabbix_controller(cls):
+    return cls.__zc
+  @classmethod
+  def set_zabbix_controller(cls, zc):
+    assert IS_ORCHESTRATOR, "This method cannot be called since this node in not the orchestrator!"
     assert isinstance(zc, ZabbixController), "Parameter zc must be a ZabbixController object!"
-    Service.__zc = zc
+    cls.__zc = zc
 
   def get_node_by_metric(self, m_type=MetricType.CPU, check="min"):
     metric_list = []
@@ -289,7 +322,8 @@ class Service:
         return node
         
   def retrieve_measurements(self, mode=MeasurementRetrievalMode.SERVICE):
-    assert self.__zc != None, "Zabbix controller not assigned yet. Call before Service.set_zabbix_controller()"
+    assert IS_ORCHESTRATOR, "This method cannot be called since this node in not the orchestrator!"
+    assert self.__class__.__zc != None, "Zabbix controller not assigned yet. Call before Service.set_zabbix_controller()"
     assert isinstance(mode, MeasurementRetrievalMode), "Parameter mode must be a MeasurementRetrievalMode!"
     # check retrieval mode
     if mode == MeasurementRetrievalMode.SERVICE:
@@ -298,7 +332,7 @@ class Service:
       node_list = self.get_node_list()
       # retrieve all measurements for all nodes for all defined metric types
       # this returns a dictionary formatted as {'30254': {'node_id': '10313', 'metric_id': '30254', 'metric_name': 'CPU utilization', 'timestamp': '0', 'value': '0', 'unit': '%'}}
-      measurements = self.__zc.get_measurements_by_node_list([node.get_id() for node in node_list], item_name_list=[item.value for item in MetricType])
+      measurements = self.__class__.__zc.get_measurements_by_node_list([node.get_id() for node in node_list], item_name_list=[item.value for item in MetricType])
       # populate the data structure
       for node in node_list:
         for metric in node.get_metrics_list():
@@ -306,7 +340,7 @@ class Service:
     elif mode == MeasurementRetrievalMode.NODE:
       # refresh the value of all metrics of a node
       for node in self.get_node_list(): 
-        measurements = self.__zc.get_measurements_by_item_id([m.get_id() for m in node.get_metrics_list()])
+        measurements = self.__class__.__zc.get_measurements_by_item_id([m.get_id() for m in node.get_metrics_list()])
         # populate the data structure
         for metric in node.get_metrics_list():
           metric.update(measurements)
@@ -314,7 +348,7 @@ class Service:
       # refresh the value of a single metric
       for node in self.get_node_list():
         for metric in node.get_metrics_list():
-          measurements = self.__zc.get_measurements_by_item_id(metric.get_id())
+          measurements = self.__class__.__zc.get_measurements_by_item_id(metric.get_id())
           metric.update(measurements)
     else:
       # should never happen
@@ -322,23 +356,33 @@ class Service:
 
   @classmethod
   def create_services_from_json(cls, ipv4, json_services_file):
+    if isinstance(ipv4, str):
+      ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
     assert isinstance(json_services_file, str), "Parameter json_service_file must be a string!"
     assert Path(json_services_file).is_file(), "{} is not a file or it does not exist.".format(json_services_file) # TODO G: attenzione al path
 
     services_list = []
-    node_list = []
 
     with open(json_services_file, 'r') as f:
-      jsonDict = json.load(f)     
+      jsonDict = json.load(f)
 
     for as_a_service_type in jsonDict:
       for service_id in jsonDict[as_a_service_type]:
         name = jsonDict[as_a_service_type][service_id]['name']
         protocol = jsonDict[as_a_service_type][service_id]['protocol']
         descr = jsonDict[as_a_service_type][service_id]['descr']
+        try:
+          port = int(jsonDict[as_a_service_type][service_id]['port'])
+          if port <= 0 or port > 0xffff:
+            port = None
+        except:
+          port = None      
 
-        services_list.append(cls(name=name, protocol=protocol, id=service_id, category=as_a_service_type, descr=descr,node_list=[cls._ServiceNode(ipv4=ipv4, path=jsonDict[as_a_service_type][service_id]['path'], lifetime=int(jsonDict[as_a_service_type][service_id]['lifetime']), port=int(jsonDict[as_a_service_type][service_id]['port']))]))
+        if port == None:
+          port = getservbyname(protocol)
+
+        services_list.append(cls(name=name, protocol=protocol, id=service_id, category=as_a_service_type, descr=descr,node_list=[cls._ServiceNode(id=str(ipv4), ipv4=ipv4, path=jsonDict[as_a_service_type][service_id]['path'], lifetime=int(jsonDict[as_a_service_type][service_id]['lifetime']), port=port)]))
 
     return services_list
 

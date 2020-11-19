@@ -13,7 +13,7 @@
         "thumbnail": "",
         "protocol": "http",
         "path": "",
-        "port": 80,
+        "port": 81,
         "name": "stress",
         "descr": "Stress host",
         "lifetime": 4

@@ -2,6 +2,7 @@ from forch.forch_utils_zabbix import ZabbixController
 from forch.forch_utils_service import Service
 from forch.forch_utils_service_cache import ServiceCache
 from forch.forch_utils_slp import SLPController
+from ipaddress import IPv4Address
 
 def test_set_zabbix_controller_effectiveness():
   zc = ZabbixController()
@@ -9,17 +10,19 @@ def test_set_zabbix_controller_effectiveness():
   s = Service()
   assert s.get_zabbix_controller() == zc, ""
 
-def test_service_cache_list_out():
-  sc_list = ServiceCache().get_list()
-  assert isinstance(sc_list, list), ""
-  assert all([isinstance(service, Service) for service in sc_list]), ""
+def test_create_services_from_json_out_in():
+  # Service.create_services_from_json("127.0.0.1", "tests/service_example.json")
+  # TODO M: raisare l'eccezione IPv4
+  # TODO M: raisare che il file non esiste
+  pass
 
-# def test_parse_json_services_file_out():
-#   s_list, paths_list, lifetimes_list = Service.parse_json_services_file("tests/service_example.json")
-#   assert isinstance(s_list, list), ""
-#   assert all([isinstance(service, Service) for service in s_list]), ""
-#   assert all([isinstance(path, str) for path in paths_list]), ""
-#   assert all([isinstance(lifetime, int) for lifetime in lifetimes_list]), ""
+def test_create_services_from_json_out():
+  s_list = Service.create_services_from_json(IPv4Address("127.0.0.1"), "tests/service_example.json")
+  assert isinstance(s_list, list), ""
+  assert all([isinstance(service, Service) for service in s_list]), ""
+  assert all([service.get_node_list() for service in s_list]), ""
+
+#TODO M: fare i seguenti test
 
 def test_add_node_none_zc():
   pass
@@ -29,5 +32,5 @@ def test_add_node_none_zc():
   #   assert generazione_eccezione_zc
 
 def test_retrieve_measurements_none_zc():
-  #Vedi sopra ma con Service.retrieve_measurements
+  #Vedi commenti sopra ma con Service.retrieve_measurements
   pass

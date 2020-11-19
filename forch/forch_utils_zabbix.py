@@ -1,10 +1,8 @@
 import logging
 from logging.config import fileConfig
-
 fileConfig("logging_config.ini")
-logger = logging.getLogger(__name__)
-
-logger.info("Load {} as {} with {}".format(__file__, __name__, logger))
+logger = logging.getLogger("fuzabbix")
+logger.info("Load {} with {}".format(__name__, logger))
 
 import json
 from pyzabbix import ZabbixAPI
