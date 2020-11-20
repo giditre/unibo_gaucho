@@ -1,13 +1,13 @@
 import copy
 
 from forch.forch_utils_service import Service
-from forch.forch_utils_slp import SLPController, SLPAgentType
+from forch.forch_utils_slp import SLPFactory
 
 class ServiceCache:
-  def __init__(self):        
-    self.__slp_ctrl = SLPController(SLPAgentType.UA)
+  def __init__(self): 
+    self.__slp_ctrl = SLPFactory.create_UA()
     self.__services_list = []
-    self.refresh()
+    # self.refresh() # TODO M: decidere se farlo, secondo me meglio di no. Uno si instanzia una cache poi sa che deve refresharla quando vuole lui
     
   def get_list(self):
     return copy.deepcopy(self.__services_list)

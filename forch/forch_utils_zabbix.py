@@ -85,7 +85,9 @@ class ZabbixController:
     lastvalue = MesurementsFields.VALUE.value
     units = MesurementsFields.UNIT.value
 
-  def __init__(self, url='http://localhost/zabbix/', user='Admin', password='zabbix'):
+  __zc = None
+
+  def __init__(self, url, user, password):
     self.__url = url
     self.__user = user
     self.__password = password
@@ -93,6 +95,12 @@ class ZabbixController:
 
   def __repr__(self):
     return "ZabbixController on URL {} with user {}".format(self.__url, self.__user)
+
+  @classmethod
+  def get_instance(cls):
+    if cls.__zc is None:
+      cls.__zc = cls(url='http://localhost/zabbix/', user='Admin', password='zabbix') # TODO M: fare parse dati costruttore prendendoli da qualche parte. JSON, __init__.py, ecc...
+    return cls.__zc
 
   def get_url(self):
     return self.__url
@@ -180,7 +188,7 @@ if __name__ == "__main__":
       return s[:600] + " [...]"
 
   logger.info("Instantiate ZabbixController")
-  zc = ZabbixController()
+  zc = ZabbixController.get_instance()
 
   print("List of all known nodes:")
   print(zc.get_nodes())

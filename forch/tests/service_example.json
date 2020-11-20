@@ -4,7 +4,7 @@
         "thumbnail": "",
         "protocol": "http",
         "path": "",
-        "port": 80,
+        "port": "",
         "name": "httpd",
         "descr": "Apache web server",
         "lifetime": 2

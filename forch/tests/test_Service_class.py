@@ -1,14 +1,6 @@
 from forch.forch_utils_zabbix import ZabbixController
 from forch.forch_utils_service import Service
-from forch.forch_utils_service_cache import ServiceCache
-from forch.forch_utils_slp import SLPController
 from ipaddress import IPv4Address
-
-def test_set_zabbix_controller_effectiveness():
-  zc = ZabbixController()
-  Service.set_zabbix_controller(zc)
-  s = Service()
-  assert s.get_zabbix_controller() == zc, ""
 
 def test_create_services_from_json_out_in():
   # Service.create_services_from_json("127.0.0.1", "tests/service_example.json")
