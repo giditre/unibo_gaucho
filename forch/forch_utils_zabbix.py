@@ -1,6 +1,7 @@
 import logging
 from logging.config import fileConfig
-fileConfig("logging_config.ini")
+from pathlib import Path
+fileConfig(str(Path(__file__).parent.joinpath("logging_config.ini")))
 logger = logging.getLogger("fuzabbix")
 logger.info("Load {} with {}".format(__name__, logger))
 
@@ -91,7 +92,9 @@ class ZabbixController:
     self.__url = url
     self.__user = user
     self.__password = password
-    self.__zapi = ZabbixAPI(url=self.__url, user=self.__user, password=self.__password)
+    # self.__zapi = ZabbixAPI(url=self.__url, user=self.__user, password=self.__password)
+    self.__zapi = ZabbixAPI(self.__url)
+    self.__zapi.login(user=self.__user, password=self.__password)
 
   def __repr__(self):
     return "ZabbixController on URL {} with user {}".format(self.__url, self.__user)

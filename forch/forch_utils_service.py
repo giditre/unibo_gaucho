@@ -1,6 +1,7 @@
 import logging
 from logging.config import fileConfig
-fileConfig("logging_config.ini")
+from pathlib import Path
+fileConfig(str(Path(__file__).parent.joinpath("logging_config.ini")))
 logger = logging.getLogger("fuservice")
 logger.info("Load {} with {}".format(__name__, logger))
 
@@ -18,7 +19,6 @@ from forch.forch_tools import get_lst
 from forch import IS_ORCHESTRATOR
 import os
 import json
-from pathlib import Path
 
 # from forch.forch_utils_slp import SLPController
 
