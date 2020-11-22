@@ -5,6 +5,7 @@
 # TODO M: vedere se mettere tutti gli enum in un unico file da importare in giro
 # TODO M: rimettere thumbnail in service_example_json
 # TODO M: vedere se servono davvero tutti i parametri dei vari costruttori, soprattuto per le classi in forch_utils_service.py
+# TODO M: prendere interrupt tastiera per killare slpd
 
 # C #defines space
 IS_ORCHESTRATOR = False

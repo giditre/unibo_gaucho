@@ -6,7 +6,7 @@ from forch.forch_utils_service import Service
 from forch.forch_utils_slp import SLPFactory
 from ipaddress import IPv4Address
 
-import time
+import asyncio
 
 def test_counter_methods_effectiveness():
   number_of_agents = 5
@@ -38,3 +38,8 @@ def test_SA_and_UA():
   # Run this to catch eventual exceptions
   for srv in fnd:
     sa.deregister_service(srv)
+
+# Test DA agent
+# if __name__ == "__main__":
+#   da = SLPFactory.create_DA()
+#   asyncio.get_event_loop().run_forever()

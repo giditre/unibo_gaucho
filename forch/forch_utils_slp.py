@@ -145,8 +145,11 @@ class SLPFactory:
   class __SLPActiveAgent(__SLPAgent):
     __daemon_pid = None
 
-    def __init__(self, slp_handler=None):
-      self.__start_daemon()
+    def __init__(self, slp_handler=None, is_DA=False):
+      if not is_DA:
+        self.__start_daemon()
+      else:
+        self.__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_DA.conf"))))
       super().__init__(slp_handler)
 
     def __del__(self):
@@ -166,13 +169,20 @@ class SLPFactory:
       return int(out)
 
     @classmethod
-    def __start_daemon(cls):#,parameters):
+    def __start_daemon(cls, optns=""):#,parameters):
+      assert isinstance(optns, str) or optns is None, "Parameter optns must be a string!"
+
       if cls.__daemon_is_running():
         logger.warning("Local slpd is already running.")
         return False
         #raise_error(self.__class__, "Daemon is already running!")
 
-      subprocess.run(shlex.split("sudo slpd"))
+      cmd_str = "sudo slpd"
+
+      if optns != None and optns != "":
+        cmd_str += " " + optns
+
+      subprocess.run(shlex.split(cmd_str))
 
       # Maybe this while is useless because previously we called run() instead of Popen(), but since run() is considered as a black box, it is better to stay on the safe side.
       while not cls.__daemon_is_running():
@@ -404,5 +414,5 @@ class SLPFactory:
 
   class __DirectoryAgent(__SLPActiveAgent):
     def __init__(self, slp_handler=None):
-      slp.SLPSetProperty("net.slp.isDA", "true")
-      super().__init__(slp_handler)
+      slp.SLPSetProperty("net.slp.isDA", "true") # Maybe useless, but it set correctly the global environment
+      super().__init__(slp_handler, True)
