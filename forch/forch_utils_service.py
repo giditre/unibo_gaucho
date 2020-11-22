@@ -95,12 +95,15 @@ class Service:
       node_dict = node.to_dict()
       node_dict["available"] = node_dict["available"] == "1"
 
-      node = self.__ServiceNode(id=node_dict[MesurementsFields.NODE_ID], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime)
+      if node_dict["available"]:
+        node = self.__ServiceNode(id=node_dict[MesurementsFields.NODE_ID], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime)
 
-      for elem in MetricType:
-        node.add_metric(id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[MesurementsFields.NODE_ID], elem.value), m_type=elem)
+        for elem in MetricType:
+          node.add_metric(id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[MesurementsFields.NODE_ID], elem.value), m_type=elem)
 
-      self.get_node_list().append(node)
+        self.get_node_list().append(node)
+      else:
+        logger.info("Node {} not added in service {} because, according to Zabbix, unavailable.".format(str(ipv4), self.__repr__()))
       
       # # create metrics list for this node
       # m_list = [ self.__ServiceNode._Metric(id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[MesurementsFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]

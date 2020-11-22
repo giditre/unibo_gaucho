@@ -7,7 +7,7 @@
         "port": "",
         "name": "httpd",
         "descr": "Apache web server",
-        "lifetime": 10
+        "lifetime": 65535
       },
       "APP002": {
         "thumbnail": "",
@@ -16,7 +16,7 @@
         "port": 81,
         "name": "stress",
         "descr": "Stress host",
-        "lifetime": 10
+        "lifetime": 65535
       }
     }
   }
