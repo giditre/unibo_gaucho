@@ -10,6 +10,12 @@ from pyzabbix import ZabbixAPI
 from ipaddress import IPv4Address
 from enum import Enum
 
+class ZabbixNodeFields(Enum):
+  ID = "id"
+  NAME = "name"
+  IPv4 = "ipv4"
+  AVAILABLE = "is_available"
+
 class MesurementsFields(Enum):
   NODE_ID = "node_id"
   ID = "metric_id"
@@ -55,10 +61,10 @@ class ZabbixNode:
 
   def to_dict(self):
     return {
-      "node_id": self.__node_id,
-      "node_name": self.__node_name,
-      "node_ipv4": self.__node_ipv4,
-      "is_available": self.__is_available
+      ZabbixNodeFields.ID.value: self.__node_id,
+      ZabbixNodeFields.NAME.value: self.__node_name,
+      ZabbixNodeFields.IPv4.value: self.__node_ipv4,
+      ZabbixNodeFields.AVAILABLE.value: self.__is_available
     }
 
   def to_json(self):
