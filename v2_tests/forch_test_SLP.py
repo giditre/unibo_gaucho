@@ -1,12 +1,12 @@
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent.parent.absolute()))
+sys.path.append(str(Path(__file__).parent.parent.absolute()))
 print(sys.path)
 # Path(__file__) is the path to the current file, .parent is the file's directory, .parent again for the parent directory
 
-from forch.forch_utils_service import Service
-from forch.forch_utils_slp import SLPFactory
-from forch.forch_utils_zabbix import ZabbixController
+from forch.forch_utils_service import Service # pylint: disable=import-error
+from forch.forch_utils_slp import SLPFactory # pylint: disable=import-error
+from forch.forch_utils_zabbix import ZabbixController # pylint: disable=import-error
 from ipaddress import IPv4Address
 import asyncio
 

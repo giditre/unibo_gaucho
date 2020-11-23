@@ -13,12 +13,13 @@ from ipaddress import IPv4Address
 from socket import getservbyname
 from enum import Enum, IntEnum
 from forch.forch_tools import raise_error
-from forch.forch_utils_zabbix import ZabbixNode, ZabbixController, MesurementsFields
+from forch.forch_utils_zabbix import ZabbixNode, ZabbixController, ZabbixNodeFields, MesurementsFields
 
 from forch.forch_tools import get_lst
 from forch import IS_ORCHESTRATOR
 import os
 import json
+# import pickle
 
 # from forch.forch_utils_slp import SLPController
 
@@ -47,7 +48,8 @@ class Service:
     self.__descr = descr
 
   def __repr__(self):
-    return self.__class__.__name__ + ": id = " + self.get_id()
+    # return "{}(id={},name={},description={},nodes={})".format(self.__class__.__name__, self.get_id(), self.get_name(), self.get_descr(), self.get_node_list())
+    return str(self.__dict__)
  
   def __eq__(self, obj):
     if isinstance(obj, self.__class__):
@@ -92,14 +94,15 @@ class Service:
 
     if merge_with_zabbix:
       node = ZabbixController.get_instance().get_node_by_ip(ipv4)
+      logger.debug("Retrieved ZabbixNode {}".format(node))
       node_dict = node.to_dict()
-      node_dict["available"] = node_dict["available"] == "1"
+      node_dict[ZabbixNodeFields.AVAILABLE.value] = node_dict[ZabbixNodeFields.AVAILABLE.value] == "1"
 
-      if node_dict["available"]:
-        node = self.__ServiceNode(id=node_dict[MesurementsFields.NODE_ID], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime)
+      if node_dict[ZabbixNodeFields.AVAILABLE.value]:
+        node = self.__ServiceNode(id=node_dict[ZabbixNodeFields.ID.value], name=node_dict[ZabbixNodeFields.NAME.value], available=node_dict[ZabbixNodeFields.AVAILABLE.value], ipv4=ipv4, port=port, path=path, lifetime=lifetime)
 
         for elem in MetricType:
-          node.add_metric(id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[MesurementsFields.NODE_ID], elem.value), m_type=elem)
+          node.add_metric(m_id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[ZabbixNodeFields.ID.value], elem.value), m_type=elem)
 
         self.get_node_list().append(node)
       else:
@@ -109,7 +112,7 @@ class Service:
       # m_list = [ self.__ServiceNode._Metric(id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[MesurementsFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
 
       # # instatiate new ServiceNode and append it to node list
-      # self.get_node_list().append(self.__ServiceNode(id=node_dict[MesurementsFields.NODE_ID], name=node_dict["name"], available=node_dict["available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
+      # self.get_node_list().append(self.__ServiceNode(id=node_dict[MesurementsFields.NODE_ID], name=node_dict["name"], available=node_dict["is_available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
     else:
       # instatiate new ServiceNode and append it to node list
       self.get_node_list().append(self.__ServiceNode(id=str(ipv4), ipv4=ipv4, port=port, path=path, lifetime=lifetime))
@@ -135,6 +138,7 @@ class Service:
     return ret_list
 
   def get_node_by_metric(self, m_type=MetricType.CPU, check="min"):
+    assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
     metric_list = []
     
     #get list of a specified metric from the node list
@@ -248,7 +252,8 @@ class Service:
       self.__metrics_list = metrics_list
 
     def __repr__(self):
-      return self.__class__.__name__ + ": id = " + self.get_id()
+      # return "{}(id={},name={},ip={},metrics={})".format(self.__class__.__name__, self.get_id(), self.get_name(), self.get_ip(), self.get_metrics_list())
+      return str(self.__dict__)
 
     def __eq__(self, obj):
       if isinstance(obj, self.__class__):
@@ -304,8 +309,9 @@ class Service:
     def get_metrics_list(self):
       return self.__metrics_list
       
-    def add_metric(self, id="", m_type=MetricType.CPU):
-      self.get_metrics_list().append(self.__Metric(id="", m_type=MetricType.CPU))
+    def add_metric(self, m_id, m_type):
+      assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
+      self.get_metrics_list().append(self.__Metric(m_id=m_id, m_type=m_type))
     
     def get_metric_by_name(self, m_type):
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
@@ -330,15 +336,17 @@ class Service:
     #       pass
 
     class __Metric:
-      def __init__(self, id="", m_type=MetricType.CPU, timestamp="", value="", unit=""):
-        self.__id = id
+      def __init__(self, m_id="", m_type=MetricType.CPU, timestamp="", value="", unit=""):
+        self.__id = m_id
         self.__type = m_type
         self.__timestamp = timestamp
         self.__value = value
         self.__unit = unit
 
       def __repr__(self):
-        return self.__class__.__name__ + ": id = " + self.get_id()
+        # return "{}(id={},type={},timestamp={},value={},unit={})".format(self.__class__.__name__, self.get_id(), self.get_type(), self.get_timestamp(), self.get_value(), self.get_unit())
+        # return pickle.dumps(self).decode("utf-8")
+        return str(self.__dict__)
 
       def __eq__(self, obj):
         if isinstance(obj, self.__class__):
@@ -349,6 +357,11 @@ class Service:
         return self.__id
       def set_id(self, id):
         self.__id = id
+
+      def get_type(self):
+        return self.__type
+      def set_type(self, m_type):
+        self.__type = m_type
         
       def get_name(self):
         return self.__name

@@ -3,8 +3,8 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.absolute()))
 print(sys.path)
 
-from forch.forch_utils_service import Service
-from forch.forch_utils_slp import SLPFactory
+from forch.forch_utils_service import Service # pylint: disable=import-error
+from forch.forch_utils_slp import SLPFactory # pylint: disable=import-error
 from ipaddress import IPv4Address
 import asyncio
 import time
