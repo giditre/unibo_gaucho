@@ -10,7 +10,8 @@ import asyncio
 import time
 
 sa = SLPFactory.create_SA()
-srv_list = Service.create_services_from_json(IPv4Address("192.168.10.123"), str(Path(__file__).parent.joinpath("service_example.json").absolute()))
+# TODO G: prendere indirizzo IP da interfaccia usata sulla rete fog
+srv_list = Service.create_services_from_json(IPv4Address("192.168.64.123"), str(Path(__file__).parent.joinpath("service_example.json").absolute()))
 for srv in srv_list:
   print(srv)
   sa.register_service(srv)
