@@ -13,9 +13,20 @@
         "thumbnail": "",
         "protocol": "http",
         "path": "",
-        "port": 81,
+        "port": 5320,
         "name": "stress",
         "descr": "Stress host",
+        "lifetime": 65535
+      }
+    },
+    "fves": {
+      "FVE001": {
+        "thumbnail": "",
+        "protocol": "http",
+        "path": "",
+        "port": 5005,
+        "name": "docker",
+        "descr": "Docker",
         "lifetime": 65535
       }
     }
