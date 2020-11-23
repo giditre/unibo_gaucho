@@ -204,7 +204,7 @@ class Service:
       ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
     assert isinstance(json_services_file, str), "Parameter json_service_file must be a string!"
-    assert Path(json_services_file).is_file(), "{} is not a file or it does not exist.".format(json_services_file) # TODO G: attenzione al path
+    assert Path(json_services_file).is_file(), "{} is not a file or it does not exist.".format(json_services_file)
 
     services_list = []
 
@@ -248,7 +248,6 @@ class Service:
       self.__port = port
       self.__path = path
       self.__lifetime = lifetime
-      # "metrics" is expected to be formatted as { metric_id: metric_type }
       self.__metrics_list = metrics_list
 
     def __repr__(self):

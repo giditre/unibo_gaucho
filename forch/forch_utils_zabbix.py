@@ -128,6 +128,7 @@ class ZabbixController:
       h_name = h["name"]
       h_avail = h["available"]
       
+      # TODO G: gestire caso in cui un host abbia più di una interfaccia? O supporre che ogni nodo esponga solo una interfaccia di rete al sistema Fog?
       h_ip = None
       for i in self.__zapi.hostinterface.get(hostids= h_id):
         h_ip = i["ip"]
