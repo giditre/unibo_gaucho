@@ -68,7 +68,7 @@ class ZabbixNode:
     }
 
   def to_json(self):
-    return json.dumps( { k: str(v) for k, v in self.to_dict().items() } )
+    return json.dumps(self.to_dict(), default=lambda x: str(x)) # the default function is applied when an object is not JSON serializable, e.g., IPv4Address
 
   @staticmethod
   def validate_node_id(node):
@@ -204,12 +204,12 @@ if __name__ == "__main__":
   print(zc.get_nodes())
   print()
 
-  # node_ip = "192.168.10.120"
-  # print("Details on node having address {}:".format(node_ip))
-  # node1 = zc.get_node_by_ip(node_ip)
-  # print("As a string: ", node1)
-  # print("As a dict: ", node1.to_dict())
-  # print("As a JSON: ", node1.to_json())
+  node_ip = "192.168.10.120"
+  print("Details on node having address {}:".format(node_ip))
+  node1 = zc.get_node_by_ip(node_ip)
+  print("As a string: ", node1)
+  print("As a dict: ", node1.to_dict())
+  print("As a JSON: ", node1.to_json())
   # node_ip = "192.168.10.123"
   # print("Details on node having address {}:".format(node_ip))
   # node2 = zc.get_node_by_ip(node_ip)

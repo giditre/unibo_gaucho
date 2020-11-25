@@ -1,7 +1,7 @@
 import copy
 
-from forch.forch_utils_service import Service
-from forch.forch_utils_slp import SLPFactory
+from .forch_utils_service import Service
+from .forch_utils_slp import SLPFactory
 
 class ServiceCache:
   def __init__(self): 

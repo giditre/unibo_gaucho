@@ -8,17 +8,18 @@ logger.info("Load {} with {}".format(__name__, logger))
 #TODO M: Se serve: mettere controllo dei parametri di input nei vari metodi (soprattutto i costruttori)
 #TODO M: Se serve: override __repr__ di tutte le classi?
 
+import os
 import copy
 from ipaddress import IPv4Address
 from socket import getservbyname
 from enum import Enum, IntEnum
-from forch.forch_tools import raise_error
-from forch.forch_utils_zabbix import ZabbixNode, ZabbixController, ZabbixNodeFields, MesurementsFields
-
-from forch.forch_tools import get_lst
-from forch import IS_ORCHESTRATOR
-import os
 import json
+
+from .forch_tools import raise_error
+from .forch_utils_zabbix import ZabbixNode, ZabbixController, ZabbixNodeFields, MesurementsFields
+
+from . import IS_ORCHESTRATOR
+
 # import pickle
 
 # from forch.forch_utils_slp import SLPController
@@ -85,6 +86,20 @@ class Service:
     return self.__descr
   def set_descr(self, descr):
     self.__descr = descr
+
+  # def to_json(self):
+  #   # return json.dumps(self.__dict__, default=lambda x: str(x))
+  #   return self.__dict__
+
+  # def to_pickle(self):
+  #   return pickle.dumps(vars(self))
+
+  # @classmethod
+  # def from_pickle(cls, p):
+  #   logger.debug(f"Create object {cls.__name__} from pickle {p}")
+  #   o = cls()
+  #   vars(o).update(pickle.loads(p))
+  #   return o
 
   # This is the convergence point between Zabbix and SLP
   def add_node(self, ipv4, port, path="", lifetime=0xffff, merge_with_zabbix=IS_ORCHESTRATOR):
@@ -259,6 +274,24 @@ class Service:
         return self.get_id() == obj.get_id()
       return False
 
+    # def to_dict(self):
+    #   # TODO G
+    #   pass
+
+    # def to_json(self):
+    #   # return json.dumps(self.__dict__, default=lambda o: str(o))
+    #   return self.to_dict()
+
+    # def to_pickle(self):
+    #     return pickle.dumps(vars(self))
+
+    # @classmethod
+    # def from_pickle(cls, p):
+    #   logger.debug(f"Create object {cls.__name__} from pickle {p}")
+    #   o = cls(port=None, id=None)
+    #   vars(o).update(pickle.loads(p))
+    #   return o
+
     # def fully_equals_to(self, node):
     #   if not self.__eq__(node):
     #     return False
@@ -381,6 +414,34 @@ class Service:
         return self.__unit
       def set_unit(self, unit):
         self.__unit = unit
+
+      # def to_dict(self):
+      #   return {
+      #     "id": self.get_id(),
+      #     "type": self.get_type(),
+      #     "timestamp": self.get_timestamp(),
+      #     "value": self.get_value(),
+      #     "unit": self.get_unit()
+      #   }
+
+      # def to_json(self):
+      #   return json.dumps(self.to_dict())
+
+      # @classmethod
+      # def from_json(cls, m_json):
+      #   m_dict = json.loads(m_json)
+      #   assert m_dict["type"] in MetricType, ""
+      #   return cls(m_id=m_dict["id"], m_type=MetricType[m_dict["type"]], timestamp=m_dict["timestamp"], value=m_dict["value"], unit=m_dict["unit"])
+
+      # def to_pickle(self):
+      #   return pickle.dumps(vars(self))
+
+      # @classmethod
+      # def from_pickle(cls, p):
+      #   logger.debug(f"Create object {cls.__name__} from pickle {p}")
+      #   o = cls()
+      #   vars(o).update(pickle.loads(p))
+      #   return o
         
       def update(self, measurements_dict):
         # measurements_dict is expected to be a dictionary formatted as {'30254': {'node_id': '10313', 'metric_id': '30254', 'metric_name': 'CPU utilization', 'timestamp': '0', 'value': '0', 'unit': '%'}}

@@ -22,9 +22,9 @@ import time
 
 import slp
 
-from forch import IS_ORCHESTRATOR
-from forch.forch_utils_service import Service
-from forch.forch_tools import raise_error
+from . import IS_ORCHESTRATOR
+from .forch_utils_service import Service
+from .forch_tools import raise_error
 
 
 # class SLPFactory:
