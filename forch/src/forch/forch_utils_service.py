@@ -158,7 +158,7 @@ class Service:
     
     #get list of a specified metric from the node list
     for node in self.__node_list:
-      metric = node.get_metric_by_name(m_type)
+      metric = node.get_metric_by_type(m_type)
       if metric != None:
         metric_list.append(metric)
         
@@ -178,7 +178,7 @@ class Service:
     #find the node that owns the result metric and return it
     for node in self.__node_list:
       #in questo if ci fa comodo l'override di __eq__ fatto nella classe Metric
-      if res_metric == node.get_metric_by_name(m_type):
+      if res_metric == node.get_metric_by_type(m_type):
         return node
         
   def retrieve_measurements(self, mode=MeasurementRetrievalMode.SERVICE):
@@ -345,11 +345,11 @@ class Service:
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       self.get_metrics_list().append(self.__Metric(m_id=m_id, m_type=m_type))
     
-    def get_metric_by_name(self, m_type):
+    def get_metric_by_type(self, m_type):
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       #return next((metric for metric in self.__metric_list if metric.get_name() == m_type), None) # not used because readability    
       for metric in self.get_metrics_list():
-        if metric.get_name() == m_type:
+        if metric.get_type() == m_type:
           return metric
       return None
       

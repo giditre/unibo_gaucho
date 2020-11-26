@@ -1,15 +1,22 @@
 import logging
 from logging.config import fileConfig
 from pathlib import Path
-fileConfig(str(Path(__file__).parent.joinpath("logging.conf")))
+fileConfig(str(Path(__file__).parent.joinpath("src").joinpath("forch").joinpath("logging.conf")))
 logger = logging.getLogger("fcore")
 logger.info(f"Load {__name__} with {logger}")
+
+from time import sleep
 
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api, reqparse, abort
 
+from src.forch.forch_utils_slp import SLPFactory
 from src.forch.forch_utils_service import Service
 from src.forch.forch_utils_service_cache import ServiceCache
+
+# class FOB():
+#   def __init__(self):
+#     pass
 
 class FORS():
   def __init__(self):
@@ -18,9 +25,22 @@ class FORS():
   def get_service_cache(self):
     return self.__sc
 
+  # TODO: set_service_cache ?
+
   def get_service_list(self):
-    self.__sc.refresh()
+    self.get_service_cache().refresh()
     return self.__sc.get_list()
+
+class FOVIM():
+  def __init__(self):
+    self.__da = SLPFactory.create_DA()
+
+### globals
+
+fovim = FOVIM()
+fors = FORS()
+
+### API Resources
 
 class Test(Resource):
   def get(self):
@@ -29,8 +49,49 @@ class Test(Resource):
       "type": "FOCO_TEST_OK"
     }
 
-fors = FORS()
-print(fors.get_service_list())
+class FogServices(Resource):
+  def get(self, s_id=""):
+    s_list = fors.get_service_list()
+    s_id_list = [ s.get_id() for s in s_list ]
+    if s_id:
+      if s_id in s_id_list:
+        return {
+          "message": f"Requested service {s_id} found.",
+          "type": "FOCO_SERV_OK",
+          "services": [ s_id ]
+        }
+      else:
+        return {
+          "message": f"Requested service {s_id} not found.",
+          "type": "FOCO_SERV_LIST",
+          "services": []
+        }, 404
+    else:
+      return {
+        "message": f"Found {len(s_list)} service(s).",
+        "type": "FOCO_SERV_LIST",
+        "services": [ s.get_id() for s in s_list ]
+      }
+
+  def post(self, s_id):
+    s_list = fors.get_service_list()
+    s_id_list = [ s.get_id() for s in s_list ]
+    if s_id in s_id_list:
+      # need to check which node is best suited to host the service
+      s = next(s for s in s_list if s.get_id() == s_id)
+      sn = s.get_node_by_metric()
+      # TODO: instead of returning, trigger the requested allocation
+      return {
+        "message": f"Service {s} allocated on node {sn}.",
+        "type": "FOCO_SERV_POST"
+      }
+    else:
+      # service not available
+      return {
+          "message": f"Requested service {s_id} not found.",
+          "type": "FOCO_SERV_POST",
+          "services": []
+        }, 404
 
 if __name__ == '__main__':
   ### Command line argument parser
@@ -61,5 +122,14 @@ if __name__ == '__main__':
   api = Api(app)
   
   api.add_resource(Test, '/test')
+
+  api.add_resource(FogServices, '/services', '/services/<s_id>')
   
-  app.run(host=args.address, port=args.port, debug=args.debug)
+  try:
+    app.run(host=args.address, port=args.port, debug=args.debug)
+  except KeyboardInterrupt:
+    pass
+  finally:
+    logger.info("Cleanup after interruption") # TODO: questo pare non venga mai eseguito
+    del fovim
+    del fors
