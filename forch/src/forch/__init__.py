@@ -7,6 +7,8 @@
 # TODO M: vedere se servono davvero tutti i parametri dei vari costruttori, soprattuto per le classi in forch_utils_service.py
 # TODO M: prendere interrupt tastiera per killare slpd
 
+# TODO G: attenzione che il campo value delle Metric è una stringa e quindi il sorting dei nodi basati su quel value potrebbe non dare il risultato desiderato
+
 from socket import gethostname
 
 IS_ORCHESTRATOR = False

@@ -16,7 +16,7 @@ class ZabbixNodeFields(Enum):
   IPv4 = "ipv4"
   AVAILABLE = "is_available"
 
-class MesurementsFields(Enum):
+class MeasurementFields(Enum):
   NODE_ID = "node_id"
   ID = "metric_id"
   NAME = "metric_name"
@@ -85,12 +85,12 @@ class ZabbixNode:
 class ZabbixController:
   # Used as private static final dict
   class _ItemFields(Enum):
-    hostid = MesurementsFields.NODE_ID.value
-    itemid = MesurementsFields.ID.value
-    name = MesurementsFields.NAME.value
-    lastclock = MesurementsFields.TIMESTAMP.value
-    lastvalue = MesurementsFields.VALUE.value
-    units = MesurementsFields.UNIT.value
+    hostid = MeasurementFields.NODE_ID.value
+    itemid = MeasurementFields.ID.value
+    name = MeasurementFields.NAME.value
+    lastclock = MeasurementFields.TIMESTAMP.value
+    lastvalue = MeasurementFields.VALUE.value
+    units = MeasurementFields.UNIT.value
 
   __zc = None
 

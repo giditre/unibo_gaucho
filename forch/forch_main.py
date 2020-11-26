@@ -1,6 +1,7 @@
 import logging
 from logging.config import fileConfig
 from pathlib import Path
+# TODO G: prendere configurazione log da file locale (non dentro a src)
 fileConfig(str(Path(__file__).parent.joinpath("src").joinpath("forch").joinpath("logging.conf")))
 logger = logging.getLogger("fcore")
 logger.info(f"Load {__name__} with {logger}")
@@ -78,8 +79,12 @@ class FogServices(Resource):
     s_id_list = [ s.get_id() for s in s_list ]
     if s_id in s_id_list:
       # need to check which node is best suited to host the service
+      # first get instance of requested service
       s = next(s for s in s_list if s.get_id() == s_id)
-      sn = s.get_node_by_metric()
+      # then use retrieve_measurement to populate metrics with measurements
+      s.retrieve_measurements()
+      # then pick most suitable node
+      sn = s.get_node_by_metric() # by default returns node with minimum CPU utilization
       # TODO: instead of returning, trigger the requested allocation
       return {
         "message": f"Service {s} allocated on node {sn}.",

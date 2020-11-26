@@ -16,7 +16,7 @@ from enum import Enum, IntEnum
 import json
 
 from .forch_tools import raise_error
-from .forch_utils_zabbix import ZabbixNode, ZabbixController, ZabbixNodeFields, MesurementsFields
+from .forch_utils_zabbix import ZabbixNode, ZabbixController, ZabbixNodeFields, MeasurementFields
 
 from . import IS_ORCHESTRATOR
 
@@ -124,10 +124,10 @@ class Service:
         logger.info("Node {} not added in service {} because, according to Zabbix, unavailable.".format(str(ipv4), self.__repr__()))
       
       # # create metrics list for this node
-      # m_list = [ self.__ServiceNode._Metric(id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[MesurementsFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
+      # m_list = [ self.__ServiceNode._Metric(id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[MeasurementFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
 
       # # instatiate new ServiceNode and append it to node list
-      # self.get_node_list().append(self.__ServiceNode(id=node_dict[MesurementsFields.NODE_ID], name=node_dict["name"], available=node_dict["is_available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
+      # self.get_node_list().append(self.__ServiceNode(id=node_dict[MeasurementFields.NODE_ID], name=node_dict["name"], available=node_dict["is_available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
     else:
       # instatiate new ServiceNode and append it to node list
       self.get_node_list().append(self.__ServiceNode(id=str(ipv4), ipv4=ipv4, port=port, path=path, lifetime=lifetime))
@@ -360,9 +360,9 @@ class Service:
     #   for metric in node.get_metrics_list():
     #     m_id = metric.get_id()
     #     if m_id in measurements:
-    #       metric.set_timestamp(measurements[m_id][MesurementsFields.TIMESTAMP])
-    #       metric.set_value(measurements[m_id][MesurementsFields.VALUE])
-    #       metric.set_unit(measurements[m_id][MesurementsFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
+    #       metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP])
+    #       metric.set_value(measurements[m_id][MeasurementFields.VALUE])
+    #       metric.set_unit(measurements[m_id][MeasurementFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
     #     else:
     #       # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
     #       pass
@@ -447,10 +447,10 @@ class Service:
         # measurements_dict is expected to be a dictionary formatted as {'30254': {'node_id': '10313', 'metric_id': '30254', 'metric_name': 'CPU utilization', 'timestamp': '0', 'value': '0', 'unit': '%'}}
         m_id = self.get_id()
         assert m_id in measurements_dict, "Measurement of metric {} is not in provided measurements!".format(m_id)
-        self.set_timestamp(measurements_dict[m_id][MesurementsFields.TIMESTAMP])
-        self.set_value(measurements_dict[m_id][MesurementsFields.VALUE])
+        self.set_timestamp(measurements_dict[m_id][MeasurementFields.TIMESTAMP.value])
+        self.set_value(measurements_dict[m_id][MeasurementFields.VALUE.value])
         if self.get_unit() == "":
-          self.set_unit(measurements_dict[m_id][MesurementsFields.UNIT])        
+          self.set_unit(measurements_dict[m_id][MeasurementFields.UNIT.value])        
         
       # def retrieve_measurements(self): # TODO G: tenere questo metodo o no?
       #   # method to refresh the value of a single metric
@@ -458,9 +458,9 @@ class Service:
       #   # populate the data structure
       #   m_id = self.get_id()
       #   if m_id in measurements:
-      #     metric.set_timestamp(measurements[m_id][MesurementsFields.TIMESTAMP])
-      #     metric.set_value(measurements[m_id][MesurementsFields.VALUE])
-      #     metric.set_unit(measurements[m_id][MesurementsFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
+      #     metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP])
+      #     metric.set_value(measurements[m_id][MeasurementFields.VALUE])
+      #     metric.set_unit(measurements[m_id][MeasurementFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
       #   else:
       #     # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
       #     pass
