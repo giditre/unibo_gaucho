@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent.absolute()))
 
-from src.forch_utils_service import Service
-from src.forch_utils_slp import SLPFactory
+from src.forch.forch_utils_service import Service
+from src.forch.forch_utils_slp import SLPFactory
 from ipaddress import IPv4Address
 
 import asyncio

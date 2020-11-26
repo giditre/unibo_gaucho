@@ -1,7 +1,7 @@
 import logging
 from logging.config import fileConfig
 from pathlib import Path
-fileConfig(str(Path(__file__).parent.joinpath("logging_config.ini")))
+fileConfig(str(Path(__file__).parent.joinpath("logging.conf")))
 logger = logging.getLogger("fuservice")
 logger.info("Load {} with {}".format(__name__, logger))
 

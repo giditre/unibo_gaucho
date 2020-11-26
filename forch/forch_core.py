@@ -1,15 +1,15 @@
 import logging
 from logging.config import fileConfig
 from pathlib import Path
-fileConfig(str(Path(__file__).parent.joinpath("logging_config.ini")))
+fileConfig(str(Path(__file__).parent.joinpath("logging.conf")))
 logger = logging.getLogger("fcore")
 logger.info(f"Load {__name__} with {logger}")
 
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api, reqparse, abort
 
-from src.forch_utils_service import Service
-from src.forch_utils_service_cache import ServiceCache
+from src.forch.forch_utils_service import Service
+from src.forch.forch_utils_service_cache import ServiceCache
 
 class FORS():
   def __init__(self):
