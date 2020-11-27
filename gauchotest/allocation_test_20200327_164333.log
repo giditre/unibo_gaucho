@@ -1,2 +1,0 @@
-CLI args: {'pre_delete': True, 'post_delete': True}
-DELETE http://127.0.0.1:5003/nodes

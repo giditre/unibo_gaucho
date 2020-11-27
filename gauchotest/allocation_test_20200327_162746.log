@@ -1,7 +1,0 @@
-CLI args: {'pre_delete': False, 'post_delete': True}
-GET http://192.168.10.117:5001/nodes
-GET http://192.168.10.117:5001/app/FA002
-{
-  "message": "Aborted: error in connecting to node 192.168.10.123"
-}
-Sleep for 240 seconds

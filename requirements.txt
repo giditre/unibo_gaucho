@@ -1,4 +1,0 @@
-flask_restful
-requests
-docker
-pyzabbix
