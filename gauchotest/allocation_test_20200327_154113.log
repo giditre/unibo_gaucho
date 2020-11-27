@@ -1,0 +1,3 @@
+CLI args: {'delete': True}
+DELETE http://127.0.0.1:5003/nodes
+Sleep for 240 seconds

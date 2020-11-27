@@ -1,0 +1,123 @@
+CLI args: {'service_data': '{"timeout":1080,"cpu":2}', 'pre_delete': True, 'post_delete': True}
+Confirm? [y/n] DELETE http://127.0.0.1:5003/nodes
+Sleep for 240 seconds
+GET http://192.168.10.117:5001/nodes
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10313",
+  "node_ip": "192.168.10.120",
+  "service_port": "32873"
+}
+POST {'timeout': 1080, 'cpu': 2} http://192.168.10.120:32873/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 1080, 'cpu': 2}'",
+  "hostname": "9ed62fbc5ada"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10313",
+  "node_ip": "192.168.10.120",
+  "service_port": "32874"
+}
+POST {'timeout': 1080, 'cpu': 2} http://192.168.10.120:32874/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 1080, 'cpu': 2}'",
+  "hostname": "4ac1a32f2f50"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10313",
+  "node_ip": "192.168.10.120",
+  "service_port": "32875"
+}
+POST {'timeout': 1080, 'cpu': 2} http://192.168.10.120:32875/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 1080, 'cpu': 2}'",
+  "hostname": "8bf55178f1ec"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10313",
+  "node_ip": "192.168.10.120",
+  "service_port": "32876"
+}
+POST {'timeout': 1080, 'cpu': 2} http://192.168.10.120:32876/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 1080, 'cpu': 2}'",
+  "hostname": "51875e94cd30"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10314",
+  "node_ip": "192.168.10.118",
+  "service_port": "32778"
+}
+POST {'timeout': 1080, 'cpu': 2} http://192.168.10.118:32778/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 1080, 'cpu': 2}'",
+  "hostname": "b00fb3d064c3"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10315",
+  "node_ip": "192.168.10.119",
+  "service_port": "32771"
+}
+POST {'timeout': 1080, 'cpu': 2} http://192.168.10.119:32771/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 1080, 'cpu': 2}'",
+  "hostname": "d6b9909e1a23"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10316",
+  "node_ip": "192.168.10.121",
+  "service_port": "32800"
+}
+POST {'timeout': 1080, 'cpu': 2} http://192.168.10.121:32800/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 1080, 'cpu': 2}'",
+  "hostname": "5da497086ce0"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10316",
+  "node_ip": "192.168.10.121",
+  "service_port": "32801"
+}
+POST {'timeout': 1080, 'cpu': 2} http://192.168.10.121:32801/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 1080, 'cpu': 2}'",
+  "hostname": "e947d4152c66"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "Application not deployed and no available IaaS node."
+}
+Sleep for 240 seconds
+GET http://127.0.0.1:5003/meas
+DELETE http://127.0.0.1:5003/nodes

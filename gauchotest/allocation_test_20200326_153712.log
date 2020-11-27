@@ -1,0 +1,169 @@
+DELETE http://127.0.0.1:5003/nodes
+Sleep for 240 seconds
+GET http://192.168.10.117:5001/nodes
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "S",
+  "node_id": "10315",
+  "node_ip": "192.168.10.119",
+  "service_port": 30844
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.119:30844/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 10000, 'cpu': 2}'",
+  "hostname": "gaucho-fnode-vm2"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "S",
+  "node_id": "10317",
+  "node_ip": "192.168.10.122",
+  "service_port": 37975
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.122:37975/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 10000, 'cpu': 2}'",
+  "hostname": "gaucho-fnode-vm3"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10313",
+  "node_ip": "192.168.10.120",
+  "service_port": "32835"
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.120:32835/app/FA002
+{
+  "message": "Running app FA002",
+  "hostname": "e3976b7f7058"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10313",
+  "node_ip": "192.168.10.120",
+  "service_port": "32836"
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.120:32836/app/FA002
+{
+  "message": "Running app FA002",
+  "hostname": "aadaf7f4cf51"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10313",
+  "node_ip": "192.168.10.120",
+  "service_port": "32837"
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.120:32837/app/FA002
+{
+  "message": "Running app FA002",
+  "hostname": "d813df2570ac"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10313",
+  "node_ip": "192.168.10.120",
+  "service_port": "32838"
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.120:32838/app/FA002
+{
+  "message": "Running app FA002",
+  "hostname": "712bb1462343"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10314",
+  "node_ip": "192.168.10.118",
+  "service_port": "32769"
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.118:32769/app/FA002
+{
+  "message": "Running app FA002",
+  "hostname": "97ae71ad1f08"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10316",
+  "node_ip": "192.168.10.121",
+  "service_port": "32769"
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.121:32769/app/FA002
+Traceback (most recent call last):
+  File "/home/gaucho/.local/lib/python3.6/site-packages/urllib3/connection.py", line 157, in _new_conn
+    (self._dns_host, self.port), self.timeout, **extra_kw
+  File "/home/gaucho/.local/lib/python3.6/site-packages/urllib3/util/connection.py", line 84, in create_connection
+    raise err
+  File "/home/gaucho/.local/lib/python3.6/site-packages/urllib3/util/connection.py", line 74, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/gaucho/.local/lib/python3.6/site-packages/urllib3/connectionpool.py", line 672, in urlopen
+    chunked=chunked,
+  File "/home/gaucho/.local/lib/python3.6/site-packages/urllib3/connectionpool.py", line 387, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.6/http/client.py", line 1254, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.6/http/client.py", line 1300, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.6/http/client.py", line 1249, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.6/http/client.py", line 1036, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.6/http/client.py", line 974, in send
+    self.connect()
+  File "/home/gaucho/.local/lib/python3.6/site-packages/urllib3/connection.py", line 184, in connect
+    conn = self._new_conn()
+  File "/home/gaucho/.local/lib/python3.6/site-packages/urllib3/connection.py", line 169, in _new_conn
+    self, "Failed to establish a new connection: %s" % e
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x7f3c4a194080>: Failed to establish a new connection: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/gaucho/.local/lib/python3.6/site-packages/requests/adapters.py", line 449, in send
+    timeout=timeout
+  File "/home/gaucho/.local/lib/python3.6/site-packages/urllib3/connectionpool.py", line 720, in urlopen
+    method, url, error=e, _pool=self, _stacktrace=sys.exc_info()[2]
+  File "/home/gaucho/.local/lib/python3.6/site-packages/urllib3/util/retry.py", line 436, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='192.168.10.121', port=32769): Max retries exceeded with url: /app/FA002 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f3c4a194080>: Failed to establish a new connection: [Errno 111] Connection refused',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "meascamp01.py", line 47, in <module>
+    r = requests.post(url, json=data_json)
+  File "/home/gaucho/.local/lib/python3.6/site-packages/requests/api.py", line 116, in post
+    return request('post', url, data=data, json=json, **kwargs)
+  File "/home/gaucho/.local/lib/python3.6/site-packages/requests/api.py", line 60, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/home/gaucho/.local/lib/python3.6/site-packages/requests/sessions.py", line 533, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/home/gaucho/.local/lib/python3.6/site-packages/requests/sessions.py", line 646, in send
+    r = adapter.send(request, **kwargs)
+  File "/home/gaucho/.local/lib/python3.6/site-packages/requests/adapters.py", line 516, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='192.168.10.121', port=32769): Max retries exceeded with url: /app/FA002 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f3c4a194080>: Failed to establish a new connection: [Errno 111] Connection refused',))

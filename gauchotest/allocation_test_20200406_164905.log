@@ -1,0 +1,3 @@
+CLI args: {'service_data': '{"timeout":960,"cpu":2}', 'pre_delete': True, 'post_delete': True}
+Confirm? [y/n] DELETE http://127.0.0.1:5003/nodes
+Sleep for 240 seconds

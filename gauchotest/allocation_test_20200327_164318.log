@@ -1,0 +1,15 @@
+CLI args: {'pre_delete': False, 'post_delete': True}
+GET http://192.168.10.117:5001/nodes
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "I",
+  "node_id": "10313",
+  "node_ip": "192.168.10.120",
+  "service_port": "32852"
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.120:32852/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 10000, 'cpu': 2}'",
+  "hostname": "710bcd972728"
+}

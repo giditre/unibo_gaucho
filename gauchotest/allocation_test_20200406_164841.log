@@ -1,0 +1,2 @@
+CLI args: {'service_data': '{"timeout":960,"cpu":2}', 'pre_delete': True, 'post_delete': True}
+Confirm? [y/n] Aborted.

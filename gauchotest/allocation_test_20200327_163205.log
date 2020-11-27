@@ -1,0 +1,37 @@
+CLI args: {'pre_delete': False, 'post_delete': True}
+GET http://192.168.10.117:5001/nodes
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "S",
+  "node_id": "10315",
+  "node_ip": "192.168.10.119",
+  "service_port": 39119
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.119:39119/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 10000, 'cpu': 2}'",
+  "hostname": "gaucho-fnode-vm2"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "App FA002 allocated",
+  "node_class": "S",
+  "node_id": "10317",
+  "node_ip": "192.168.10.122",
+  "service_port": 30907
+}
+POST {'timeout': 10000, 'cpu': 2} http://192.168.10.122:30907/app/FA002
+{
+  "message": "Running app FA002 with parameters '{'timeout': 10000, 'cpu': 2}'",
+  "hostname": "gaucho-fnode-vm3"
+}
+Sleep for 120 seconds
+GET http://192.168.10.117:5001/app/FA002
+{
+  "message": "Aborted: error in connecting to node 192.168.10.123"
+}
+Sleep for 240 seconds
+GET http://127.0.0.1:5003/meas
+DELETE http://127.0.0.1:5003/nodes
