@@ -19,27 +19,58 @@ from src.forch.forch_utils_service_cache import ServiceCache
 #   def __init__(self):
 #     pass
 
-class FORS():
-  def __init__(self):
+class FORS(object):
+  __key = object()
+  __instance = None
+
+  @classmethod
+  def get_instance(cls):
+    if cls.__instance is not None:
+      cls.__instance = cls(key=cls.__key)
+    return cls.__instance
+
+  def __init__(self, *, key=None):
+    assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
     self.__sc = ServiceCache()
 
-  def get_service_cache(self):
+  def __get_service_cache(self):
     return self.__sc
 
-  # TODO: set_service_cache ?
-
   def get_service_list(self):
-    self.get_service_cache().refresh()
+    self.__get_service_cache().refresh()
     return self.__sc.get_list()
 
-class FOVIM():
-  def __init__(self):
-    self.__da = SLPFactory.create_DA()
+
+class FOVIM(object):
+  __key = object()
+  __instance = None
+
+  def __init__(self, *, key=None):
+    assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
+
+  @classmethod
+  def get_instance(cls):
+    if cls.__instance is not None:
+      cls.__instance = cls(key=cls.__key)
+    return cls.__instance
+
+class FOB(object):
+  __key = object()
+  __instance = None
+
+  def __init__(self, *, key=None):
+    assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
+
+  @classmethod
+  def get_instance(cls):
+    if cls.__instance is not None:
+      cls.__instance = cls(key=cls.__key)
+    return cls.__instance
 
 ### globals
 
-fovim = FOVIM()
-fors = FORS()
+# fovim = FOVIM()
+# fors = FORS()
 
 ### API Resources
 
@@ -52,7 +83,7 @@ class Test(Resource):
 
 class FogServices(Resource):
   def get(self, s_id=""):
-    s_list = fors.get_service_list()
+    s_list = FORS.get_instance().get_service_list()
     s_id_list = [ s.get_id() for s in s_list ]
     if s_id:
       if s_id in s_id_list:
@@ -75,7 +106,7 @@ class FogServices(Resource):
       }
 
   def post(self, s_id):
-    s_list = fors.get_service_list()
+    s_list = FORS.get_instance().get_service_list()
     s_id_list = [ s.get_id() for s in s_list ]
     if s_id in s_id_list:
       # need to check which node is best suited to host the service
@@ -136,5 +167,5 @@ if __name__ == '__main__':
     pass
   finally:
     logger.info("Cleanup after interruption") # TODO: questo pare non venga mai eseguito
-    del fovim
-    del fors
+    # del fovim
+    # del fors

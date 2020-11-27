@@ -25,7 +25,7 @@ class MeasurementFields(Enum):
   UNIT = "unit"
 
 class ZabbixNode:
-  def __init__(self, node_id="", node_name="", node_ipv4=None, is_available=""):
+  def __init__(self, *, node_id="", node_name="", node_ipv4=None, is_available=""):
     self.__node_id = node_id
     self.__node_name = node_name
     self.__node_ipv4 = IPv4Address(node_ipv4)
@@ -94,11 +94,11 @@ class ZabbixController:
 
   __zc = None
 
-  def __init__(self, url, user, password):
+  def __init__(self, *, url, user, password):
     self.__url = url
     self.__user = user
     self.__password = password
-    # self.__zapi = ZabbixAPI(url=self.__url, user=self.__user, password=self.__password)
+    # self.__zapi = ZabbixAPI(url=self.__url, user=self.__user, password=self.__password) # Python3.6
     self.__zapi = ZabbixAPI(self.__url)
     self.__zapi.login(user=self.__user, password=self.__password)
 
@@ -134,7 +134,7 @@ class ZabbixController:
         h_ip = i["ip"]
         break
 
-      z_node = ZabbixNode(h_id, h_name, h_ip, h_avail)
+      z_node = ZabbixNode(node_id=h_id, node_name=h_name, node_ipv4=h_ip, is_available=h_avail)
       z_node_list.append(z_node)
 
     return z_node_list
