@@ -1,4 +1,4 @@
-from src.forch.forch_utils_zabbix import ZabbixController
+from src.forch.forch_utils_zabbix import ZabbixAdapter
 from src.forch.forch_utils_service import Service
 from ipaddress import IPv4Address
 

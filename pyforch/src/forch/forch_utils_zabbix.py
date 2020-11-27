@@ -82,7 +82,7 @@ class ZabbixNode:
     else:
       raise TypeError # TODO G: rischiamo davvero di arrivare qui?
 
-class ZabbixController:
+class ZabbixAdapter(object):
   # Used as private static final dict
   class _ItemFields(Enum):
     hostid = MeasurementFields.NODE_ID.value
@@ -92,9 +92,11 @@ class ZabbixController:
     lastvalue = MeasurementFields.VALUE.value
     units = MeasurementFields.UNIT.value
 
+  __key = object()
   __zc = None
 
-  def __init__(self, *, url, user, password):
+  def __init__(self, *, key=None, url, user, password):
+    assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
     self.__url = url
     self.__user = user
     self.__password = password
@@ -103,12 +105,12 @@ class ZabbixController:
     self.__zapi.login(user=self.__user, password=self.__password)
 
   def __repr__(self):
-    return "ZabbixController on URL {} with user {}".format(self.__url, self.__user)
+    return "ZabbixAdapter on URL {} with user {}".format(self.__url, self.__user)
 
   @classmethod
   def get_instance(cls):
     if cls.__zc is None:
-      cls.__zc = cls(url='http://localhost/zabbix/', user='Admin', password='zabbix') # TODO M: fare parse dati costruttore prendendoli da qualche parte. JSON, __init__.py, ecc...
+      cls.__zc = cls(key=cls.__key, url='http://localhost/zabbix/', user='Admin', password='zabbix') # TODO M: fare parse dati costruttore prendendoli da qualche parte. JSON, __init__.py, ecc...
     return cls.__zc
 
   def get_url(self):
@@ -197,8 +199,8 @@ if __name__ == "__main__":
     else:
       return s[:600] + " [...]"
 
-  logger.info("Instantiate ZabbixController")
-  zc = ZabbixController.get_instance()
+  logger.info("Instantiate ZabbixAdapter")
+  zc = ZabbixAdapter.get_instance()
 
   print("List of all known nodes:")
   print(zc.get_nodes())

@@ -6,14 +6,12 @@ sys.path.append(str(Path(__file__).parent.parent.parent.absolute()))
 
 from src.forch.forch_utils_service import Service
 from src.forch.forch_utils_slp import SLPFactory
-from src.forch.forch_utils_zabbix import ZabbixController
+from src.forch.forch_utils_zabbix import ZabbixAdapter
 from ipaddress import IPv4Address
 import asyncio
 
 # SA MAIN
 sa = SLPFactory.create_SA()
-# zc = ZabbixController()
-# Service.set_zabbix_controller(zc)
 
 srv_list = Service.create_services_from_json(IPv4Address("127.0.0.1"), str(Path(__file__).parent.joinpath("service_example.json").absolute()))
 

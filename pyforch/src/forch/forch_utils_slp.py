@@ -26,32 +26,6 @@ from . import IS_ORCHESTRATOR
 from .forch_utils_service import Service
 from .forch_tools import raise_error
 
-
-# class SLPFactory:
-#   def __init__(self):
-#     self.__common_slp_agent = _SLPAgent()
-    
-#   def __get_common_slp_agent(self):
-#     return self.__common_slp_agent
-    
-#   def __get_common_handler(self):
-#     return self.__get_common_slp_agent().get_handler()
-
-#   def create_UA(self, slp_handler=None):
-#     if slp_handler is None:
-#       slp_handler = self.__get_common_handler()
-#     return _UserAgent(slp_handler)
-
-#   def create_SA(self, slp_handler=None):
-#     if slp_handler is None:
-#       slp_handler = self.__get_common_handler()
-#     return _ServiceAgent(slp_handler)
-
-#   def create_DA(self, slp_handler=None):
-#     if slp_handler is None:
-#       slp_handler = self.__get_common_handler()
-#     return _DirectoryAgent(slp_handler)
-
 _SLP_ATTRIBUTES_SEPARATOR = ','
 
 # SLP services known attributes

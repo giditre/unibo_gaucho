@@ -16,7 +16,7 @@ from enum import Enum, IntEnum
 import json
 
 from .forch_tools import raise_error
-from .forch_utils_zabbix import ZabbixNode, ZabbixController, ZabbixNodeFields, MeasurementFields
+from .forch_utils_zabbix import ZabbixNode, ZabbixAdapter, ZabbixNodeFields, MeasurementFields
 
 from . import IS_ORCHESTRATOR
 
@@ -108,7 +108,7 @@ class Service:
     assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
 
     if merge_with_zabbix:
-      node = ZabbixController.get_instance().get_node_by_ip(ipv4)
+      node = ZabbixAdapter.get_instance().get_node_by_ip(ipv4)
       logger.debug("Retrieved ZabbixNode {}".format(node))
       node_dict = node.to_dict()
       node_dict[ZabbixNodeFields.AVAILABLE.value] = node_dict[ZabbixNodeFields.AVAILABLE.value] == "1"
@@ -117,14 +117,14 @@ class Service:
         node = self.__ServiceNode(id=node_dict[ZabbixNodeFields.ID.value], name=node_dict[ZabbixNodeFields.NAME.value], available=node_dict[ZabbixNodeFields.AVAILABLE.value], ipv4=ipv4, port=port, path=path, lifetime=lifetime)
 
         for elem in MetricType:
-          node.add_metric(m_id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[ZabbixNodeFields.ID.value], elem.value), m_type=elem)
+          node.add_metric(m_id=ZabbixAdapter.get_instance().get_item_id_by_node_and_item_name(node_dict[ZabbixNodeFields.ID.value], elem.value), m_type=elem)
 
         self.get_node_list().append(node)
       else:
         logger.info("Node {} not added in service {} because, according to Zabbix, unavailable.".format(str(ipv4), self.__repr__()))
       
       # # create metrics list for this node
-      # m_list = [ self.__ServiceNode._Metric(id=ZabbixController.get_instance().get_item_id_by_node_and_item_name(node_dict[MeasurementFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
+      # m_list = [ self.__ServiceNode._Metric(id=ZabbixAdapter.get_instance().get_item_id_by_node_and_item_name(node_dict[MeasurementFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
 
       # # instatiate new ServiceNode and append it to node list
       # self.get_node_list().append(self.__ServiceNode(id=node_dict[MeasurementFields.NODE_ID], name=node_dict["name"], available=node_dict["is_available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
@@ -191,7 +191,7 @@ class Service:
       node_list = self.get_node_list()
       # retrieve all measurements for all nodes for all defined metric types
       # this returns a dictionary formatted as {'30254': {'node_id': '10313', 'metric_id': '30254', 'metric_name': 'CPU utilization', 'timestamp': '0', 'value': '0', 'unit': '%'}}
-      measurements = ZabbixController.get_instance().get_measurements_by_node_list([node.get_id() for node in node_list], item_name_list=[item.value for item in MetricType])
+      measurements = ZabbixAdapter.get_instance().get_measurements_by_node_list([node.get_id() for node in node_list], item_name_list=[item.value for item in MetricType])
       # populate the data structure
       for node in node_list:
         for metric in node.get_metrics_list():
@@ -199,7 +199,7 @@ class Service:
     elif mode == MeasurementRetrievalMode.NODE:
       # refresh the value of all metrics of a node
       for node in self.get_node_list(): 
-        measurements = ZabbixController.get_instance().get_measurements_by_item_id([m.get_id() for m in node.get_metrics_list()])
+        measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id([m.get_id() for m in node.get_metrics_list()])
         # populate the data structure
         for metric in node.get_metrics_list():
           metric.update(measurements)
@@ -207,7 +207,7 @@ class Service:
       # refresh the value of a single metric
       for node in self.get_node_list():
         for metric in node.get_metrics_list():
-          measurements = ZabbixController.get_instance().get_measurements_by_item_id(metric.get_id())
+          measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id(metric.get_id())
           metric.update(measurements)
     else:
       # should never happen
@@ -355,7 +355,7 @@ class Service:
       
     # def retrieve_measurements(self): # TODO G: tenere questo metodo o no?
     #   # method to refresh the value of all metrics of a node
-    #   measurements = ZabbixController.get_instance().get_measurements_by_item_id([m.get_id() for m in self.get_metrics_list()])da dentro una sottoclasse?
+    #   measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id([m.get_id() for m in self.get_metrics_list()])da dentro una sottoclasse?
     #   # populate the data structure
     #   for metric in node.get_metrics_list():
     #     m_id = metric.get_id()
@@ -454,7 +454,7 @@ class Service:
         
       # def retrieve_measurements(self): # TODO G: tenere questo metodo o no?
       #   # method to refresh the value of a single metric
-      #   measurements = ZabbixController.get_instance().get_measurements_by_item_id(self.get_id())
+      #   measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id(self.get_id())
       #   # populate the data structure
       #   m_id = self.get_id()
       #   if m_id in measurements:
