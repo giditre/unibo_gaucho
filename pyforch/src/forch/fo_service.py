@@ -20,10 +20,8 @@ from enum import Enum, IntEnum
 import json
 from pathlib import Path
 
-from .fo_tools import raise_error
+from . import is_orchestrator
 from .fo_zabbix import ZabbixNode, ZabbixAdapter, ZabbixNodeFields, MeasurementFields
-
-from . import IS_ORCHESTRATOR
 
 # import pickle
 
@@ -107,7 +105,7 @@ class Service:
   #   return o
 
   # This is the convergence point between Zabbix and SLP
-  def add_node(self, ipv4, port, path="", lifetime=0xffff, merge_with_zabbix=IS_ORCHESTRATOR):
+  def add_node(self, ipv4, port, path="", lifetime=0xffff, merge_with_zabbix=is_orchestrator()):
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
@@ -187,7 +185,7 @@ class Service:
         return node
         
   def retrieve_measurements(self, mode=MeasurementRetrievalMode.SERVICE):
-    assert IS_ORCHESTRATOR, "This method cannot be called since this node in not the orchestrator!"
+    assert is_orchestrator, "This method cannot be called since this node in not the orchestrator!"
     assert isinstance(mode, MeasurementRetrievalMode), "Parameter mode must be a MeasurementRetrievalMode!"
     # check retrieval mode
     if mode == MeasurementRetrievalMode.SERVICE:

@@ -27,9 +27,8 @@ from pathlib import Path
 
 import slp
 
-from . import IS_ORCHESTRATOR
+from . import is_orchestrator, raise_error
 from .fo_service import Service
-from .fo_tools import raise_error
 
 _SLP_ATTRIBUTES_SEPARATOR = ','
 

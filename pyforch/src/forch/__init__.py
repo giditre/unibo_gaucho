@@ -9,19 +9,28 @@
 
 # TODO G: attenzione che il campo value delle Metric è una stringa e quindi il sorting dei nodi basati su quel value potrebbe non dare il risultato desiderato
 
-IS_ORCHESTRATOR = False
+_IS_ORCHESTRATOR = False
 
 def is_orchestrator():
-  global IS_ORCHESTRATOR
-  return IS_ORCHESTRATOR
+  global _IS_ORCHESTRATOR
+  return _IS_ORCHESTRATOR
 
 def set_orchestrator():
-  global IS_ORCHESTRATOR
-  IS_ORCHESTRATOR = True
+  global _IS_ORCHESTRATOR
+  _IS_ORCHESTRATOR = True
 
-# TODO G: forse trovare modo migliore affinchè la variabile IS_ORCHESTRATOR sia vera solo nella macchina dell'orchestratore (il problema è che teniamo tutto dentro ad un repo che sincronizziamo tra tutte le macchine, quindi non possiamo salvare un valore di IS_ORCHESTRATOR staticamente diverso per ogni macchina). Proposta: fare un file di config (fuori dal repo) da leggere all'avvio
+def get_lst(item):
+  if item is None:
+    return item
+  return [item] if not isinstance(item, list) else item
 
-from .fo_tools import get_lst, raise_error
+def raise_error(class_name, msg=""):
+  try:
+    raise NameError(class_name)
+  except NameError:
+    print(msg)
+    raise
+
 from .fo_service import Service
 from .fo_servicecache import ServiceCache
 from .fo_slp import SLPFactory
