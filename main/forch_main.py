@@ -24,7 +24,7 @@ class FOB(object):
 
   @classmethod
   def get_instance(cls):
-    if cls.__instance is not None:
+    if cls.__instance is None:
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
 
@@ -34,7 +34,7 @@ class FORS(object):
 
   @classmethod
   def get_instance(cls):
-    if cls.__instance is not None:
+    if cls.__instance is None:
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
 
@@ -59,7 +59,7 @@ class FOVIM(object):
 
   @classmethod
   def get_instance(cls):
-    if cls.__instance is not None:
+    if cls.__instance is None:
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
 
@@ -135,7 +135,7 @@ if __name__ == '__main__':
   parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   args = parser.parse_args()
 
-  app = Flask(__name__, )
+  app = Flask(__name__)
 
   # @app.before_request
   # def before():
