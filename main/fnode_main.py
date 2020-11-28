@@ -12,7 +12,7 @@ import time
 sa = SLPFactory.create_SA()
 # TODO G: prendere indirizzo IP da interfaccia usata sulla rete fog
 # TODO G: prendere JSON da file locale (non dentro a tests) 
-srv_list = Service.create_services_from_json(IPv4Address("192.168.64.123"), str(Path(__file__).parent.joinpath("tests").joinpath("service_example.json").absolute()))
+srv_list = Service.create_services_from_json(IPv4Address("192.168.64.123"), str(Path(__file__).parent.joinpath("service_example.json").absolute()))
 for srv in srv_list:
   print(srv)
   sa.register_service(srv)
