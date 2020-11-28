@@ -56,12 +56,18 @@ class FOVIM(object):
 
   def __init__(self, *, key=None):
     assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
+    self.__da = forch.SLPFactory.create_DA()
 
   @classmethod
   def get_instance(cls):
     if cls.__instance is None:
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
+
+### start components
+
+FORS.get_instance()
+FOVIM.get_instance()
 
 ### API Resources
 
