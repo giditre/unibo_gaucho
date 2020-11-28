@@ -1,9 +1,8 @@
 import logging
 from logging.config import fileConfig
 from pathlib import Path
-# TODO G: prendere configurazione log da file locale (non dentro a src)
-fileConfig(str(Path(__file__).parent.joinpath("src").joinpath("forch").joinpath("logging.conf")))
-logger = logging.getLogger("fcore")
+fileConfig(str(Path(__file__).parent.joinpath("logging.ini")))
+logger = logging.getLogger(__name__)
 logger.info(f"Load {__name__} with {logger}")
 
 from time import sleep
@@ -11,13 +10,23 @@ from time import sleep
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api, reqparse, abort
 
-from forch.forch_utils_slp import SLPFactory
-from forch.forch_utils_service_cache import ServiceCache
-from forch.forch_utils_service import Service
+import forch
+forch.set_orchestrator()
 
-# class FOB():
-#   def __init__(self):
-#     pass
+logger.debug("IS_ORCHESTRATOR: {}".format(forch.is_orchestrator()))
+
+class FOB(object):
+  __key = object()
+  __instance = None
+
+  def __init__(self, *, key=None):
+    assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
+
+  @classmethod
+  def get_instance(cls):
+    if cls.__instance is not None:
+      cls.__instance = cls(key=cls.__key)
+    return cls.__instance
 
 class FORS(object):
   __key = object()
@@ -31,7 +40,7 @@ class FORS(object):
 
   def __init__(self, *, key=None):
     assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
-    self.__sc = ServiceCache()
+    self.__sc = forch.ServiceCache()
 
   def __get_service_cache(self):
     return self.__sc
@@ -53,24 +62,6 @@ class FOVIM(object):
     if cls.__instance is not None:
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
-
-class FOB(object):
-  __key = object()
-  __instance = None
-
-  def __init__(self, *, key=None):
-    assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
-
-  @classmethod
-  def get_instance(cls):
-    if cls.__instance is not None:
-      cls.__instance = cls(key=cls.__key)
-    return cls.__instance
-
-### globals
-
-# fovim = FOVIM()
-# fors = FORS()
 
 ### API Resources
 
@@ -144,7 +135,7 @@ if __name__ == '__main__':
   parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   args = parser.parse_args()
 
-  app = Flask(__name__)
+  app = Flask(__name__, )
 
   # @app.before_request
   # def before():

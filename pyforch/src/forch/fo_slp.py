@@ -3,11 +3,15 @@
 # slp.SLP_LIFETIME_MAXIMUM = 65535
 
 import logging
-from logging.config import fileConfig
-from pathlib import Path
-fileConfig(str(Path(__file__).parent.joinpath("logging.conf")))
-logger = logging.getLogger("fuslp")
-logger.info("Load {} with {}".format(__name__, logger))
+
+# from logging.config import fileConfig
+# from pathlib import Path
+# fileConfig(str(Path(__file__).parent.joinpath("logging.conf")))
+# logger = logging.getLogger("fuslp")
+# logger.info("Load {} with {}".format(__name__, logger))
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 import sys
 import shlex
@@ -19,12 +23,13 @@ import warnings
 from socket import getservbyname
 import psutil
 import time
+from pathlib import Path
 
 import slp
 
 from . import IS_ORCHESTRATOR
-from .forch_utils_service import Service
-from .forch_tools import raise_error
+from .fo_service import Service
+from .fo_tools import raise_error
 
 _SLP_ATTRIBUTES_SEPARATOR = ','
 

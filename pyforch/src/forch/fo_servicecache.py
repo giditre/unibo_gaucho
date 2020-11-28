@@ -1,7 +1,12 @@
+import logging
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+
 import copy
 
-from .forch_utils_service import Service
-from .forch_utils_slp import SLPFactory
+from .fo_service import Service
+from .fo_slp import SLPFactory
 
 class ServiceCache:
   def __init__(self): 

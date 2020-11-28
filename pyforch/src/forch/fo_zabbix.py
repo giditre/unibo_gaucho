@@ -1,9 +1,22 @@
 import logging
-from logging.config import fileConfig
-from pathlib import Path
-fileConfig(str(Path(__file__).parent.joinpath("logging.conf")))
-logger = logging.getLogger("fuzabbix")
-logger.info("Load {} with {}".format(__name__, logger))
+
+# from logging.config import fileConfig
+# from pathlib import Path
+# fileConfig(str(Path(__file__).parent.joinpath("logging.conf")))
+# logger = logging.getLogger("fuzabbix")
+# logger.info("Load {} with {}".format(__name__, logger))
+
+
+# class _NullHandler(logging.Handler):
+#     def emit(self, record):
+#         pass
+
+# logger = logging.getLogger(__name__)
+# logger.addHandler(_NullHandler())
+
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 import json
 from pyzabbix import ZabbixAPI

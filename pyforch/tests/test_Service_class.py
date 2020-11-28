@@ -1,5 +1,5 @@
-from src.forch.forch_utils_zabbix import ZabbixAdapter
-from src.forch.forch_utils_service import Service
+from src.forch.fo_zabbix import ZabbixAdapter
+from src.forch.fo_service import Service
 from ipaddress import IPv4Address
 
 def test_create_services_from_json_out_in():

@@ -219,6 +219,8 @@ docker info
 docker run hello-world
 ```
 
+# WORK IN PROGRESS
+
 ### Install Python modules
 
 The following instructions apply for the machine(s) hosting the FORCH components, as well as for those acting as fog nodes.

@@ -1,9 +1,13 @@
 import logging
-from logging.config import fileConfig
-from pathlib import Path
-fileConfig(str(Path(__file__).parent.joinpath("logging.conf")))
-logger = logging.getLogger("fuservice")
-logger.info("Load {} with {}".format(__name__, logger))
+
+# from logging.config import fileConfig
+# from pathlib import Path
+# fileConfig(str(Path(__file__).parent.joinpath("logging.conf")))
+# logger = logging.getLogger("fuservice")
+# logger.info("Load {} with {}".format(__name__, logger))
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 #TODO M: Se serve: mettere controllo dei parametri di input nei vari metodi (soprattutto i costruttori)
 #TODO M: Se serve: override __repr__ di tutte le classi?
@@ -14,15 +18,16 @@ from ipaddress import IPv4Address
 from socket import getservbyname
 from enum import Enum, IntEnum
 import json
+from pathlib import Path
 
-from .forch_tools import raise_error
-from .forch_utils_zabbix import ZabbixNode, ZabbixAdapter, ZabbixNodeFields, MeasurementFields
+from .fo_tools import raise_error
+from .fo_zabbix import ZabbixNode, ZabbixAdapter, ZabbixNodeFields, MeasurementFields
 
 from . import IS_ORCHESTRATOR
 
 # import pickle
 
-# from forch.forch_utils_slp import SLPController
+# from forch.fo_slp import SLPController
 
 #from https://docs.python.org/3/library/enum.html
 class MetricType(Enum):
