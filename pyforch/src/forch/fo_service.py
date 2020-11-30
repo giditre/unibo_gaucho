@@ -38,7 +38,7 @@ class MeasurementRetrievalMode(IntEnum):
   METRIC = 3
 
 class Service:
-  def __init__(self, name="", protocol="", node_list=None, id="", category="", descr=""):
+  def __init__(self, *, name="", protocol="", node_list=None, id="", category="", descr=""):
     if node_list is None:
       node_list = []
     for node in node_list:
@@ -137,6 +137,13 @@ class Service:
        
     # TODO M: ritornare qualcosa?
 
+  def get_node_by_id(self, node_id):
+    # assert ...
+    try:
+      return next(sn for sn in self.get_node_list() if sn.get_id() == node_id)
+    except StopIteration:
+      return None
+
   # Useful links:
   # https://stackoverflow.com/questions/9835762/how-do-i-find-the-duplicates-in-a-list-and-create-another-list-with-them
   # https://stackoverflow.com/questions/9542738/python-find-in-list
@@ -220,6 +227,12 @@ class Service:
     else:
       # should never happen
       pass
+  
+  # @classmethod
+  # def create_single(cls, *args, **kwargs):
+  #   if "node_list" in kwargs:
+  #     pass
+  #   return cls(*args, **kwargs)
 
   @classmethod
   def create_services_from_json(cls, ipv4, json_services_file):
@@ -255,7 +268,7 @@ class Service:
 
   class __ServiceNode:
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM
-    def __init__(self, port, id, name="", available=False, ipv4=None, path="", lifetime=0xffff, metrics_list=None):
+    def __init__(self, *, id, name="", available=False, ipv4=None, port=0, path="", lifetime=0xffff, metrics_list=None):
       if metrics_list is None:
         metrics_list = []
       for metric in metrics_list:

@@ -23,7 +23,7 @@ class FOB(object):
 
   def __init__(self, *, key=None):
     assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
-    # gather list of available sources (SDP codeblocks and FVE images)
+    # gather list of available sources (SDP codelets and FVE images)
     # TODO improve loading sources
     with open(str(Path(__file__).parent.joinpath("service_example.json").absolute())) as f:
       sources_dict = json.load(f)
@@ -51,9 +51,9 @@ class FOB(object):
   def get_service_list():
     return FORS.get_instance().get_service_list()
 
-  def allocate(self, s_id):
+  def allocate_service(self, service_id):
     """Takes service ID and returns a Service object or None."""
-    s = FORS.get_instance().get_service(s_id, refresh_sc=True, refresh_meas=True)
+    s = FORS.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
     if s is not None:
       # it means that the service is defined in the service cache
       # need to check which node is best suited to host the service
@@ -61,33 +61,43 @@ class FOB(object):
       if sn is not None:
         # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
         if True: # TODO set meaningful condition
-          # if yes, trigger the requested allocation through FOVIM
-          FOVIM.get_instance().process_allocation(service_id=s_id, node_id=sn.get_id())
+          # if so, trigger the requested allocation through FOVIM
+          s = FOVIM.get_instance().manage_allocation(service_id=s.get_id(), node_id=sn.get_id())
           # TODO get response and return it to user --> 200 OK
+          return s, 200
         else:
-          # if no, it means that there are no nodes that are free enough to host this service - it might still be deployable
+          # here there are no nodes that are free enough to host this service - it might still be deployable
           # TODO handle this case
           pass
       else:
-        # it means that there are no service nodes registered to this service - it might still be deployable
+        # here there are no service nodes registered to this service - it might still be deployable
         # TODO handle this case
         pass
     
     # we get here if the service is not in the service cache or it is but is offered only by busy nodes
     # check if service is deployable (e.g.: "by deploying an APP on a IaaS node"), starting by looking for a source that offers the requested service
-    src = self.__get_source_for_service(s_id)
+    src = self.__get_source_for_service(service_id)
     # check if there is a source that offers the requested service
     if src is not None:
-      # TODO if yes, check if there is a node that offers the required SDP/FVE for the source, and is free enough to host it ( get_node_by_metric() )
-      if True: # TODO set meaningful condition
-        # TODO if yes, deploy the source and allocate service on it --> 201 Created
-        pass
-      else:
-        # TODO if no, there are no more resources for new deployments --> 503 Service Unavailable
-        pass
-    else:
-      # TODO if no, unknown service --> 404 Not Found
-      pass
+      # check if there is a service to provide the required base (SDP/FVE) for the source
+      base_service_id = src["base"]
+      base_s = FORS.get_instance().get_service(base_service_id)
+      if s is not None:
+        # here the base service is present in the service cache
+        # check if there is a node that is free enough to host the new allocation
+        base_sn = base_s.get_node_by_metric()
+        if base_sn is not None:
+          # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
+          if True: # TODO set meaningful condition
+            # TODO if so, deploy the source and allocate service on it --> 201 Created
+            s = FOVIM.get_instance().manage_deployment(source=src, node_id=base_sn.get_id())
+            return s, 201
+        else:
+          # TODO here there are no more resources for new deployments --> 503 Service Unavailable
+          return None, 503
+
+    # TODO here unknown service --> 404 Not Found
+    return None, 404
 
 
 class FORS(object):
@@ -139,15 +149,22 @@ class FOVIM(object):
     return cls.__instance
 
   @staticmethod
-  def process_allocation(*, service_id, node_id):
-    # check if service is already deployed (e.g.: an APP offered by a SaaS node)
-    # 
+  def manage_allocation(*, node_id, service_id):
+    logger.debug(f"Allocate {service_id} on node {node_id}")
+    # s = FORS.get_instance().get_service(service_id)
+    # sn = s.get_node_by_id(node_id)
+    pass
+
+  @staticmethod
+  def manage_deployment(*, node_id, source):
+    logger.debug(f"Deploy {source} on node {node_id}")
     pass
 
 
 
 ### start components
 
+FOB.get_instance()
 FORS.get_instance()
 FOVIM.get_instance()
 
@@ -190,7 +207,7 @@ class FogServices(Resource):
 
   def post(self, s_id):
     """Submit request for allocation of a service."""
-    s = FOB.get_instance().allocate(s_id)
+    s, c = FOB.get_instance().allocate_service(s_id) # returns Service and code
     if s is None:
       # service not found
       return {
