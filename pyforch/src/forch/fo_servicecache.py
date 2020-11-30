@@ -9,13 +9,16 @@ from .fo_service import Service
 from .fo_slp import SLPFactory
 
 class ServiceCache:
-  def __init__(self): 
+  def __init__(self, *, refresh=False): 
     self.__slp_ctrl = SLPFactory.create_UA()
     self.__services_list = []
-    # self.refresh() # TODO M: decidere se farlo, secondo me meglio di no. Uno si instanzia una cache poi sa che deve refresharla quando vuole lui
+    if refresh:
+      self.refresh()
     
-  def get_list(self):
-    return copy.deepcopy(self.__services_list)
+  def get_list(self, *, deepcopy=False):
+    if deepcopy:
+      return copy.deepcopy(self.__services_list)
+    return self.__services_list
     
   def clear(self):
     self.__services_list = []

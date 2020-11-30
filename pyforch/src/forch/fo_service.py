@@ -157,18 +157,23 @@ class Service:
 
   def get_node_by_metric(self, m_type=MetricType.CPU, check="min"):
     assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
-    metric_list = []
+
+    # check is there are nodes offering this service
+    if not self.__node_list:
+      return None
     
-    #get list of a specified metric from the node list
+    # get list of a specified metric from the node list
+    metric_list = []
     for node in self.__node_list:
       metric = node.get_metric_by_type(m_type)
       if metric != None:
         metric_list.append(metric)
         
-    if not metric_list: #if list is empty
+    # check is there are metrics associated to this node
+    if not metric_list:
       return None
     
-    #Sorting metrics by value (https://docs.python.org/3/howto/sorting.html)
+    # sorting metrics by value (https://docs.python.org/3/howto/sorting.html)
     if check == "min":
       # res_metric = sorted(metric_list, key=lambda metric: metric.get_value())[0]
       res_metric = min(metric_list, key=lambda metric: metric.get_value())
@@ -178,14 +183,14 @@ class Service:
     else:
       return None
       
-    #find the node that owns the result metric and return it
+    # find the node that owns the result metric and return it
     for node in self.__node_list:
-      #in questo if ci fa comodo l'override di __eq__ fatto nella classe Metric
+      # in questo if ci fa comodo l'override di __eq__ fatto nella classe Metric
       if res_metric == node.get_metric_by_type(m_type):
         return node
         
-  def retrieve_measurements(self, mode=MeasurementRetrievalMode.SERVICE):
-    assert is_orchestrator, "This method cannot be called since this node in not the orchestrator!"
+  def refresh_measurements(self, mode=MeasurementRetrievalMode.SERVICE):
+    assert is_orchestrator(), "This method cannot be called since this node in not the orchestrator!"
     assert isinstance(mode, MeasurementRetrievalMode), "Parameter mode must be a MeasurementRetrievalMode!"
     # check retrieval mode
     if mode == MeasurementRetrievalMode.SERVICE:
@@ -356,7 +361,7 @@ class Service:
           return metric
       return None
       
-    # def retrieve_measurements(self): # TODO G: tenere questo metodo o no?
+    # def refresh_measurements(self): # TODO G: tenere questo metodo o no?
     #   # method to refresh the value of all metrics of a node
     #   measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id([m.get_id() for m in self.get_metrics_list()])da dentro una sottoclasse?
     #   # populate the data structure
@@ -455,7 +460,7 @@ class Service:
         if self.get_unit() == "":
           self.set_unit(measurements_dict[m_id][MeasurementFields.UNIT.value])        
         
-      # def retrieve_measurements(self): # TODO G: tenere questo metodo o no?
+      # def refresh_measurements(self): # TODO G: tenere questo metodo o no?
       #   # method to refresh the value of a single metric
       #   measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id(self.get_id())
       #   # populate the data structure

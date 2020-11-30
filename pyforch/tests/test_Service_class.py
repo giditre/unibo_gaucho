@@ -38,8 +38,8 @@ def test_add_node_none_zc():
   # except:
   #   assert generazione_eccezione_zc
 
-def test_retrieve_measurements_none_zc():
-  #Vedi commenti sopra ma con Service.retrieve_measurements
+def test_refresh_measurements_none_zc():
+  #Vedi commenti sopra ma con Service.refresh_measurements
   pass
 
 def test_metric_json():

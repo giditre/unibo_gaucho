@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 logger.info(f"Load {__name__} with {logger}")
 
 from time import sleep
+import json
 
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api, reqparse, abort
@@ -22,6 +23,11 @@ class FOB(object):
 
   def __init__(self, *, key=None):
     assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
+    # gather list of available sources (SDP codeblocks and FVE images)
+    # TODO improve loading sources
+    with open(str(Path(__file__).parent.joinpath("service_example.json").absolute())) as f:
+      sources_dict = json.load(f)
+    self.__sources_list = sources_dict["sources"]
 
   @classmethod
   def get_instance(cls):
@@ -29,48 +35,59 @@ class FOB(object):
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
 
+  def __get_sources_list(self):
+    return self.__sources_list
+
+  def __get_source_for_service(self, service_id, *, priority_list=["FVE", "SDP"]):
+    """Finds source that implements requested service, prioritizing the base for the service"""
+    for p in priority_list:
+      try:
+        return next(src for src in self.__get_sources_list() if src["service"] == service_id and p in src["base"])
+      except StopIteration:
+        continue
+    return None
+
   @staticmethod
   def get_service_list():
     return FORS.get_instance().get_service_list()
 
-  @staticmethod
-  def allocate(s_id):
+  def allocate(self, s_id):
     """Takes service ID and returns a Service object or None."""
-    s_list = FORS.get_instance().get_service_list()
-    s_id_list = [ s.get_id() for s in s_list ]
-    if s_id in s_id_list:
+    s = FORS.get_instance().get_service(s_id, refresh_sc=True, refresh_meas=True)
+    if s is not None:
+      # it means that the service is defined in the service cache
       # need to check which node is best suited to host the service
-      # first get instance of requested service
-      s = next(s for s in s_list if s.get_id() == s_id)
-      # then use retrieve_measurement to populate metrics with measurements
-      # TODO this is a responsibility of FOVIM
-      s.retrieve_measurements()
-      # then pick most suitable node
       sn = s.get_node_by_metric() # by default returns node with minimum CPU utilization
-      # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
-      if True:
-        # if yes, trigger the requested allocation through FOVIM
-        FOVIM.get_instance().process_allocation(service_id=s_id, node_id=sn.get_id())
-        # TODO: get response and return it to user --> 200 OK
+      if sn is not None:
+        # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
+        if True: # TODO set meaningful condition
+          # if yes, trigger the requested allocation through FOVIM
+          FOVIM.get_instance().process_allocation(service_id=s_id, node_id=sn.get_id())
+          # TODO get response and return it to user --> 200 OK
+        else:
+          # if no, it means that there are no nodes that are free enough to host this service - it might still be deployable
+          # TODO handle this case
+          pass
       else:
-        # if no, service might be deployed on a new node, so continue
+        # it means that there are no service nodes registered to this service - it might still be deployable
+        # TODO handle this case
         pass
     
-    # we get here if service is not deployed (or unknown), or deployed but on nodes that are too busy
-    # check if service is deployable (e.g.: "by deploying an APP on a IaaS node")
-    # TODO gather list of available sources (SDP codeblocks and FVE images) from FOVIM (reword explanation)
-
-    # TODO check if there is a source that offers the requested service
-
+    # we get here if the service is not in the service cache or it is but is offered only by busy nodes
+    # check if service is deployable (e.g.: "by deploying an APP on a IaaS node"), starting by looking for a source that offers the requested service
+    src = self.__get_source_for_service(s_id)
+    # check if there is a source that offers the requested service
+    if src is not None:
       # TODO if yes, check if there is a node that offers the required SDP/FVE for the source, and is free enough to host it ( get_node_by_metric() )
-      
-        # TODO if yes deploy the source and allocate service on it --> 201 Created
-
+      if True: # TODO set meaningful condition
+        # TODO if yes, deploy the source and allocate service on it --> 201 Created
+        pass
+      else:
         # TODO if no, there are no more resources for new deployments --> 503 Service Unavailable
-
-      # TODO if no, impossible to deploy service in virtualized way (or unknown service) --> 501 Not Implemented
-
-    
+        pass
+    else:
+      # TODO if no, unknown service --> 404 Not Found
+      pass
 
 
 class FORS(object):
@@ -90,9 +107,21 @@ class FORS(object):
   def __get_service_cache(self):
     return self.__sc
 
-  def get_service_list(self):
+  def __refresh_service_cache(self):
     self.__get_service_cache().refresh()
+
+  def get_service_list(self, *, refresh_sc=False, refresh_meas=False):
+    if refresh_sc:
+      self.__refresh_service_cache()
+    if refresh_meas:
+      return [ s.refresh_measurements() for s in self.__sc.get_list() ]
     return self.__sc.get_list()
+
+  def get_service(self, service_id, *, refresh_sc=False, refresh_meas=False):
+    try:
+      return next(s for s in self.get_service_list(refresh_sc=refresh_sc, refresh_meas=refresh_meas) if s.get_id() == service_id)
+    except StopIteration:
+      return None
 
 
 class FOVIM(object):
@@ -114,6 +143,8 @@ class FOVIM(object):
     # check if service is already deployed (e.g.: an APP offered by a SaaS node)
     # 
     pass
+
+
 
 ### start components
 
