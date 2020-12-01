@@ -31,6 +31,14 @@
       "uri": "giditre/gaucho-stress",
       "base": "FVE001",
       "service": "APP002"
+    },
+    {
+      "id": "SRC005",
+      "name": "ffmpeg",
+      "descr": "Multimedia transcoder",
+      "uri": "ffmpeg",
+      "base": "FVE001",
+      "service": "APP003"
     }
   ]
 }

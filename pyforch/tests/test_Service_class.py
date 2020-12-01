@@ -42,19 +42,6 @@ def test_refresh_measurements():
   assert len(metrics_list) == len(MetricType), ""
   # assert False, str(s)
 
-#TODO M: fare i seguenti test
-
-def test_add_node_none_zc():
-  pass
-  # try:
-  #   Service.add_node()
-  # except:
-  #   assert generazione_eccezione_zc
-
-def test_refresh_measurements_none_zc():
-  #Vedi commenti sopra ma con Service.refresh_measurements
-  pass
-
-def test_metric_json():
-  # TODO G: verificare che si riesca a creare un oggetto Metric a partire da un JSON che lo rappresenta. Fare lo stesso per ServiceNode e Service
-  pass
+# def test_metric_json():
+#   # TODO G: verificare che si riesca a creare un oggetto Metric a partire da un JSON che lo rappresenta. Fare lo stesso per ServiceNode e Service
+#   pass

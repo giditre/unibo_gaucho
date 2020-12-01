@@ -18,5 +18,5 @@ def test_manage_deployment():
       "base": "FVE001",      
       "service": "APP001"
     }
-  s = FOVIM.get_instance().manage_deployment(node_id="10320", source=src)
+  s = FOVIM.get_instance().manage_deployment(service_id="APP001", node_id="10320", source=src)
   assert isinstance(s, forch.Service), ""

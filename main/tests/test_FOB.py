@@ -31,9 +31,20 @@ def test_FOB_service_list_refresh_all():
       assert isinstance(m_list, list), ""
       assert len(m_list) > 0, ""
       # assert all( isinstance(s, forch.Service.__ServiceNode.__Metric) for m in m_list ), ""
-      # for m_type in forch.MetricType:
+      for m_type in forch.MetricType:
+        assert sn.get_metric_by_type(m_type) is not None, ""
 
-
-def test_FOB_allocate_service():
+def test_FOB_allocate_service_200():
   s = FOB.get_instance().allocate_service("APP001")
   assert isinstance(s, forch.Service), ""
+  # assert c == 200, ""
+
+def test_FOB_allocate_service_201():
+  s = FOB.get_instance().allocate_service("APP003")
+  assert isinstance(s, forch.Service), ""
+  # assert c == 201, ""
+
+def test_FOB_allocate_service_404():
+  s = FOB.get_instance().allocate_service("APP000")
+  assert s is None, ""
+  # assert c == 404, ""

@@ -71,8 +71,9 @@ class FOB(object):
         if True: # TODO set meaningful condition
           # if so, trigger the requested allocation through FOVIM
           s = FOVIM.get_instance().manage_allocation(service_id=s.get_id(), node_id=sn.get_id())
-          # TODO get response and return it to user --> 200 OK
-          return s, 200
+          # TODO get response and return it to user
+          # return service with single service node --> 200 OK
+          return s
         else:
           # here there are no nodes that are free enough to host this service - it might still be deployable
           # TODO handle this case
@@ -90,7 +91,7 @@ class FOB(object):
       # check if there is a service to provide the required base (SDP/FVE) for the source
       base_service_id = src["base"]
       base_s = FORS.get_instance().get_service(base_service_id)
-      if s is not None:
+      if base_s is not None:
         # here the base service is present in the service cache
         # check if there is a node that is free enough to host the new allocation
         base_sn = base_s.get_node_by_metric()
@@ -98,14 +99,16 @@ class FOB(object):
           # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
           if True: # TODO set meaningful condition
             # TODO if so, deploy the source and allocate service on it --> 201 Created
-            s = FOVIM.get_instance().manage_deployment(source=src, node_id=base_sn.get_id())
-            return s, 201
+            s = FOVIM.get_instance().manage_deployment(service_id=service_id, source=src, node_id=base_sn.get_id())
+            # return service with single service node --> 201 Created
+            return s
         else:
-          # TODO here there are no more resources for new deployments --> 503 Service Unavailable
-          return None, 503
+          # TODO here there are no more resources for new deployments
+          # return service with empty node list --> 503 Service Unavailable
+          return forch.Service(id=service_id)
 
     # TODO here unknown service --> 404 Not Found
-    return None, 404
+    return None
 
 
 class FORS(object):
@@ -162,18 +165,18 @@ class FOVIM(object):
     return cls.__instance
 
   @staticmethod
-  def manage_allocation(*, node_id, service_id):
+  def manage_allocation(*, service_id, node_id):
     logger.debug(f"Allocate {service_id} on node {node_id}")
     # TODO
     # s = FORS.get_instance().get_service(service_id)
     # sn = s.get_node_by_id(node_id)
-    return forch.Service(id="APP001")
+    return forch.Service(id=service_id)
 
   @staticmethod
-  def manage_deployment(*, node_id, source):
-    logger.debug(f"Deploy {source} on node {node_id}")
+  def manage_deployment(*, service_id, node_id, source):
+    logger.debug(f"Deploy {service_id} with {source} on node {node_id}")
     # TODO
-    return forch.Service(id="APP001")
+    return forch.Service(id=service_id)
 
 
 
