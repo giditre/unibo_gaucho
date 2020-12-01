@@ -1,6 +1,6 @@
-import sys
+# import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent.parent.absolute()))
+# sys.path.append(str(Path(__file__).parent.parent.parent.absolute()))
 
 from src.forch.fo_service import Service
 from src.forch.fo_slp import SLPFactory

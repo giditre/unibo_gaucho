@@ -31,7 +31,7 @@ def raise_error(class_name, msg=""):
     print(msg)
     raise
 
-from .fo_service import Service
+from .fo_service import Service, MetricType, MeasurementRetrievalMode
 from .fo_servicecache import ServiceCache
 from .fo_slp import SLPFactory
 from .fo_zabbix import ZabbixAPI, ZabbixAdapter, ZabbixNode, ZabbixNodeFields

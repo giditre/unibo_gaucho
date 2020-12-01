@@ -105,12 +105,13 @@ class Service:
   #   return o
 
   # This is the convergence point between Zabbix and SLP
-  def add_node(self, ipv4, port, path="", lifetime=0xffff, merge_with_zabbix=is_orchestrator()):
+  def add_node(self, *, ipv4, port=0, path="", lifetime=0xffff):
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
-    assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
+    assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address objects!"
 
-    if merge_with_zabbix:
+    # merge with zabbix only if is_orchestrator
+    if is_orchestrator():
       node = ZabbixAdapter.get_instance().get_node_by_ip(ipv4)
       logger.debug("Retrieved ZabbixNode {}".format(node))
       node_dict = node.to_dict()
@@ -228,11 +229,21 @@ class Service:
       # should never happen
       pass
   
+  @classmethod
+  def __create_service_node_by_id(cls, node_id):
+    return cls.__ServiceNode(id=node_id)
+
+  # def create_and_add_node_by_id(self, node_id):
+  #   self.get_node_list().append(self.__ServiceNode(id=node_id))
+
   # @classmethod
-  # def create_single(cls, *args, **kwargs):
-  #   if "node_list" in kwargs:
-  #     pass
-  #   return cls(*args, **kwargs)
+  # def create_service_by_id(cls, *, service_id, node_id_list=None):
+  #   node_list = [ cls.__create_service_node_by_id(node_id=sn_id) for sn_id in node_id_list ]
+  #   return cls(id=service_id, node_list=node_list)
+
+  # @classmethod
+  # def create_service_by_id(cls, service_id):
+  #   return cls(id=service_id)
 
   @classmethod
   def create_services_from_json(cls, ipv4, json_services_file):
@@ -273,9 +284,11 @@ class Service:
         metrics_list = []
       for metric in metrics_list:
         assert isinstance(metric, self.__Metric), "Parameter metrics_list must be a list of Metric objects!"
+      if ipv4 is None:
+        ipv4 = id
       if isinstance(ipv4, str):
         ipv4 = IPv4Address(ipv4)
-      assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
+      assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address objects!"
       
       self.__id = id
       self.__name = name
@@ -361,7 +374,11 @@ class Service:
 
     def get_metrics_list(self):
       return self.__metrics_list
-      
+    
+    def create_and_add_metric_by_type(self, m_type):
+      assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
+      self.get_metrics_list().append(self.__Metric(m_type=m_type))
+
     def add_metric(self, m_id, m_type):
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       self.get_metrics_list().append(self.__Metric(m_id=m_id, m_type=m_type))

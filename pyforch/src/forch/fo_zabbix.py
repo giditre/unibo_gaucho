@@ -219,7 +219,7 @@ if __name__ == "__main__":
   print(zc.get_nodes())
   print()
 
-  node_ip = "192.168.10.120"
+  node_ip = "192.168.64.123"
   print("Details on node having address {}:".format(node_ip))
   node1 = zc.get_node_by_ip(node_ip)
   print("As a string: ", node1)

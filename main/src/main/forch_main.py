@@ -25,7 +25,7 @@ class FOB(object):
     assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
     # gather list of available sources (SDP codelets and FVE images)
     # TODO improve loading sources
-    with open(str(Path(__file__).parent.joinpath("service_example.json").absolute())) as f:
+    with open(str(Path(__file__).parent.joinpath("service_catalog.json").absolute())) as f:
       sources_dict = json.load(f)
     self.__sources_list = sources_dict["sources"]
 
@@ -45,19 +45,27 @@ class FOB(object):
         return next(src for src in self.__get_sources_list() if src["service"] == service_id and p in src["base"])
       except StopIteration:
         continue
+    logger.debug(f"No source found for service {service_id}")
     return None
 
   @staticmethod
-  def get_service_list():
-    return FORS.get_instance().get_service_list()
+  def get_service_list(*args, **kwargs):
+    return FORS.get_instance().get_service_list(*args, **kwargs)
+
+  @staticmethod
+  def get_service(*args, **kwargs):
+    return FORS.get_instance().get_service(*args, **kwargs)
 
   def allocate_service(self, service_id):
     """Takes service ID and returns a Service object or None."""
+    logger.debug(f"Allocate service {service_id}")
     s = FORS.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
+    logger.debug(f"Got service {s}")
     if s is not None:
       # it means that the service is defined in the service cache
       # need to check which node is best suited to host the service
       sn = s.get_node_by_metric() # by default returns node with minimum CPU utilization
+      logger.debug(f"Got node {sn}")
       if sn is not None:
         # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
         if True: # TODO set meaningful condition
@@ -121,16 +129,21 @@ class FORS(object):
     self.__get_service_cache().refresh()
 
   def get_service_list(self, *, refresh_sc=False, refresh_meas=False):
+    logger.debug(f"Get service list from service cache refresh cache {refresh_sc} refresh meas {refresh_meas}")
     if refresh_sc:
       self.__refresh_service_cache()
+    service_list = self.__sc.get_list()
     if refresh_meas:
-      return [ s.refresh_measurements() for s in self.__sc.get_list() ]
-    return self.__sc.get_list()
+      for s in service_list:
+        s.refresh_measurements()
+    return service_list
 
   def get_service(self, service_id, *, refresh_sc=False, refresh_meas=False):
     try:
-      return next(s for s in self.get_service_list(refresh_sc=refresh_sc, refresh_meas=refresh_meas) if s.get_id() == service_id)
+      s_list = self.get_service_list(refresh_sc=refresh_sc, refresh_meas=refresh_meas)
+      return next(s for s in s_list if s.get_id() == service_id)
     except StopIteration:
+      logger.debug(f"Service {service_id} not found")
       return None
 
 
@@ -151,14 +164,16 @@ class FOVIM(object):
   @staticmethod
   def manage_allocation(*, node_id, service_id):
     logger.debug(f"Allocate {service_id} on node {node_id}")
+    # TODO
     # s = FORS.get_instance().get_service(service_id)
     # sn = s.get_node_by_id(node_id)
-    pass
+    return forch.Service(id="APP001")
 
   @staticmethod
   def manage_deployment(*, node_id, source):
     logger.debug(f"Deploy {source} on node {node_id}")
-    pass
+    # TODO
+    return forch.Service(id="APP001")
 
 
 
