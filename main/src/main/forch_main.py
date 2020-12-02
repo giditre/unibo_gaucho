@@ -37,7 +37,8 @@ class FOB(object):
 
   @classmethod
   def del_instance(cls):
-    del cls.__instance
+    if cls.__instance is not None:
+      del cls.__instance
 
   def __get_sources_list(self):
     return self.__sources_list
@@ -131,7 +132,8 @@ class FORS(object):
 
   @classmethod
   def del_instance(cls):
-    del cls.__instance
+    if cls.__instance is not None:
+      del cls.__instance
 
   def __get_service_cache(self):
     return self.__sc
@@ -174,7 +176,8 @@ class FOVIM(object):
 
   @classmethod
   def del_instance(cls):
-    del cls.__instance
+    if cls.__instance is not None:
+      del cls.__instance
 
   @staticmethod
   def manage_allocation(*, service_id, node_ip):

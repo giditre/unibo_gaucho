@@ -246,16 +246,16 @@ class Service:
   #   return cls(id=service_id)
 
   @classmethod
-  def create_services_from_json(cls, ipv4, json_services_file):
+  def create_services_from_json(cls, *, json_file_name, ipv4):
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
-    assert isinstance(json_services_file, str), "Parameter json_service_file must be a string!"
-    assert Path(json_services_file).is_file(), "{} is not a file or it does not exist.".format(json_services_file)
+    assert isinstance(json_file_name, str), "Parameter json_service_file must be a string!"
+    assert Path(json_file_name).is_file(), "{} is not a file or it does not exist.".format(json_file_name)
 
     services_list = []
 
-    with open(json_services_file, 'r') as f:
+    with open(json_file_name, 'r') as f:
       jsonDict = json.load(f)
 
     for as_a_service_type in jsonDict:

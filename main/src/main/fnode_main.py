@@ -22,10 +22,7 @@ class FNVI(object):
   def __init__(self, *, key=None):
     assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
     self.__sa = forch.SLPFactory.create_SA()
-    # TODO prendere json_file_name in altro modo
-    self.__service_list = self.load_service_json(str(Path(__file__).parent.joinpath("service_example.json").absolute()))
-    
-    self.register_service_list(self.__service_list)
+    self.__service_list = []
 
   @classmethod
   def get_instance(cls):
@@ -35,7 +32,8 @@ class FNVI(object):
 
   @classmethod
   def del_instance(cls):
-    del cls.__instance
+    if cls.__instance is not None:
+      del cls.__instance
 
   def __get_SA(self):
     return self.__sa
@@ -43,22 +41,27 @@ class FNVI(object):
   def get_service_list(self):
     return self.__service_list
 
-  def register_service(self, service):
+  def __register_service(self, service):
     logger.info(f"Register service {service}")
     self.__get_SA().register_service(service)
 
-  def register_service_list(self, service_list):
-    for service in service_list:
-      self.register_service(service)
+  def register_service_list(self):
+    s_list = self.get_service_list()
+    if len(s_list) > 0:
+      for service in s_list:
+        self.__register_service(service)
+    else:
+      logger.warning("No services to register in empty service list")
+    
 
-  def load_service_json(self, json_file_name):
+  def load_service_list_from_json(self, json_file_name):
     if forch.is_orchestrator():
       ipv4 = IPv4Address("127.0.0.1")
     else:
       # TODO G: prendere indirizzo IP da interfaccia usata sulla rete fog
       ipv4 = IPv4Address("192.168.64.123")
     
-    return forch.Service.create_services_from_json(ipv4, json_file_name)
+    return forch.Service.create_services_from_json(json_file_name=json_file_name, ipv4=ipv4)
 
 ### API Resources
 
@@ -72,7 +75,7 @@ class Test(Resource):
 if __name__ == '__main__':
 
   ### Command line argument parser
-  
+
   import argparse
   parser = argparse.ArgumentParser()
   parser.add_argument("address", help="This component's IP address", nargs="?", default="127.0.0.1")
@@ -82,7 +85,7 @@ if __name__ == '__main__':
 
   ### instantiate components
 
-  FNVI.get_instance()
+  FNVI.get_instance().load_service_json(str(Path(__file__).parent.joinpath("service_example.json").absolute()))
 
   ### REST API
 

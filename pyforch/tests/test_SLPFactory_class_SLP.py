@@ -26,7 +26,7 @@ def test_counter_methods_effectiveness():
 def test_SA_and_UA():
   # SA MAIN
   sa = SLPFactory.create_SA()
-  srv_list = Service.create_services_from_json(IPv4Address("127.0.0.1"), str(Path(__file__).parent.joinpath("service_example.json").absolute()))
+  srv_list = Service.create_services_from_json(json_file_name=str(Path(__file__).parent.joinpath("service_example.json").absolute()), ipv4=IPv4Address("127.0.0.1"))
   for srv in srv_list:
     sa.register_service(srv)
 

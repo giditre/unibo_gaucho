@@ -13,7 +13,7 @@ def test_create_services_from_json_out_in():
   pass
 
 def test_create_services_from_json_out():
-  s_list = Service.create_services_from_json(IPv4Address("127.0.0.1"), "tests/service_example.json")
+  s_list = Service.create_services_from_json(json_file_name="tests/service_example.json", ipv4=IPv4Address("127.0.0.1"))
   assert isinstance(s_list, list), ""
   assert all([isinstance(s, Service) for s in s_list]), ""
   assert all([s.get_node_list() for s in s_list]), ""
