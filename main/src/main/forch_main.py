@@ -70,7 +70,7 @@ class FOB(object):
         # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
         if True: # TODO set meaningful condition
           # if so, trigger the requested allocation through FOVIM
-          s = FOVIM.get_instance().manage_allocation(service_id=s.get_id(), node_id=sn.get_id())
+          s = FOVIM.get_instance().manage_allocation(service_id=s.get_id(), node_ip=sn.get_ip())
           # TODO get response and return it to user
           # return service with single service node --> 200 OK
           return s
@@ -99,7 +99,7 @@ class FOB(object):
           # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
           if True: # TODO set meaningful condition
             # TODO if so, deploy the source and allocate service on it --> 201 Created
-            s = FOVIM.get_instance().manage_deployment(service_id=service_id, source=src, node_id=base_sn.get_id())
+            s = FOVIM.get_instance().manage_deployment(service_id=service_id, source=src, node_ip=base_sn.get_ip())
             # return service with single service node --> 201 Created
             return s
         else:
@@ -165,22 +165,26 @@ class FOVIM(object):
     return cls.__instance
 
   @staticmethod
-  def manage_allocation(*, service_id, node_id):
-    logger.debug(f"Allocate {service_id} on node {node_id}")
+  def manage_allocation(*, service_id, node_ip):
+    logger.debug(f"Allocate {service_id} on node {node_ip}")
     # TODO
     # s = FORS.get_instance().get_service(service_id)
     # sn = s.get_node_by_id(node_id)
-    return forch.Service(id=service_id)
+    s = forch.Service(id=service_id)
+    s.add_node(ipv4=node_ip)
+    return s
 
   @staticmethod
-  def manage_deployment(*, service_id, node_id, source):
-    logger.debug(f"Deploy {service_id} with {source} on node {node_id}")
+  def manage_deployment(*, service_id, node_ip, source):
+    logger.debug(f"Deploy {service_id} with {source} on node {node_ip}")
     # TODO
-    return forch.Service(id=service_id)
+    s = forch.Service(id=service_id)
+    s.add_node(ipv4=node_ip)
+    return s
 
 
 
-### start components
+### instantiate components
 
 FOB.get_instance()
 FORS.get_instance()
@@ -199,7 +203,7 @@ class FogServices(Resource):
   def get(self, s_id=""):
     """Gather list of services and format it in a response."""
     # get list of services
-    s_list = FOB.get_instance().get_service_list()
+    s_list = FOB.get_instance().get_service_list(refresh_sc=True, refresh_meas=True)
     # format response based on request
     s_id_list = [ s.get_id() for s in s_list ]
     # check if a service was specified
@@ -209,7 +213,7 @@ class FogServices(Resource):
           "message": f"Requested service {s_id} found.",
           # "type": "FOCO_SERV_OK",
           "services": [ s_id ]
-        }
+        }, 200
       else:
         return {
           "message": f"Requested service {s_id} not found.",
@@ -221,11 +225,11 @@ class FogServices(Resource):
         "message": f"Found {len(s_list)} service(s).",
         # "type": "FOCO_SERV_LIST",
         "services": [ s.get_id() for s in s_list ]
-      }
+      }, 200
 
   def post(self, s_id):
     """Submit request for allocation of a service."""
-    s, c = FOB.get_instance().allocate_service(s_id) # returns Service and code
+    s = FOB.get_instance().allocate_service(s_id) # returns Service and code
     if s is None:
       # service not found
       return {
@@ -241,10 +245,11 @@ class FogServices(Resource):
         # "type": "FOCO_SERV_POST"
         }, 503
       elif len(s.get_node_list()) == 1:
+        # TODO find a way to distinguish 200 from 201
         return {
           "message": f"Service {s.get_id()} allocated on node {s.get_node_list()[0]}."
           # "type": "FOCO_SERV_POST"
-        }, 201
+        }, 200
 
 if __name__ == '__main__':
   ### Command line argument parser
