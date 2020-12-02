@@ -35,6 +35,10 @@ class FOB(object):
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
 
+  @classmethod
+  def del_instance(cls):
+    del cls.__instance
+
   def __get_sources_list(self):
     return self.__sources_list
 
@@ -115,15 +119,19 @@ class FORS(object):
   __key = object()
   __instance = None
 
+  def __init__(self, *, key=None):
+    assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
+    self.__sc = forch.ServiceCache()
+
   @classmethod
   def get_instance(cls):
     if cls.__instance is None:
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
 
-  def __init__(self, *, key=None):
-    assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
-    self.__sc = forch.ServiceCache()
+  @classmethod
+  def del_instance(cls):
+    del cls.__instance
 
   def __get_service_cache(self):
     return self.__sc
@@ -164,6 +172,10 @@ class FOVIM(object):
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
 
+  @classmethod
+  def del_instance(cls):
+    del cls.__instance
+
   @staticmethod
   def manage_allocation(*, service_id, node_ip):
     logger.debug(f"Allocate {service_id} on node {node_ip}")
@@ -181,14 +193,6 @@ class FOVIM(object):
     s = forch.Service(id=service_id)
     s.add_node(ipv4=node_ip)
     return s
-
-
-
-### instantiate components
-
-FOB.get_instance()
-FORS.get_instance()
-FOVIM.get_instance()
 
 ### API Resources
 
@@ -252,7 +256,9 @@ class FogServices(Resource):
         }, 200
 
 if __name__ == '__main__':
+
   ### Command line argument parser
+
   import argparse
   parser = argparse.ArgumentParser()
   parser.add_argument("address", help="This component's IP address", nargs="?", default="127.0.0.1")
@@ -265,6 +271,14 @@ if __name__ == '__main__':
   # parser.add_argument("--mon-period", help="Monitoring period in seconds, default: 10", type=int, nargs="?", default=10)
   parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   args = parser.parse_args()
+
+  ### instantiate components
+
+  FOB.get_instance()
+  FORS.get_instance()
+  FOVIM.get_instance()
+
+  ### REST API
 
   app = Flask(__name__)
 
@@ -288,6 +302,7 @@ if __name__ == '__main__':
   except KeyboardInterrupt:
     pass
   finally:
-    logger.info("Cleanup after interruption") # TODO: questo pare non venga mai eseguito
-    # del fovim
-    # del fors
+    logger.info("Cleanup after interruption")
+    FOB.del_instance()
+    FORS.del_instance()
+    FOVIM.del_instance()

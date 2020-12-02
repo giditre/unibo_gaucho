@@ -33,6 +33,10 @@ class FNVI(object):
       cls.__instance = cls(key=cls.__key)
     return cls.__instance
 
+  @classmethod
+  def del_instance(cls):
+    del cls.__instance
+
   def __get_SA(self):
     return self.__sa
 
@@ -56,10 +60,6 @@ class FNVI(object):
     
     return forch.Service.create_services_from_json(ipv4, json_file_name)
 
-### instantiate components
-
-FNVI.get_instance()
-
 ### API Resources
 
 class Test(Resource):
@@ -70,7 +70,9 @@ class Test(Resource):
     }
 
 if __name__ == '__main__':
+
   ### Command line argument parser
+  
   import argparse
   parser = argparse.ArgumentParser()
   parser.add_argument("address", help="This component's IP address", nargs="?", default="127.0.0.1")
@@ -78,12 +80,16 @@ if __name__ == '__main__':
   parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   args = parser.parse_args()
 
+  ### instantiate components
+
+  FNVI.get_instance()
+
+  ### REST API
+
   app = Flask(__name__)
-
   api = Api(app)
-  
-  api.add_resource(Test, '/test')
 
+  api.add_resource(Test, '/test')
   # api.add_resource(FogServices, '/services', '/services/<s_id>')
   
   try:
@@ -91,4 +97,5 @@ if __name__ == '__main__':
   except KeyboardInterrupt:
     pass
   finally:
-    logger.info("Cleanup after interruption") # TODO: questo pare non venga mai eseguito
+    logger.info("Cleanup after interruption")
+    FNVI.del_instance()
