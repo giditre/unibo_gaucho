@@ -196,7 +196,7 @@ class Test(Resource):
   def get(self):
     return {
       "message": f"This component ({Path(__file__).name}) is up!",
-      "type": "FOCO_TEST_OK"
+      "type": "TEST_OK"
     }
 
 class FogServices(Resource):
