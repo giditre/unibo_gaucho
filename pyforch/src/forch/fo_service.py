@@ -253,7 +253,7 @@ class Service:
     assert isinstance(json_file_name, str), "Parameter json_file_name must be a string!"
     assert Path(json_file_name).is_file(), "{} is not a file or it does not exist.".format(json_file_name)
 
-    services_list = []
+    service_list = []
 
     with open(json_file_name, 'r') as f:
       jsonDict = json.load(f)
@@ -273,9 +273,9 @@ class Service:
         if port == None:
           port = getservbyname(protocol)
 
-        services_list.append(cls(name=name, protocol=protocol, id=service_id, category=as_a_service_type, descr=descr,node_list=[cls.__ServiceNode(id=str(ipv4), ipv4=ipv4, path=jsonDict[as_a_service_type][service_id]['path'], lifetime=int(jsonDict[as_a_service_type][service_id]['lifetime']), port=port)]))
+        service_list.append(cls(name=name, protocol=protocol, id=service_id, category=as_a_service_type, descr=descr,node_list=[cls.__ServiceNode(id=str(ipv4), ipv4=ipv4, path=jsonDict[as_a_service_type][service_id]['path'], lifetime=int(jsonDict[as_a_service_type][service_id]['lifetime']), port=port)]))
 
-    return services_list
+    return service_list
 
   class __ServiceNode:
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM

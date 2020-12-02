@@ -1,5 +1,6 @@
 from pathlib import Path
 from ipaddress import IPv4Address
+import docker
 
 import forch
 
@@ -29,7 +30,18 @@ def test_load_json():
     assert isinstance(sn_ip, IPv4Address), ""
   FNVI.del_instance()
 
-def test_init_docker_client():
-  FNVI.get_instance().docker_client_init()
-  assert FNVI.get_instance().docker_client_ping(), ""
+def test_docker_client():
+  assert FNVI.get_instance().docker_client_test(), ""
+  FNVI.del_instance()
 
+def test_docker_image_cached():
+  assert FNVI.get_instance().docker_image_is_cached("alpine:latest"), ""
+  FNVI.del_instance()
+
+def test_docker_image_not_cached():
+  assert not FNVI.get_instance().docker_image_is_cached("asdasdasd"), ""
+  FNVI.del_instance()
+
+def test_deploy_service():
+  c = FNVI.get_instance().deploy_service("APP001", "alpine")
+  # assert c.image == "alpine:latest", str(vars(c))

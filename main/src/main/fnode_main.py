@@ -7,6 +7,7 @@ logger.info(f"Load {__name__} with {logger}")
 
 from ipaddress import IPv4Address
 import time
+from datetime import datetime
 
 from flask import Flask, request
 from flask_restful import Resource, Api
@@ -77,12 +78,43 @@ class FNVI(object):
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address object!"
     self.__ipv4 = ipv4
 
-  def docker_client_init(self):
+  def __get_docker_client(self):
+    if self.__docker_client is None:
+      self.__docker_client_init()
+    return self.__docker_client
+
+  def __docker_client_init(self):
     self.__docker_client = docker.from_env()
   
-  def docker_client_ping(self):
-    return self.__docker_client.ping()
+  def docker_client_test(self):
+    return self.__get_docker_client().ping()
+    
+  def docker_image_is_cached(self, image_uri):
+    return len(self.__get_docker_client().images.list(name=image_uri)) > 0
 
+  def docker_image_pull(self, image_uri, *, tag="latest"):
+    if not self.docker_image_is_cached(image_uri):
+      logger.info(f"Need to pull image {image_uri}")
+      self.__get_docker_client().images.pull(image_uri, tag=tag)
+
+  def docker_container_run(self, image_uri, **kwargs):
+    self.docker_image_pull(image_uri)
+    logger.info(f'Run container {kwargs["name"]}')
+    return self.__get_docker_client().containers.run(image_uri, **kwargs)
+
+  def deploy_service(self, service_id, image_uri):
+    container_name = "_".join([
+      service_id,
+      image_uri.replace("/", "-").replace(":", "-"),
+      '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.now())
+      ])
+    container_hostname = container_name if len(container_name) <= 63 else container_name[:63]
+
+    logger.debug(f"Deploy service {service_id} in container {container_name} with image {image_uri}")
+
+    container = self.docker_container_run(image_uri, name=container_name, hostname=container_hostname, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=None, entrypoint=None)
+
+    return container
 
 ### API Resources
 
