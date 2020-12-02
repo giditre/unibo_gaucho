@@ -4,10 +4,12 @@ from src.main.forch_main import FOVIM
 
 def test_FOVIM_instance():
   assert isinstance(FOVIM.get_instance(), FOVIM), ""
+  FOVIM.del_instance()
 
 def test_manage_allocation():
   s = FOVIM.get_instance().manage_allocation(node_id="10320", service_id="APP001")
   assert isinstance(s, forch.Service), ""
+  FOVIM.del_instance()
 
 def test_manage_deployment():
   src = {
@@ -20,3 +22,4 @@ def test_manage_deployment():
     }
   s = FOVIM.get_instance().manage_deployment(service_id="APP001", node_id="10320", source=src)
   assert isinstance(s, forch.Service), ""
+  FOVIM.del_instance()

@@ -249,8 +249,8 @@ class Service:
   def create_services_from_json(cls, *, json_file_name, ipv4):
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
-    assert isinstance(ipv4, IPv4Address), "Parameter node_ip_list must be an IPv4Address objects!"
-    assert isinstance(json_file_name, str), "Parameter json_service_file must be a string!"
+    assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address object!"
+    assert isinstance(json_file_name, str), "Parameter json_file_name must be a string!"
     assert Path(json_file_name).is_file(), "{} is not a file or it does not exist.".format(json_file_name)
 
     services_list = []
