@@ -44,16 +44,20 @@ def test_docker_image_not_cached():
 
 def test_deploy_service():
   service_id = "APP001"
-  image_uri = "alpine"
-  c = FNVI.get_instance().deploy_service_docker(service_id, image_uri)
+  image_name = "alpine"
+  c = FNVI.get_instance().deploy_service_docker(service_id, image_name)
   assert c.name.startswith(service_id), str(c)
   assert isinstance(c.attrs, dict), str(c.attrs)
-  assert c.attrs["Config"]["Image"] == image_uri, str(c.attrs)
+  assert c.attrs["Config"]["Image"] == image_name, str(c.attrs)
+  FNVI.del_instance()
+
+def test_destroy_service():
+  service_id = "APP001"
   FNVI.get_instance().destroy_service_docker(service_id)
   FNVI.del_instance()
 
 def test_list_service():
-  s_id_list = FNVI.get_instance().list_service_docker()
+  s_id_list = FNVI.get_instance().list_containerized_services_docker()
   assert isinstance(s_id_list, list), ""
   # assert False, str(s_id_list)
   FNVI.del_instance()

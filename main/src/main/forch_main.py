@@ -11,6 +11,8 @@ import json
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api, reqparse, abort
 
+import requests
+
 import forch
 forch.set_orchestrator()
 
@@ -191,8 +193,21 @@ class FOVIM(object):
 
   @staticmethod
   def manage_deployment(*, service_id, node_ip, source):
-    logger.debug(f"Deploy {service_id} with {source} on node {node_ip}")
+    logger.debug(f"Deploy {service_id} on node {node_ip} with source {source}")
+
     # TODO
+    
+    response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
+      json={"base": source["base"], "image": source["uri"]}
+      )
+    
+    response_code = response.status_code
+    if response_code == 201:
+      response_json = response.json()
+    else:
+      # TODO handle this case
+      return None
+
     s = forch.Service(id=service_id)
     s.add_node(ipv4=node_ip)
     return s

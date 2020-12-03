@@ -88,18 +88,18 @@ class FNVI(object):
   def docker_client_test(self):
     return self.__get_docker_client().ping()
     
-  def docker_image_is_cached(self, image_uri):
-    return len(self.__get_docker_client().images.list(name=image_uri)) > 0
+  def docker_image_is_cached(self, image_name):
+    return len(self.__get_docker_client().images.list(name=image_name)) > 0
 
-  def docker_image_pull(self, image_uri, *, tag="latest"):
-    if not self.docker_image_is_cached(image_uri):
-      logger.info(f"Need to pull image {image_uri}")
-      self.__get_docker_client().images.pull(image_uri, tag=tag)
+  def docker_image_pull(self, image_name, *, tag="latest"):
+    if not self.docker_image_is_cached(image_name):
+      logger.info(f"Need to pull image {image_name}")
+      self.__get_docker_client().images.pull(image_name, tag=tag)
 
-  def docker_container_run(self, image_uri, **kwargs):
-    self.docker_image_pull(image_uri)
+  def docker_container_run(self, image_name, **kwargs):
+    self.docker_image_pull(image_name)
     logger.info(f'Run container {kwargs["name"]}')
-    return self.__get_docker_client().containers.run(image_uri, **kwargs)
+    return self.__get_docker_client().containers.run(image_name, **kwargs)
 
   def docker_container_prune(self):
     logger.debug('Prune containers')
@@ -108,10 +108,10 @@ class FNVI(object):
     logger.info(f"Pruned {len(deleted_list)} containers")
     return deleted_list
 
-  def __generate_container_name(self, service_id, image_uri):
+  def __generate_container_name(self, service_id, image_name):
     container_name = "_".join([
       service_id,
-      image_uri.replace("/", "-").replace(":", "-"),
+      image_name.replace("/", "-").replace(":", "-"),
       str(int(time()*1000)) # or '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.now())
       ])
     # check length (limit imposed by hostname field)
@@ -120,16 +120,16 @@ class FNVI(object):
     assert container_name not in [ c.name for c in self.__get_docker_client().containers.list() ], f"Name {container_name} already in use by container {self.__get_docker_client().containers.get(container_name)}"
     return container_name
 
-  def list_service_docker(self):
+  def list_containerized_services_docker(self):
     return list(set([ c.name.split("_")[0] for c in self.__get_docker_client().containers.list() ]))
 
-  def deploy_service_docker(self, service_id, image_uri):
+  def deploy_service_docker(self, service_id, image_name):
 
-    container_name = self.__generate_container_name(service_id, image_uri)
+    container_name = self.__generate_container_name(service_id, image_name)
 
-    logger.debug(f"Deploy service {service_id} in container {container_name} with image {image_uri}")
+    logger.debug(f"Deploy service {service_id} with container {container_name} using image {image_name}")
 
-    container = self.docker_container_run(image_uri, name=container_name, hostname=container_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, restart_policy={"Name": "on-failure", "MaximumRetryCount": 3}, command=None, entrypoint=None)
+    container = self.docker_container_run(image_name, name=container_name, hostname=container_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, command=None, entrypoint=None)
 
     return container
 
@@ -150,55 +150,74 @@ class Test(Resource):
     }
 
 class FogServices(Resource):
-  def get(self, s_id=""):
-    s_id_list = FNVI.get_instance().list_service_docker()
+  # TODO decidere se "service" è inteso in senso XaaS oppure in senso MEC
+  # def get(self, s_id=""):
+  #   s_id_list = FNVI.get_instance().list_containerized_services_docker()
+  #   return {
+  #     "message": f"Found {len(s_id_list)} service(s)",
+  #     "type": "FN_LS",
+  #     "services": s_id_list
+  #     }, 200
+
+  def put(self, s_id):
+    """Allocate service."""
+    # request_json = flask.request.get_json(force=True)
     return {
-      "message": f"Found {len(s_id_list)} service(s)",
-      "type": "FN_LS",
-      "services": s_id_list
+      "message": f"Allocated service {s_id}",
+      "type": "FN_ALLC_OK",
+      # "name": container_name,
+      # "ip": container_ip, # TODO change in IP visible from outside
+      # "port_mappings": port_mappings
       }, 200
 
   def post(self, s_id):
+    """Deploy service."""
+
     request_json = flask.request.get_json(force=True)
 
-    assert "image_uri" in request_json, ""
-    img = request_json["image_uri"]
+    assert "base" in request_json, f"Must specify a base service (FVExxx)"
+    assert "FVE" in request_json["base"], f"Must specify valid base service (FVExxx)"
+    base_id = request_json["base"]
 
-    container = FNVI.get_instance().deploy_service_docker(s_id, img)
+    if base_id == "FVE001":
+      assert "image" in request_json, f"Must specify image in {request_json}"
+      image_name = request_json["image"]
 
-    # refresh attrs dictionary
-    container.reload()
-    container_name = container.name # equivalent to container.attrs["Name"]
-    container_ip = container.attrs["NetworkSettings"]["IPAddress"]
-    
-    # port_mappings = [ f'{host_port_dict["HostIp"]}:{host_port_dict["HostPort"]}->{container_port}'
-    #   for host_port_dict in container.attrs["NetworkSettings"]["Ports"][container_port]
-    #   for container_port in container.attrs["NetworkSettings"]["Ports"]
-    #   ]
-    # equivalent to
-    port_mappings = []
-    ports_dict = container.attrs["NetworkSettings"]["Ports"]
-    for container_port in ports_dict:
-      for host_port_dict in ports_dict[container_port]:
-        # port_map = f'{host_port_dict["HostIp"]}:{host_port_dict["HostPort"]}->{container_port}'
-        port_mappings.append(f'{host_port_dict["HostPort"]}->{container_port}')
-        # logger.debug(port_map)
-    
-    logger.debug(f"Deployed service {s_id} using image {img} on container {container_name} with address {container_ip} and ports {port_mappings}")
+      container = FNVI.get_instance().deploy_service_docker(s_id, image_name)
 
-    return {
-      "message": f"Deployed service {s_id} with image {img}",
-      "type": "FN_DEPL_OK",
-      # "name": container_name,
-      # "ip": container_ip, # TODO change in IP visible from outside
-      "port_mappings": port_mappings
-      }, 201
+      # refresh attrs dictionary
+      container.reload()
+      container_name = container.name # equivalent to container.attrs["Name"].strip("/")
+      container_ip = container.attrs["NetworkSettings"]["IPAddress"]
+      
+      # port_mappings = [ f'{host_port_dict["HostIp"]}:{host_port_dict["HostPort"]}->{container_port}'
+      #   for host_port_dict in container.attrs["NetworkSettings"]["Ports"][container_port]
+      #   for container_port in container.attrs["NetworkSettings"]["Ports"]
+      #   ]
+      # equivalent to
+      port_mappings = []
+      ports_dict = container.attrs["NetworkSettings"]["Ports"]
+      for container_port in ports_dict:
+        for host_port_dict in ports_dict[container_port]:
+          # port_map = f'{host_port_dict["HostIp"]}:{host_port_dict["HostPort"]}->{container_port}'
+          port_mappings.append(f'{host_port_dict["HostPort"]}->{container_port}')
+          # logger.debug(port_map)
+      
+      logger.debug(f"Deployed service {s_id} using image {image_name} on container {container_name} with address {container_ip} and ports {port_mappings}")
+
+      return {
+        "message": f"Deployed service {s_id} on {base_id} with image {image_name}",
+        "type": "FN_DEPL_OK",
+        "name": container_name,
+        # "ip": container_ip, # TODO change in IP visible from outside
+        "port_mappings": port_mappings
+        }, 201
 
   def delete(self, s_id=""):
     if s_id:
       FNVI.get_instance().destroy_service_docker(s_id)
     else:
-      for s_id in FNVI.get_instance().list_service_docker():
+      for s_id in FNVI.get_instance().list_containerized_services_docker():
         FNVI.get_instance().destroy_service_docker()
     return {
       "message": f"Deleted service {s_id}",
