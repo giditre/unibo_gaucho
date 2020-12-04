@@ -44,7 +44,7 @@ def test_docker_image_not_cached():
 
 def test_deploy_service():
   service_id = "APP001"
-  image_name = "alpine"
+  image_name = "httpd"
   c = FNVI.get_instance().deploy_service_docker(service_id, image_name)
   assert c.name.startswith(service_id), str(c)
   assert isinstance(c.attrs, dict), str(c.attrs)
@@ -54,6 +54,25 @@ def test_deploy_service():
 def test_destroy_service():
   service_id = "APP001"
   FNVI.get_instance().destroy_service_docker(service_id)
+  FNVI.del_instance()
+
+def test_destroy_all_services_individually():
+  service_id_list = [ f"APP99{i}" for i in range(5) ]
+  image_name = "alpine"
+  for service_id in service_id_list:
+    FNVI.get_instance().deploy_service_docker(service_id, image_name)
+  
+  for service_id in service_id_list:
+    FNVI.get_instance().destroy_service_docker(service_id)
+  FNVI.del_instance()
+
+def test_destroy_all_services_together():
+  service_id_list = [ f"APP99{i}" for i in range(5) ]
+  image_name = "alpine"
+  for service_id in service_id_list:
+    FNVI.get_instance().deploy_service_docker(service_id, image_name)
+  
+  FNVI.get_instance().destroy_all_services_docker()
   FNVI.del_instance()
 
 def test_list_service():

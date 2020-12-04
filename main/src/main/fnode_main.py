@@ -7,6 +7,7 @@ logger.info(f"Load {__name__} with {logger}")
 
 from ipaddress import IPv4Address
 from time import time
+import multiprocessing
 
 import flask
 from flask_restful import Resource, Api
@@ -133,12 +134,22 @@ class FNVI(object):
 
     return container
 
-  def destroy_service_docker(self, service_id):
+  def destroy_service_docker(self, service_id, *, prune=True):
     for c in self.__get_docker_client().containers.list():
       if c.name.startswith(service_id):
         c.stop()
-    self.docker_container_prune()
+    if prune:
+      self.docker_container_prune()
 
+  def destroy_all_services_docker(self):
+    process_list = []
+    for s_id in FNVI.get_instance().list_containerized_services_docker():
+      p = multiprocessing.Process(target=self.destroy_service_docker, args=(s_id,), kwargs={"prune": False})
+      p.start()
+      process_list.append(p)
+    for p in process_list:
+      p.join()
+    self.docker_container_prune()
 
 ### API Resources
 
@@ -150,14 +161,14 @@ class Test(Resource):
     }
 
 class FogServices(Resource):
-  # TODO decidere se "service" è inteso in senso XaaS oppure in senso MEC
-  # def get(self, s_id=""):
-  #   s_id_list = FNVI.get_instance().list_containerized_services_docker()
-  #   return {
-  #     "message": f"Found {len(s_id_list)} service(s)",
-  #     "type": "FN_LS",
-  #     "services": s_id_list
-  #     }, 200
+  # this GET replies with the services in the MEC sense (i.e., deployed containers); services in the XaaS sense are discovered via SLP
+  def get(self, s_id=""):
+    s_id_list = FNVI.get_instance().list_containerized_services_docker()
+    return {
+      "message": f"Found {len(s_id_list)} service(s)",
+      "type": "FN_LS",
+      "services": s_id_list
+      }, 200
 
   def put(self, s_id):
     """Allocate service."""
@@ -195,12 +206,13 @@ class FogServices(Resource):
       #   for container_port in container.attrs["NetworkSettings"]["Ports"]
       #   ]
       # equivalent to
-      port_mappings = []
+      port_mappings = {}
       ports_dict = container.attrs["NetworkSettings"]["Ports"]
       for container_port in ports_dict:
         for host_port_dict in ports_dict[container_port]:
           # port_map = f'{host_port_dict["HostIp"]}:{host_port_dict["HostPort"]}->{container_port}'
-          port_mappings.append(f'{host_port_dict["HostPort"]}->{container_port}')
+          # port_mappings[host_port_dict["HostPort"]] = container_port
+          port_mappings[container_port] = host_port_dict["HostPort"]
           # logger.debug(port_map)
       
       logger.debug(f"Deployed service {s_id} using image {image_name} on container {container_name} with address {container_ip} and ports {port_mappings}")
@@ -217,8 +229,7 @@ class FogServices(Resource):
     if s_id:
       FNVI.get_instance().destroy_service_docker(s_id)
     else:
-      for s_id in FNVI.get_instance().list_containerized_services_docker():
-        FNVI.get_instance().destroy_service_docker()
+      FNVI.get_instance().destroy_all_services_docker()
     return {
       "message": f"Deleted service {s_id}",
       "type": "FN_DEL_OK",
@@ -231,7 +242,7 @@ if __name__ == '__main__':
 
   import argparse
   parser = argparse.ArgumentParser()
-  parser.add_argument("address", help="This component's IP address", nargs="?", default="127.0.0.1")
+  parser.add_argument("address", help="This component's IP address", nargs="?", default="0.0.0.0")
   parser.add_argument("port", help="This component's TCP port", type=int, nargs="?", default=6001)
   parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   args = parser.parse_args()
@@ -240,6 +251,7 @@ if __name__ == '__main__':
 
   FNVI.get_instance().set_ipv4("192.168.64.123")
   FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath("service_example.json").absolute()))
+  FNVI.get_instance().register_service_list()
 
   ### REST API
 
