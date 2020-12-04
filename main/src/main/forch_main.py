@@ -16,18 +16,18 @@ import requests
 import forch
 forch.set_orchestrator()
 
-logger.debug("IS_ORCHESTRATOR: {}".format(forch.is_orchestrator()))
+logger.debug(f"IS_ORCHESTRATOR: {forch.is_orchestrator()}")
 
 
 class Source():
-  def __init__(self, *, id, name, description="", locator, base, service, port_list):
 
+  def __init__(self, *, name, base, service, port_list, description=None):
     self.id = id
     self.name = name
-    self.description = description
     self.base = base
     self.service = service
     self.port_list = port_list
+    self.description = description
     
   def get_id(self):
     return self.id
@@ -38,11 +38,6 @@ class Source():
     return self.name
   def set_name(self, name) :
     self.name = name
-
-  def get_description(self):
-    return self.description
-  def set_description(self, description) :
-    self.description = description
 
   def get_base(self):
     return self.base
@@ -59,6 +54,11 @@ class Source():
   def set_port_list(self, port_list) :
     self.port_list = port_list
 
+  def get_description(self):
+    return self.description
+  def set_description(self, description) :
+    self.description = description
+
 
 class FOB(object):
   __key = object()
@@ -67,10 +67,8 @@ class FOB(object):
   def __init__(self, *, key=None):
     assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
     # gather list of available sources (SDP codelets and FVE images)
-    # TODO improve loading sources
-    with open(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute())) as f:
-      sources_dict = json.load(f)
-    self.__sources_list = sources_dict["sources"]
+    
+    self.__source_list = []
 
   @classmethod
   def get_instance(cls):
@@ -83,14 +81,31 @@ class FOB(object):
     if cls.__instance is not None:
       del cls.__instance
 
-  def __get_sources_list(self):
-    return self.__sources_list
+  def __get_source_list(self):
+    return self.__source_list
 
-  def __get_source_for_service(self, service_id, *, priority_list=["FVE", "SDP"]):
-    """Finds source that implements requested service"""
+  def __set_source_list(self, src_list):
+    self.__source_list = src_list
+
+  def load_source_list_from_json(self, json_file_name):
+
+    # TODO check if file name is already absolute and if it exists
+    with open(str(Path(__file__).parent.joinpath(json_file_name).absolute())) as f:
+      sources_dict = json.load(f)
+    
+    src_list = [ Source(name=src["name"], base=src["base"], service=src["service"], port_list=src["ports"])
+      for src in sources_dict["sources"] ]
+    # equivalent to
+    # for src in sources_dict["sources"]:
+    #   src_list.append( Source(name=src["name"], base=src["base"], service=src["service"], port_list=src["ports"]))
+
+    self.__set_source_list(src_list)
+
+  def __search_source_for_service(self, service_id, *, priority_list=["FVE", "SDP"]):
+    """Searches source that implements requested service"""
     for p in priority_list:
       try:
-        return next(src for src in self.__get_sources_list() if src["service"] == service_id and p in src["base"])
+        return next(src for src in self.__get_source_list() if src.get_service() == service_id and p in src.get_base())
       except StopIteration:
         continue
     logger.debug(f"No source found for service {service_id}")
@@ -137,12 +152,12 @@ class FOB(object):
     # we get here if the service is not in the service cache or it is but is offered only by busy nodes
     logger.debug(f"Attempt deployment of service {service_id}")
     # check if service is deployable (e.g.: "by deploying an APP on a IaaS node"), starting by looking for a source that offers the requested service
-    src = self.__get_source_for_service(service_id)
+    src = self.__search_source_for_service(service_id)
     # check if there is a source that offers the requested service
     if src is not None:
       logger.debug(f"Found a source for service {service_id}")
       # check if there is a service that provides the required base (SDP/FVE) for the source
-      base_service_id = src["base"]
+      base_service_id = src.get_base()
       base_s = FORS.get_instance().get_service(base_service_id)
       if base_s is not None:
         # here the base service is present in the service cache
@@ -252,7 +267,7 @@ class FOVIM(object):
     logger.debug(f"Deploy {service_id} on node {node_ip} with source {source}")
     
     response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
-      json={"base": source["base"], "image": source["uri"]}
+      json={"base": source.get_base(), "image": source.get_name()}
       )
     
     response_code = response.status_code
@@ -260,10 +275,10 @@ class FOVIM(object):
       response_json = response.json()
       s = forch.Service(id=service_id)
       
-      if len(source["ports"]) == 0:
+      if len(source.get_port_list()) == 0:
         s.add_node(ipv4=node_ip)
       else:
-        for port in source["ports"]:
+        for port in source.get_port_list():
           s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
       
       return s
@@ -367,8 +382,10 @@ if __name__ == '__main__':
 
   ### instantiate components
 
-  FOB.get_instance()
+  FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute()))
+
   FORS.get_instance()
+
   FOVIM.get_instance()
 
   ### REST API
@@ -382,12 +399,10 @@ if __name__ == '__main__':
   # @app.after_request
   # def after(response):
   #   logger.debug("marker end {} {}".format(request.method, request.path))
-  #   return response
+  #   return response  
 
   api = Api(app)
-  
   api.add_resource(Test, '/test')
-
   api.add_resource(FogServices, '/services', '/services/<s_id>')
   
   try:
