@@ -27,7 +27,7 @@ class FOB(object):
     assert key == self.__class__.__key, "There can only be one {0} object and it can only be accessed with {0}.get_instance()".format(self.__class__.__name__)
     # gather list of available sources (SDP codelets and FVE images)
     # TODO improve loading sources
-    with open(str(Path(__file__).parent.joinpath("service_catalog.json").absolute())) as f:
+    with open(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute())) as f:
       sources_dict = json.load(f)
     self.__sources_list = sources_dict["sources"]
 
