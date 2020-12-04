@@ -228,12 +228,17 @@ class FogServices(Resource):
   def delete(self, s_id=""):
     if s_id:
       FNVI.get_instance().destroy_service_docker(s_id)
+      return {
+        "message": f"Deleted services matching {s_id}",
+        "type": "FN_DEL_OK",
+        }, 200
     else:
       FNVI.get_instance().destroy_all_services_docker()
-    return {
-      "message": f"Deleted service {s_id}",
-      "type": "FN_DEL_OK",
-      }, 200
+      return {
+        "message": f"Deleted all deployed services",
+        "type": "FN_DEL_OK",
+        }, 200
+    
 
 
 if __name__ == '__main__':
@@ -250,7 +255,7 @@ if __name__ == '__main__':
   ### instantiate components
 
   FNVI.get_instance().set_ipv4("192.168.64.123")
-  FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath("service_example.json").absolute()))
+  FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath("fnode_services.json").absolute()))
   FNVI.get_instance().register_service_list()
 
   ### REST API
