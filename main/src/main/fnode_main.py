@@ -95,10 +95,17 @@ class FNVI(object):
   def docker_image_pull(self, image_name, *, tag="latest"):
     if not self.docker_image_is_cached(image_name):
       logger.info(f"Need to pull image {image_name}")
-      self.__get_docker_client().images.pull(image_name, tag=tag)
+      try:
+        self.__get_docker_client().images.pull(image_name, tag=tag)
+      except docker.errors.ImageNotFound:
+        return None
+    return self.__get_docker_client().images.get(image_name)
+
 
   def docker_container_run(self, image_name, **kwargs):
-    self.docker_image_pull(image_name)
+    img = self.docker_image_pull(image_name)
+    if img is None:
+      return None
     logger.info(f'Run container {kwargs["name"]}')
     return self.__get_docker_client().containers.run(image_name, **kwargs)
 
@@ -131,6 +138,9 @@ class FNVI(object):
     logger.debug(f"Deploy service {service_id} with container {container_name} using image {image_name}")
 
     container = self.docker_container_run(image_name, name=container_name, hostname=container_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, command=None, entrypoint=None)
+
+    if container is None:
+      return None
 
     return container
 
@@ -195,6 +205,8 @@ class FogServices(Resource):
       image_name = request_json["image"]
 
       container = FNVI.get_instance().deploy_service_docker(s_id, image_name)
+
+      assert container is not None, f'Error deploying service {s_id}, check image name "{image_name}"'
 
       # refresh attrs dictionary
       container.reload()
