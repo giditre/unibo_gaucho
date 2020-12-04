@@ -19,6 +19,47 @@ forch.set_orchestrator()
 logger.debug("IS_ORCHESTRATOR: {}".format(forch.is_orchestrator()))
 
 
+class Source():
+  def __init__(self, *, id, name, description="", locator, base, service, port_list):
+
+    self.id = id
+    self.name = name
+    self.description = description
+    self.base = base
+    self.service = service
+    self.port_list = port_list
+    
+  def get_id(self):
+    return self.id
+  def set_id(self, id) :
+    self.id = id
+
+  def get_name(self):
+    return self.name
+  def set_name(self, name) :
+    self.name = name
+
+  def get_description(self):
+    return self.description
+  def set_description(self, description) :
+    self.description = description
+
+  def get_base(self):
+    return self.base
+  def set_base(self, base) :
+    self.base = base
+
+  def get_service(self):
+    return self.service
+  def set_service(self, service) :
+    self.service = service
+
+  def get_port_list(self):
+    return self.port_list
+  def set_port_list(self, port_list) :
+    self.port_list = port_list
+
+
 class FOB(object):
   __key = object()
   __instance = None
