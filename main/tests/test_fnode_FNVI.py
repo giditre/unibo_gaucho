@@ -42,6 +42,11 @@ def test_docker_image_not_cached():
   assert not FNVI.get_instance().docker_image_is_cached("asdasdasd"), ""
   FNVI.del_instance()
 
+def test_docker_image_pull():
+  FNVI.get_instance().docker_image_pull("giditre/gaucho-stress"), ""
+  assert FNVI.get_instance().docker_image_is_cached("giditre/gaucho-stress:latest"), ""
+  FNVI.del_instance()
+
 def test_deploy_service():
   service_id = "APP001"
   image_name = "httpd"
