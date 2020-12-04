@@ -4,7 +4,7 @@
       "thumbnail": "",
       "protocol": "http",
       "path": "",
-      "port": 0,
+      "port": "",
       "name": "docker",
       "descr": "Docker",
       "lifetime": 65535
