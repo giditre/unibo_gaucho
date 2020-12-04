@@ -38,20 +38,20 @@ def test_FOB_service_list_refresh_all():
         assert sn.get_metric_by_type(m_type) is not None, ""
   FOB.del_instance()
 
-def test_FOB_allocate_service_200():
-  s = FOB.get_instance().allocate_service("APP001")
+def test_FOB_activate_service_200():
+  s = FOB.get_instance().activate_service("APP001")
   assert isinstance(s, forch.Service), ""
   # assert c == 200, ""
   FOB.del_instance()
 
-def test_FOB_allocate_service_201():
-  s = FOB.get_instance().allocate_service("APP003")
+def test_FOB_activate_service_201():
+  s = FOB.get_instance().activate_service("APP003")
   assert isinstance(s, forch.Service), ""
   # assert c == 201, ""
   FOB.del_instance()
 
-def test_FOB_allocate_service_404():
-  s = FOB.get_instance().allocate_service("APP000")
+def test_FOB_activate_service_404():
+  s = FOB.get_instance().activate_service("APP000")
   assert s is None, ""
   # assert c == 404, ""
   FOB.del_instance()

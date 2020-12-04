@@ -46,7 +46,7 @@ class FOB(object):
     return self.__sources_list
 
   def __get_source_for_service(self, service_id, *, priority_list=["FVE", "SDP"]):
-    """Finds source that implements requested service, prioritizing the base for the service"""
+    """Finds source that implements requested service"""
     for p in priority_list:
       try:
         return next(src for src in self.__get_sources_list() if src["service"] == service_id and p in src["base"])
@@ -63,7 +63,7 @@ class FOB(object):
   def get_service(*args, **kwargs):
     return FORS.get_instance().get_service(*args, **kwargs)
 
-  def allocate_service(self, service_id):
+  def activate_service(self, service_id):
     """Takes service ID and returns a Service object or None."""
     logger.debug(f"Start activating service {service_id}")
     s = FORS.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
@@ -126,6 +126,11 @@ class FOB(object):
     # here unknown service --> 404 Not Found
     logger.debug(f"Unknown service {service_id}")
     return None
+
+  def deactivate_service(self, service_id):
+    logger.debug(f"Start deactivating service {service_id}")
+    # TODO get list of nodes
+    FOVIM.get_instance().manage_destruction(service_id=service_id)
 
 
 class FORS(object):
@@ -204,8 +209,6 @@ class FOVIM(object):
   @staticmethod
   def manage_deployment(*, service_id, node_ip, source):
     logger.debug(f"Deploy {service_id} on node {node_ip} with source {source}")
-
-    # TODO
     
     response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
       json={"base": source["base"], "image": source["uri"]}
@@ -215,15 +218,26 @@ class FOVIM(object):
     if response_code == 201:
       response_json = response.json()
       s = forch.Service(id=service_id)
-      s.add_node(ipv4=node_ip)
-      for port in source["ports"]:
-        s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
+      
+      if len(source["ports"]) == 0:
+        s.add_node(ipv4=node_ip)
+      else:
+        for port in source["ports"]:
+          s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
+      
       return s
     else:
       # TODO handle this case
       return None
 
+  @staticmethod
+  def manage_destruction(*, service_id, node_ip):
+    logger.debug(f"Destroy {service_id} on node {node_ip}")
     
+    response = requests.delete(f"http://{node_ip}:6001/services/{service_id}")
+
+    return response.json(), response.status_code
+
 
 ### API Resources
 
@@ -264,7 +278,7 @@ class FogServices(Resource):
 
   def post(self, s_id):
     """Submit request for allocation of a service."""
-    s = FOB.get_instance().allocate_service(s_id) # returns Service and code
+    s = FOB.get_instance().activate_service(s_id) # returns Service and code
     if s is None:
       # service not found
       return {
@@ -283,10 +297,15 @@ class FogServices(Resource):
         sn = s.get_node_list()[0]
         # TODO find a way to distinguish 200 from 201
         return {
-          "message": f"Service {s.get_id()} available on node {sn.get_id()}.",
-          "node_ip": str(sn.get_ip())
+          "message": f"Service {s.get_id()} available on node {sn.get_id()}",
+          "node_ip": str(sn.get_ip()),
+          "node_port": sn.get_port()
           # "type": "FOCO_SERV_POST"
         }, 200
+
+  def delete(self, s_id=""):
+    """Submit request for deallocation of services."""
+    FOB.get_instance().activate_service(s_id)
 
 if __name__ == '__main__':
 
