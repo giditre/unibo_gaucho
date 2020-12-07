@@ -18,7 +18,7 @@ The general idea is to run FORCH on a machine and Fog nodes separate machines. I
 
 The following instructions cover the installation of the Zabbix monitoring system.
 
-**NOTE:** Zabbix Server must be installed on the machine running the *forch_rsdb* component of FORCH, while Zabbix Agent must be installed on each Fog node.
+**NOTE:** Zabbix Server must be installed on the machine running the *forch* component of FORCH, while Zabbix Agent must be installed on each Fog node.
 
 #### Zabbix Server
 
@@ -72,7 +72,7 @@ grant all privileges on zabbix.* to zabbix@localhost identified by 'zabbix';
 flush privileges;
 quit;
 ```
-Initialize the database (this step might take a while to complete, do not interrupt it even if it does not print any output):
+Initialize the database using password _zabbix_ (this step might take a while to complete, do not interrupt it even if it does not print any output):
 ```bash
 zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -uzabbix -p zabbix
 ```
@@ -98,7 +98,7 @@ Restart the Zabbix server and enable it for automatic start at system boot:
 sudo systemctl restart zabbix-server
 sudo systemctl enable zabbix-server
 ```
-Check the correct installation by navigating from a browser to the `http://myzabbixserver/zabbix/` where _myzabbixserveraddress_ is the IP address or hostname of the machine where the server is installed and running. If everything went well, you should find a message saying something like "_Congratulations! You have successfully installed Zabbix frontend. Configuration file "/usr/share/zabbix/conf/zabbix.conf.php" created._"
+Check the correct installation by navigating from a browser to the `http://myzabbixserver/zabbix/` where _myzabbixserveraddress_ is the IP address or hostname of the machine where the server is installed and running. If everything went well, you should find a Welcome page. Click "Next" for every step, and at the end you should see a message saying "_Congratulations! You have successfully installed Zabbix frontend. Configuration file "/usr/share/zabbix/conf/zabbix.conf.php" created._"
 
 #### Zabbix Agent
 
@@ -149,11 +149,27 @@ sudo ufw allow 10050/tcp
 
 #### Register Agents in the Server
 
-We need to register each node hosting an agent (i.e., a _host_) in the Zabbix Server's Web GUI
+Every node hosting an agent (i.e., a _host_) must be registered to the Zabbix Server. We can do it manually via the server's Web GUI, or configure host discovery and have hosts to register automatically.
+
+#### ...manually
 
 Browse to `http://myzabbixserver/zabbix/` and [log in](https://www.zabbix.com/documentation/4.4/manual/quickstart/login) as administrator with username *Admin* and password *zabbix*.
 
 Under tab *Configuration > Hosts*, in the top right corner click on *Create host*, and insert the details of the fog node you want to register, specifying a host name, a template (e.g., *Template OS Linux by Zabbix agent*) and the node's IP address (which must be reachable from the Zabbix server), leaving the port to 10050 if you have not changed it in the server's configuration. In sub-tab *Encryption* set *Connections ot Host* to *PSK*, and set *Connections from host* to *PSK* only (uncheck the other checkboxes). Fill in the field *PSK* identity with the *TLSPSKIdentity* set at key creation, and fill in the field *PSK* with the PSK itself generated previously. Confirm with *Add* and go back to *Configuration > Hosts*, where you should see the new host connected to the server and reporting data (if you don't, wait a couple minutes and refresh the page).
+
+#### ...setting up host discovery
+
+Browse to `http://myzabbixserver/zabbix/` and [log in](https://www.zabbix.com/documentation/4.4/manual/quickstart/login) as administrator with username *Admin* and password *zabbix*.
+
+Warning: for the moment, this configuration does not cover setting up PSK encryption on discovered nodes.
+
+First, we are going to specify what to do ("actions") with the discovered nodes, then we are going to configure the node discovery.
+
+Under tab *Configuration > Actions*, in the top right corner select *Event source: Discovery* then *Create action*. Set an arbitrary *Name*, and the required conditions, e.g., *Discovery check equals Local network: Zabbix agent "system.hostname"*, *Discovery status equals Up*, and *Service type equals Zabbix agent*. Enable this set of actions. Then move to *Operations* section, and specify what to do with nodes matching the preconfigured actions, e.g., *Add to host groups: Linux servers* and *Link to templates: Template OS Linux by Zabbix agent*. Confirm the creation of the action-opration rule.
+
+Move to tab *Configuration > Discovery*, in the top right corner click on *Create discovery rule*, or edit the defalt one that is already there. Give it an arbitrary *Name*. Use *No proxy*. Insert a proper *IP range*, e.g., *10.15.5.1-254* (remark: use an IP range that is reachable from the Zabbix Server machine). Specify an *Update interval*, e.g., *30s* or *1h*. Specify any *Checks* that characterize a discovered node, e.g., *Zabbix agent "system.hostname"*. Select an *Uniqueness criteria*, select what to use as *Host name* and *Visible name*. Check *Enable* and confirm the creation of the discovery rule.
+
+If everything went fine, after at least one *Update interval*, any configured Zabbix agent should appear under tab *Monitoring > Discovery*, and should be added to the monitored hosts, visible in *Configuration > Hosts*.
 
 ### Install Docker
 
