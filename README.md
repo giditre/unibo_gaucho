@@ -244,17 +244,78 @@ The following instructions apply for the machine(s) hosting the FORCH components
 It is suggested (but not strictly required) to operate inside of a [venv](https://docs.python.org/3.6/library/venv.html).
 
 Make sure the following Python3 modules are installed on every machine:
-```
+```bash
 flask_restful
 requests
 docker
 pyzabbix
 ```
 This can also be achieved by cloning the repo, then moving into the directory, and let pip3 do the work:
-```
+```bash
 git clone giditre/unibo_gaucho
 cd unibo_gaucho/
 pip3 install -r requirements.txt
+```
+
+To the date of writing, the *slp* module is not available on the Python package repos, therefore it must be installed from source. The procedure makes use of some development packages, that on Ubuntu 18.04 can be installed with:
+```bash
+sudo apt -y install pkg-config bison automake flex libtool
+```
+Then clone the repo of *libslp* and install its content with:
+```bash
+git clone https://github.com/openslp-org/openslp.git
+cd openslp/openslp/
+./autogen.sh
+sudo ./configure --prefix /usr
+sudo make
+sudo make install
+ls -l slpd/slpd libslp/.libs/libslp.so
+```
+Move back to the home directory and clone the repo of the Python module *slp* with:
+```bash
+cd
+git clone https://github.com/tsmetana/python-libslp.git
+```
+In the cloned repo directory
+```bash
+cd python-libslp/
+```
+edit file *configure.ac* modifying the line of *PKG_CHECK_MODULES* to:
+```bash
+PKG_CHECK_MODULES(Python, python3 >= 3.0,,)
+```
+Then proceed with the installation:
+```bash
+autoreconf -fvi
+autoconf
+sudo ./configure
+sudo make
+sudo make install
+```
+In the *src* directory (where a file called *slp.so* should be)
+```bash
+cd src/
+```
+create file *setup.py* and add the following content to it:
+```python
+from distutils.core import setup
+setup (name = 'slp',
+       version = '0.1',
+       author = "tsmetana",
+       description = """SLP Library""",
+       py_modules = ["slp"],
+       packages=[''],
+       package_data={'': ['slp.so']},
+       )
+```
+Then finally install the module (from within the *src* directory) with:
+```bash
+pip3 install . --user
+```
+
+Test the correct installation of the module by opening a python3 terminal and importing the slp module with:
+```python
+import slp
 ```
 
 ## Running the FORCH ecosystem
