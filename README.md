@@ -257,7 +257,9 @@ cd unibo_gaucho/
 pip3 install -r requirements.txt
 ```
 
-To the date of writing, the *slp* module is not available on the Python package repos, therefore it must be installed from source. The procedure makes use of some development packages, that on Ubuntu 18.04 can be installed with:
+#### Installation of the slp module
+
+In addition to the previously mentioned module, the module *slp* is required too. However, to the date of writing, this module is not available on the Python package repos, therefore it must be installed from source. The procedure makes use of some development packages, that on Ubuntu 18.04 can be installed with:
 ```bash
 sudo apt -y install pkg-config bison automake flex libtool
 ```
