@@ -258,15 +258,22 @@ if __name__ == '__main__':
   ### Command line argument parser
 
   import argparse
+
+  default_address = "0.0.0.0"
+
   parser = argparse.ArgumentParser()
-  parser.add_argument("address", help="This component's IP address", nargs="?", default="0.0.0.0")
-  parser.add_argument("port", help="This component's TCP port", type=int, nargs="?", default=6001)
+  parser.add_argument("-a", "--address", help="This component's IP address", nargs="?", default=default_address)
+  parser.add_argument("-p", "--port", help="This component's TCP port", type=int, nargs="?", default=6001)
   parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
   args = parser.parse_args()
 
+  if args.address == default_address:
+    logger.warning(f"Running with default IP address {args.address}")
+
   ### instantiate components
 
-  FNVI.get_instance().set_ipv4("192.168.64.123")
+  # FNVI.get_instance().set_ipv4("192.168.64.123")
+  FNVI.get_instance().set_ipv4(args.address)
   FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath("fnode_services.json").absolute()))
   FNVI.get_instance().register_service_list()
 
