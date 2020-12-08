@@ -245,8 +245,10 @@ It is suggested (but not strictly required) to operate inside of a [venv](https:
 
 Make sure the following Python3 modules are installed on every machine:
 ```bash
+flask
 flask_restful
 requests
+psutil
 docker
 pyzabbix
 ```
