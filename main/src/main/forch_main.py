@@ -223,10 +223,11 @@ class FOB(object):
             # if so, deploy the source and allocate service on it
             logger.debug(f"Deploy service {service_id} on node {sn.get_id()} on top of base {base_s.get_id()}")
             s = FOVIM.get_instance().manage_deployment(service_id=service_id, source=src, node_ip=sn.get_ip())
-            # TODO verify response is a service with single service node and return it to user --> 201 Created
-
+            # verify response is a service with single service node and return it to user --> 201 Created
+            assert isinstance(s, forch.Service) and len(s.get_node_list()) == 1, ""
             # just before returning, update active service list
             self.update_active_service_list(service_id=s.get_id(), node_id=sn.get_id(), base_service_id=base_s.get_id())
+            return s
         else:
           # here there are no more resources for new deployments
           logger.debug(f"Nodes offering base service {base_s.get_id()} are too busy")
