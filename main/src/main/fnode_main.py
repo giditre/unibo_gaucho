@@ -88,6 +88,42 @@ class FNVI(object):
   
   def docker_client_test(self):
     return self.__get_docker_client().ping()
+
+  def docker_network_exists(self, network_name):
+    net_list = self.__get_docker_client().networks.list()
+    for net in net_list:
+      if net.name == network_name:
+        return True
+    return False
+
+  def docker_network_create_with_bridge(self, network_name, *,
+    bridge_name=None, bridge_address=None, subnet=None, dhcp_range=None):
+
+    if self.docker_network_exists(network_name):
+      logger.warning(f"Network with name {network_name} already exists.")
+      return None
+    
+    if bridge_name is None:
+      bridge_name = f"br-{network_name}"
+
+    ipam_config = None
+    if bridge_address is not None or subnet is not None or dhcp_range is not None:
+
+      assert IPv4Address(bridge_address), "Must provide a valid IPv4 address in CIDR notation!"
+      assert IPv4Address(subnet), "Must provide a valid IPv4 subnet in CIDR notation!"
+      assert IPv4Address(dhcp_range), "Must provide a valid IPv4 subnet in CIDR notation!"
+
+      ipam_config = docker.types.IPAMConfig( pool_configs=[ docker.types.IPAMPool(
+        subnet=subnet, iprange=dhcp_range, gateway=bridge_address)
+        ])
+
+    return self.__get_docker_client().networks.create(name=network_name,
+      driver="bridge", options={"com.docker.network.bridge.name":bridge_name},
+      ipam=ipam_config
+      )
+  
+  def docker_network_prune(self):
+    return self.__get_docker_client().networks.prune()
     
   def docker_image_is_cached(self, image_name):
     return len(self.__get_docker_client().images.list(name=image_name)) > 0
@@ -98,9 +134,12 @@ class FNVI(object):
       try:
         self.__get_docker_client().images.pull(image_name, tag=tag)
       except docker.errors.ImageNotFound:
+        logger.error(f"Cannot pull image {image_name}: image not found!")
         return None
     return self.__get_docker_client().images.get(image_name)
 
+  def docker_image_prune(self):
+    self.__get_docker_client().images.prune()
 
   def docker_container_run(self, image_name, **kwargs):
     img = self.docker_image_pull(image_name)
@@ -113,7 +152,7 @@ class FNVI(object):
     logger.debug('Prune containers')
     r = self.__get_docker_client().containers.prune()
     deleted_list = r["ContainersDeleted"]
-    logger.info(f"Pruned {len(deleted_list)} containers")
+    logger.info(f"Pruned {len(deleted_list)} container(s)")
     return deleted_list
 
   def __generate_container_name(self, service_id, image_name):
@@ -128,8 +167,9 @@ class FNVI(object):
     assert container_name not in [ c.name for c in self.__get_docker_client().containers.list() ], f"Name {container_name} already in use by container {self.__get_docker_client().containers.get(container_name)}"
     return container_name
 
-  def list_containerized_services_docker(self):
-    return list(set([ c.name.split("_")[0] for c in self.__get_docker_client().containers.list() ]))
+  def list_containerized_services_docker(self, *, service_type_list=["APP", "SDP"]):
+    return list(set([ c.name.split("_")[0] for c in self.__get_docker_client().containers.list()
+      if any(c.name.startswith(service_type) for service_type in service_type_list) ]))
 
   def deploy_service_docker(self, service_id, image_name):
 
@@ -152,8 +192,10 @@ class FNVI(object):
       self.docker_container_prune()
 
   def destroy_all_services_docker(self):
+    service_list = FNVI.get_instance().list_containerized_services_docker()
+    logger.debug(f"Remove services {service_list}")
     process_list = []
-    for s_id in FNVI.get_instance().list_containerized_services_docker():
+    for s_id in service_list:
       p = multiprocessing.Process(target=self.destroy_service_docker, args=(s_id,), kwargs={"prune": False})
       p.start()
       process_list.append(p)

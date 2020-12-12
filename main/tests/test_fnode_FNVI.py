@@ -85,3 +85,10 @@ def test_list_service():
   assert isinstance(s_id_list, list), ""
   # assert False, str(s_id_list)
   FNVI.del_instance()
+
+def test_create_network():
+  net_name = "net-test"
+  FNVI.get_instance().docker_network_create_with_bridge(net_name)
+  assert FNVI.get_instance().docker_network_exists(net_name), ""
+  FNVI.get_instance().docker_network_prune()
+  FNVI.del_instance()
