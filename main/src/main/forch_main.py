@@ -361,7 +361,8 @@ class FogServices(Resource):
 
   def delete(self, s_id=""):
     """Submit request for deallocation of services."""
-    FOB.get_instance().activate_service(s_id)
+    # TODO
+    FOB.get_instance().deactivate_service(s_id)
 
 if __name__ == '__main__':
 

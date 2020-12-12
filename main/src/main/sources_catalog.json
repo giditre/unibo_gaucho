@@ -4,7 +4,7 @@
       "id": "SRC001",
       "name": "alpine",
       "descr": "Lightweight Ubuntu",
-      "uri": "alpine",
+      "uri": "",
       "base": "FVE001",
       "service": "SDP002",
       "ports": []
@@ -13,37 +13,46 @@
       "id": "SRC002",
       "name": "httpd",
       "descr": "Apache web server",
-      "uri": "httpd",
+      "uri": "",
       "base": "FVE001",
       "service": "APP001",
       "ports": ["80/tcp"]
     },
     {
       "id": "SRC003",
-      "name": "python3",
-      "descr": "Python3 interactive shell",
-      "uri": "giditre/gaucho-python",
+      "name": "giditre/gaucho-python",
+      "descr": "Python3",
+      "uri": "",
       "base": "FVE001",
       "service": "SDP001",
       "ports": []
     },
     {
       "id": "SRC004",
-      "name": "stress",
+      "name": "giditre/gaucho-stress",
       "descr": "Stress",
-      "uri": "giditre/gaucho-stress",
+      "uri": "",
       "base": "FVE001",
       "service": "APP002",
       "ports": []
     },
     {
       "id": "SRC005",
-      "name": "ffmpeg",
+      "name": "jrottenberg/ffmpeg",
       "descr": "Multimedia transcoder",
-      "uri": "ffmpeg",
+      "uri": "",
       "base": "FVE001",
       "service": "APP003",
       "ports": []
+    },
+    {
+      "id": "SRC006",
+      "name": "unibo-test-mec-application",
+      "descr": "",
+      "uri": "",
+      "base": "FVE001",
+      "service": "APP004",
+      "ports": ["80/tcp"]
     }
   ]
 }
