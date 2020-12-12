@@ -1,5 +1,5 @@
 {
-  "apps": {
+  "SAAS": {
     "APP001": {
       "thumbnail": "",
       "protocol": "http",
@@ -19,7 +19,7 @@
       "lifetime": 65535
     }
   },
-  "fves": {
+  "IAAS": {
     "FVE001": {
       "thumbnail": "",
       "protocol": "http",
