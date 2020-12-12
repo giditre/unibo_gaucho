@@ -23,11 +23,6 @@ from pathlib import Path
 from . import is_orchestrator
 from .fo_zabbix import ZabbixNode, ZabbixAdapter, ZabbixNodeFields, MeasurementFields
 
-# import pickle
-
-# from forch.fo_slp import SLPController
-
-#from https://docs.python.org/3/library/enum.html
 class MetricType(Enum):
   CPU = "CPU utilization"
   RAM = "Memory utilization"
@@ -258,22 +253,22 @@ class Service:
     with open(json_file_name, 'r') as f:
       jsonDict = json.load(f)
 
-    for as_a_service_type in jsonDict:
-      for service_id in jsonDict[as_a_service_type]:
-        name = jsonDict[as_a_service_type][service_id]['name']
-        protocol = jsonDict[as_a_service_type][service_id]['protocol']
-        descr = jsonDict[as_a_service_type][service_id]['descr']
+    for service_category in jsonDict:
+      for service_id in jsonDict[service_category]:
+        name = jsonDict[service_category][service_id]['name']
+        protocol = jsonDict[service_category][service_id]['protocol']
+        descr = jsonDict[service_category][service_id]['descr']
         try:
-          port = int(jsonDict[as_a_service_type][service_id]['port'])
+          port = int(jsonDict[service_category][service_id]['port'])
           if port <= 0 or port > 0xffff:
             port = None
         except:
-          port = None      
+          port = None
 
         if port == None:
           port = getservbyname(protocol)
 
-        service_list.append(cls(name=name, protocol=protocol, id=service_id, category=as_a_service_type, descr=descr,node_list=[cls.__ServiceNode(id=str(ipv4), ipv4=ipv4, path=jsonDict[as_a_service_type][service_id]['path'], lifetime=int(jsonDict[as_a_service_type][service_id]['lifetime']), port=port)]))
+        service_list.append(cls(name=name, protocol=protocol, id=service_id, category=service_category, descr=descr,node_list=[cls.__ServiceNode(id=str(ipv4), ipv4=ipv4, path=jsonDict[service_category][service_id]['path'], lifetime=int(jsonDict[service_category][service_id]['lifetime']), port=port)]))
 
     return service_list
 
