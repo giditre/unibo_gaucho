@@ -23,31 +23,43 @@ from pathlib import Path
 from . import is_orchestrator
 from .fo_zabbix import ZabbixNode, ZabbixAdapter, ZabbixNodeFields, MeasurementFields
 
+
+class ServiceCategory(Enum):
+  IAAS = "FVE"    # Fog Virtualization Engine
+  PAAS = "SDP"    # Software Development Platform
+  SAAS = "APP"    # APPlication
+  FAAS = "LAF"    # Lightweight Atomic Function
+
+
 class MetricType(Enum):
   CPU = "CPU utilization"
   RAM = "Memory utilization"
+
 
 class MeasurementRetrievalMode(IntEnum):
   SERVICE = 1
   NODE = 2
   METRIC = 3
 
+
 class Service:
-  def __init__(self, *, name="", protocol="", node_list=None, id="", category="", descr=""):
+
+  def __init__(self, *, name="", protocol="", node_list=None, id="", category=None, description=""):
     if node_list is None:
       node_list = []
-    for node in node_list:
-      assert isinstance(node, self.__ServiceNode), "Parameter node_list must be a list of ServiceNode!"
+    assert all( isinstance(node, self.__ServiceNode) for node in node_list ), "Parameter node_list must be a list of ServiceNode!"
+
+    if category is not None:
+      assert isinstance(category, ServiceCategory), "Parameter category must be of type ServiceCategory!"
 
     self.__name = name
     self.__protocol = protocol
     self.__node_list = node_list
     self.__id = id
     self.__category = category
-    self.__descr = descr
+    self.__description = description
 
   def __repr__(self):
-    # return "{}(id={},name={},description={},nodes={})".format(self.__class__.__name__, self.get_id(), self.get_name(), self.get_descr(), self.get_node_list())
     return str(self.__dict__)
  
   def __eq__(self, obj):
@@ -81,23 +93,13 @@ class Service:
     self.__category = category
 
   def get_descr(self):
-    return self.__descr
-  def set_descr(self, descr):
-    self.__descr = descr
+    return self.__description
+  def set_descr(self, description):
+    self.__description = description
 
   # def to_json(self):
   #   # return json.dumps(self.__dict__, default=lambda x: str(x))
   #   return self.__dict__
-
-  # def to_pickle(self):
-  #   return pickle.dumps(vars(self))
-
-  # @classmethod
-  # def from_pickle(cls, p):
-  #   logger.debug(f"Create object {cls.__name__} from pickle {p}")
-  #   o = cls()
-  #   vars(o).update(pickle.loads(p))
-  #   return o
 
   # This is the convergence point between Zabbix and SLP
   def add_node(self, *, ipv4, port=0, path="", lifetime=0xffff):
@@ -155,7 +157,7 @@ class Service:
         new_node_list = ret_list[ret_list.index(srvc)].get_node_list()
         new_node_list.extend(srvc.get_node_list())
         new_node_list = list(set(new_node_list))
-        ret_list[ret_list.index(srvc)] = cls(name=srvc.get_name(), protocol=srvc.get_protocol(), node_list=new_node_list, id=srvc.get_id(), category=srvc.get_category(), descr=srvc.get_descr())
+        ret_list[ret_list.index(srvc)] = cls(name=srvc.get_name(), protocol=srvc.get_protocol(), node_list=new_node_list, id=srvc.get_id(), category=srvc.get_category(), description=srvc.get_descr())
     return ret_list
 
   def get_node_by_metric(self, m_type=MetricType.CPU, check="min"):
@@ -268,9 +270,10 @@ class Service:
         if port == None:
           port = getservbyname(protocol)
 
-        service_list.append(cls(name=name, protocol=protocol, id=service_id, category=service_category, descr=descr,node_list=[cls.__ServiceNode(id=str(ipv4), ipv4=ipv4, path=jsonDict[service_category][service_id]['path'], lifetime=int(jsonDict[service_category][service_id]['lifetime']), port=port)]))
+        service_list.append(cls(name=name, protocol=protocol, id=service_id, category=ServiceCategory[service_category], description=descr, node_list=[cls.__ServiceNode(id=str(ipv4), ipv4=ipv4, path=jsonDict[service_category][service_id]['path'], lifetime=int(jsonDict[service_category][service_id]['lifetime']), port=port)]))
 
     return service_list
+
 
   class __ServiceNode:
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM
@@ -399,6 +402,7 @@ class Service:
     #     else:
     #       # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
     #       pass
+
 
     class __Metric:
       def __init__(self, m_id="", m_type=MetricType.CPU, timestamp="", value="", unit=""):

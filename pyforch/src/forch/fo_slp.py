@@ -28,7 +28,7 @@ from pathlib import Path
 import slp
 
 from . import is_orchestrator, raise_error
-from .fo_service import Service
+from .fo_service import Service, ServiceCategory
 
 _SLP_ATTRIBUTES_SEPARATOR = ','
 
@@ -368,7 +368,7 @@ class SLPFactory:
         srvurl_list.append(srvc_type + "://" + str(node.get_ip()) + ":" + str(node.get_port()) + path)
         lifetime_list.append(node.get_lifetime())
 
-      attrs = _SLPAttributes.ID.value + "=" + service.get_id() + _SLP_ATTRIBUTES_SEPARATOR + _SLPAttributes.CATEGORY.value + "=" + service.get_category() + _SLP_ATTRIBUTES_SEPARATOR + _SLPAttributes.DESCRIPTION.value + "=" + service.get_descr()
+      attrs = _SLPAttributes.ID.value + "=" + service.get_id() + _SLP_ATTRIBUTES_SEPARATOR + _SLPAttributes.CATEGORY.value + "=" + service.get_category().name + _SLP_ATTRIBUTES_SEPARATOR + _SLPAttributes.DESCRIPTION.value + "=" + service.get_descr()
 
       return (srvurl_list, attrs, lifetime_list)
 
