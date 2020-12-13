@@ -147,7 +147,7 @@ class FOB(object):
     logger.debug(f"No source found for service {service_id}")
     return None
 
-  def __get_active_service_list(self):
+  def get_active_service_list(self):
     return self.__active_service_list
 
   def __set_active_service_list(self, active_service_list):
@@ -156,7 +156,7 @@ class FOB(object):
 
   def update_active_service_list(self, *, service_id, node_id, base_service_id=None):
     active_service = ActiveService(service_id=service_id, node_id=node_id, base_service_id=base_service_id)
-    active_service_list = self.__get_active_service_list()
+    active_service_list = self.get_active_service_list()
     if active_service not in active_service_list:
       active_service_list.append(active_service)
       self.__set_active_service_list(active_service_list)
@@ -171,7 +171,7 @@ class FOB(object):
 
   def activate_service(self, service_id):
     """Takes service ID and returns a Service object or None."""
-    logger.debug(f"Start activating service {service_id}")
+    logger.debug(f"Start activating instance of service {service_id}")
     s = FORS.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
     if s is not None:
       # it means that the service is defined in the service cache
@@ -223,10 +223,11 @@ class FOB(object):
             # if so, deploy the source and allocate service on it
             logger.debug(f"Deploy service {service_id} on node {sn.get_id()} on top of base {base_s.get_id()}")
             s = FOVIM.get_instance().manage_deployment(service_id=service_id, source=src, node_ip=sn.get_ip())
-            # TODO verify response is a service with single service node and return it to user --> 201 Created
-
+            # verify response is a service with single service node and return it to user --> 201 Created
+            assert isinstance(s, forch.Service) and len(s.get_node_list()) == 1, ""
             # just before returning, update active service list
             self.update_active_service_list(service_id=s.get_id(), node_id=sn.get_id(), base_service_id=base_s.get_id())
+            return s
         else:
           # here there are no more resources for new deployments
           logger.debug(f"Nodes offering base service {base_s.get_id()} are too busy")
@@ -238,9 +239,22 @@ class FOB(object):
     return None
 
   def deactivate_service(self, service_id):
-    logger.debug(f"Start deactivating service {service_id}")
-    # TODO get list of nodes
-    FOVIM.get_instance().manage_destruction(service_id=service_id)
+    logger.debug(f"Start deactivating instances of service {service_id}")
+    # find relevant entry or entries in active services
+    for active_service in self.get_active_service_list():
+      if active_service.get_service_id() == service_id:
+        # use base_service_id to get Service object in order to get id of node where service is deployed
+        base_s = self.get_service(active_service.get_base_service_id())
+        sn = base_s.get_node_by_id(active_service.get_node_id())
+        # destroy service on node
+        FOVIM.get_instance().manage_destruction(service_id=service_id, node_ip=sn.get_ip())
+
+  def deactivate_all_services(self):
+    logger.debug(f"Start deactivating all services")
+    # find relevant entry or entries in active services
+    for active_service in self.get_active_service_list():
+      self.deactivate_service(active_service.get_service_id())
+
 
 
 class FORS(object):
@@ -416,9 +430,23 @@ class FogServices(Resource):
         }, 200
 
   def delete(self, s_id=""):
-    """Submit request for deallocation of services."""
-    # TODO
-    FOB.get_instance().deactivate_service(s_id)
+    """Submit request for deactivation of services."""
+    if s_id:
+      FOB.get_instance().deactivate_service(s_id)
+      return {
+          "message": f"Service {s_id} deactivated",
+          # "node_ip": str(sn.get_ip()),
+          # "node_port": sn.get_port(),
+          # "type": "FOCO_SERV_POST"
+        }, 200
+    else:
+      FOB.get_instance().deactivate_all_services()
+      return {
+          "message": f"All services deactivated",
+          # "node_ip": str(sn.get_ip()),
+          # "node_port": sn.get_port(),
+          # "type": "FOCO_SERV_POST"
+        }, 200
 
 if __name__ == '__main__':
 

@@ -115,7 +115,7 @@ class Service:
       node_dict[ZabbixNodeFields.AVAILABLE.value] = node_dict[ZabbixNodeFields.AVAILABLE.value] == "1"
 
       if node_dict[ZabbixNodeFields.AVAILABLE.value]:
-        node = self.__ServiceNode(id=node_dict[ZabbixNodeFields.ID.value], name=node_dict[ZabbixNodeFields.NAME.value], available=node_dict[ZabbixNodeFields.AVAILABLE.value], ipv4=ipv4, port=port, path=path, lifetime=lifetime)
+        node = self.__ServiceNode(id=node_dict[ZabbixNodeFields.ID.value], ipv4=ipv4, name=node_dict[ZabbixNodeFields.NAME.value], available=node_dict[ZabbixNodeFields.AVAILABLE.value], port=port, path=path, lifetime=lifetime)
 
         for elem in MetricType:
           node.add_metric(m_id=ZabbixAdapter.get_instance().get_item_id_by_node_and_item_name(node_dict[ZabbixNodeFields.ID.value], elem.value), m_type=elem)
@@ -128,7 +128,7 @@ class Service:
       # m_list = [ self.__ServiceNode._Metric(id=ZabbixAdapter.get_instance().get_item_id_by_node_and_item_name(node_dict[MeasurementFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
 
       # # instatiate new ServiceNode and append it to node list
-      # self.get_node_list().append(self.__ServiceNode(id=node_dict[MeasurementFields.NODE_ID], name=node_dict["name"], available=node_dict["is_available"], ipv4=ipv4, port=port, path=path, lifetime=lifetime, metrics_list=m_list))
+      # self.get_node_list().append(self.__ServiceNode(id=node_dict[MeasurementFields.NODE_ID], ipv4=ipv4, name=node_dict["name"], available=node_dict["is_available"], port=port, path=path, lifetime=lifetime, metrics_list=m_list))
     else:
       # instatiate new ServiceNode and append it to node list
       self.get_node_list().append(self.__ServiceNode(id=str(ipv4), ipv4=ipv4, port=port, path=path, lifetime=lifetime))
@@ -226,9 +226,9 @@ class Service:
       # should never happen
       pass
   
-  @classmethod
-  def __create_service_node_by_id(cls, node_id):
-    return cls.__ServiceNode(id=node_id)
+  # @classmethod
+  # def __create_service_node_by_id(cls, node_id):
+  #   return cls.__ServiceNode(id=node_id)
 
   # def create_and_add_node_by_id(self, node_id):
   #   self.get_node_list().append(self.__ServiceNode(id=node_id))
@@ -277,13 +277,11 @@ class Service:
 
   class __ServiceNode:
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM
-    def __init__(self, *, id, name="", available=False, ipv4=None, port=0, path="", lifetime=0xffff, metrics_list=None):
+    def __init__(self, *, id, ipv4, name="", available=False, port=0, path="", lifetime=0xffff, metrics_list=None):
       if metrics_list is None:
         metrics_list = []
       for metric in metrics_list:
         assert isinstance(metric, self.__Metric), "Parameter metrics_list must be a list of Metric objects!"
-      if ipv4 is None:
-        ipv4 = id
       if isinstance(ipv4, str):
         ipv4 = IPv4Address(ipv4)
       assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address objects!"
