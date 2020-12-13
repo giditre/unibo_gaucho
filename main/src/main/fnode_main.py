@@ -279,8 +279,22 @@ class FogServices(Resource):
         "port_mappings": port_mappings
         }, 201
 
+    elif base_id == "FVExxx":
+      # to be implemented if node supports different FVE other than Docker
+      pass
+    else:
+      # TODO improve
+      return {
+        "message": f"Unknown base service {base_id}",
+        # "type": "FN_DEPL_OK",
+        # "name": container_name,
+        # "ip": container_ip, # TODO change in IP visible from outside
+        # "port_mappings": port_mappings
+        }, 404
+
   def delete(self, s_id=""):
     if s_id:
+      FNVI.get_instance().get_service_list()
       FNVI.get_instance().destroy_service_docker(s_id)
       return {
         "message": f"Deleted services matching {s_id}",
