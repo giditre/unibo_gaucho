@@ -103,6 +103,12 @@ class Service:
 
   # This is the convergence point between Zabbix and SLP
   def add_node(self, *, ipv4, port=0, path="", lifetime=0xffff):
+    """
+    This is the convergence point between Zabbix and SLP.
+    Adds a node to the service. Requires at least the IP address of the node.
+    Retrieves information on the node from Zabbix if this is run on the Zabbix Server.
+    Returns the ID of the created node, or None if node not found in Zabbix.
+    """
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address objects!"
@@ -121,8 +127,12 @@ class Service:
           node.add_metric(m_id=ZabbixAdapter.get_instance().get_item_id_by_node_and_item_name(node_dict[ZabbixNodeFields.ID.value], elem.value), m_type=elem)
 
         self.get_node_list().append(node)
+
+        return node.get_id()
+
       else:
         logger.info("Node {} not added in service {} because, according to Zabbix, unavailable.".format(str(ipv4), self.__repr__()))
+        return None
       
       # # create metrics list for this node
       # m_list = [ self.__ServiceNode._Metric(id=ZabbixAdapter.get_instance().get_item_id_by_node_and_item_name(node_dict[MeasurementFields.NODE_ID], elem.value), m_type=elem) for elem in MetricType ]
@@ -131,9 +141,9 @@ class Service:
       # self.get_node_list().append(self.__ServiceNode(id=node_dict[MeasurementFields.NODE_ID], ipv4=ipv4, name=node_dict["name"], available=node_dict["is_available"], port=port, path=path, lifetime=lifetime, metrics_list=m_list))
     else:
       # instatiate new ServiceNode and append it to node list
-      self.get_node_list().append(self.__ServiceNode(id=str(ipv4), ipv4=ipv4, port=port, path=path, lifetime=lifetime))
-       
-    # TODO M: ritornare qualcosa?
+      node_id = str(ipv4)
+      self.get_node_list().append(self.__ServiceNode(id=node_id, ipv4=ipv4, port=port, path=path, lifetime=lifetime))
+      return node_id
 
   def get_node_by_id(self, node_id):
     # assert ...
