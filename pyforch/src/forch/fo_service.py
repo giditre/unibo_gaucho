@@ -277,13 +277,11 @@ class Service:
 
   class __ServiceNode:
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM
-    def __init__(self, *, id, name="", available=False, ipv4=None, port=0, path="", lifetime=0xffff, metrics_list=None):
+    def __init__(self, *, id, ipv4, name="", available=False, port=0, path="", lifetime=0xffff, metrics_list=None):
       if metrics_list is None:
         metrics_list = []
       for metric in metrics_list:
         assert isinstance(metric, self.__Metric), "Parameter metrics_list must be a list of Metric objects!"
-      if ipv4 is None:
-        ipv4 = id
       if isinstance(ipv4, str):
         ipv4 = IPv4Address(ipv4)
       assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address objects!"
