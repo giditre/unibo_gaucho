@@ -60,35 +60,35 @@ class Source():
     self.__description = description
 
 
-class ActiveService():
+# class ActiveService():
 
-  def __init__(self, *, service_id, node_id, base_service_id=None):
-    self.__service_id = service_id
-    self.__node_id = node_id
-    self.__base_service_id = base_service_id if base_service_id is not None else service_id
+#   def __init__(self, *, service_id, node_id, base_service_id=None):
+#     self.__service_id = service_id
+#     self.__node_id = node_id
+#     self.__base_service_id = base_service_id if base_service_id is not None else service_id
 
-  def __eq__(self, obj):
-    if isinstance(obj, self.__class__):
-      return ( self.get_service_id() == obj.get_service_id()
-        and self.get_node_id() == obj.get_node_id()
-        and self.get_base_service_id() == obj.get_base_service_id()
-        )
-    return False
+#   def __eq__(self, obj):
+#     if isinstance(obj, self.__class__):
+#       return ( self.get_service_id() == obj.get_service_id()
+#         and self.get_node_id() == obj.get_node_id()
+#         and self.get_base_service_id() == obj.get_base_service_id()
+#         )
+#     return False
 
-  def get_service_id(self):
-    return self.__service_id
-  def set_service_id(self, service_id) :
-    self.__service_id = service_id
+#   def get_service_id(self):
+#     return self.__service_id
+#   def set_service_id(self, service_id) :
+#     self.__service_id = service_id
 
-  def get_node_id(self):
-    return self.__node_id
-  def set_node_id(self, node_id) :
-    self.__node_id = node_id
+#   def get_node_id(self):
+#     return self.__node_id
+#   def set_node_id(self, node_id) :
+#     self.__node_id = node_id
 
-  def get_base_service_id(self):
-    return self.__base_service_id
-  def set_base_service_id(self, base_service_id) :
-    self.__base_service_id = base_service_id
+#   def get_base_service_id(self):
+#     return self.__base_service_id
+#   def set_base_service_id(self, base_service_id) :
+#     self.__base_service_id = base_service_id
 
 
 class FOB(object):
@@ -151,11 +151,10 @@ class FOB(object):
     return self.__active_service_list
 
   def __set_active_service_list(self, active_service_list):
-    assert all( isinstance(s, ActiveService) for s in active_service_list ), "All elements must be ActiveService objects!"
+    assert all( isinstance(s, forch.ActiveService) for s in active_service_list ), "All elements must be ActiveService objects!"
     self.__active_service_list = active_service_list
 
-  def update_active_service_list(self, *, service_id, node_id, base_service_id=None):
-    active_service = ActiveService(service_id=service_id, node_id=node_id, base_service_id=base_service_id)
+  def update_active_service_list(self, active_service):
     active_service_list = self.get_active_service_list()
     if active_service not in active_service_list:
       active_service_list.append(active_service)
@@ -170,7 +169,7 @@ class FOB(object):
     return FORS.get_instance().get_service(*args, **kwargs)
 
   def activate_service(self, service_id):
-    """Takes service ID and returns a Service object or None."""
+    """Takes service ID and returns an ActiveService object or None."""
     logger.debug(f"Start activating instance of service {service_id}")
     s = FORS.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
     if s is not None:
@@ -184,12 +183,13 @@ class FOB(object):
         if True: # TODO set meaningful condition
           # if so, trigger the requested allocation through FOVIM
           logger.debug(f"Allocate service {s.get_id()} on node {sn.get_id()}")
-          s = FOVIM.get_instance().manage_allocation(service_id=s.get_id(), node_ip=sn.get_ip())
-          # TODO verify response is a service with single service node and return it to user --> 200 OK
+          active_s = FOVIM.get_instance().manage_allocation(service_id=s.get_id(), node_ip=sn.get_ip())
+          # TODO verify response is an ActiveService with single service node and return it to user --> 200 OK
 
           # just before returning, update active service list
-          self.update_active_service_list(service_id=s.get_id(), node_id=sn.get_id())
-          return s
+          self.update_active_service_list(active_s)
+
+          return active_s
         else:
           # here there are no nodes that are free enough to host this service - it might still be deployable
           logger.debug(f"Nodes offering service {s.get_id()} are too busy")
@@ -222,12 +222,12 @@ class FOB(object):
           if True: # TODO set meaningful condition
             # if so, deploy the source and allocate service on it
             logger.debug(f"Deploy service {service_id} on node {sn.get_id()} on top of base {base_s.get_id()}")
-            s = FOVIM.get_instance().manage_deployment(service_id=service_id, source=src, node_ip=sn.get_ip())
+            active_s = FOVIM.get_instance().manage_deployment(service_id=service_id, source=src, node_ip=sn.get_ip())
             # verify response is a service with single service node and return it to user --> 201 Created
-            assert isinstance(s, forch.Service) and len(s.get_node_list()) == 1, ""
+            assert isinstance(active_s, forch.ActiveService) and len(active_s.get_node_list()) == 1, ""
             # just before returning, update active service list
-            self.update_active_service_list(service_id=s.get_id(), node_id=sn.get_id(), base_service_id=base_s.get_id())
-            return s
+            self.update_active_service_list(active_s)
+            return active_s
         else:
           # here there are no more resources for new deployments
           logger.debug(f"Nodes offering base service {base_s.get_id()} are too busy")
@@ -328,12 +328,12 @@ class FOVIM(object):
     # TODO interact with the node and ensure allocation of service (allocation is not deployment)
     # s = FORS.get_instance().get_service(service_id)
     # sn = s.get_node_by_id(node_id)
-    s = forch.Service(id=service_id)
-    s.add_node(ipv4=node_ip)
-    return s
+    active_s = forch.ActiveService(service_id=service_id, node_ip=node_ip)
+    return active_s
 
   @staticmethod
   def manage_deployment(*, service_id, node_ip, source):
+    """Manages deployment of service on node based on source. Returns ActiveService or None"""
     logger.debug(f"Deploy {service_id} on node {node_ip} with source {source}")
     
     response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
@@ -343,15 +343,22 @@ class FOVIM(object):
     response_code = response.status_code
     if response_code == 201:
       response_json = response.json()
-      s = forch.Service(id=service_id)
+      active_s = forch.ActiveService(service_id=service_id)
       
-      if len(source.get_port_list()) == 0:
-        s.add_node(ipv4=node_ip)
+      src_port_list = source.get_port_list()
+
+      if len(src_port_list) == 0:
+        active_s.add_node(ipv4=node_ip)
+      elif len(src_port_list) == 1:
+        port = src_port_list[0]
+        active_s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
       else:
-        for port in source.get_port_list():
-          s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
+        # TODO handle this case: what's better? Add a separate ServiceNode per port of the service, or a single ServiceNode with multiple ports? (in the latter case, probably need to modify ServiceNode)
+        raise NotImplementedError
+        # for port in src_port_list:
+        #   active_s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
       
-      return s
+      return active_s
     else:
       # TODO handle this case
       return None
@@ -404,7 +411,7 @@ class FogServices(Resource):
 
   def post(self, s_id):
     """Submit request for allocation of a service."""
-    s = FOB.get_instance().activate_service(s_id) # returns Service and code
+    s = FOB.get_instance().activate_service(s_id) # returns ActiveService and code
     if s is None:
       # service not found
       return {
