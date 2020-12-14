@@ -110,7 +110,6 @@ class FNVI(object):
 
   def destroy_service(self, service_id):
     """Returns ID of destroyed service"""
-    # TODO se il servizio è FVE allora devo solo deallocarlo, mentre se il servizio è SDP o APP allora devo andare a vedere se sono allocati (nel caso di nodi PAAS o SAAS, quindi devo solo deallocarli) o se sono deployati (nel caso di nodi IAAS), e se sono deployati su Docker (FVE001) allora chiamare i metodi di destroy basati su docker
     # TODO avoid hardcoded FVE SDP APP
     if service_id.startswith("FVE"):
       # TODO deallocate
@@ -211,7 +210,7 @@ class FNVI(object):
   def docker_container_prune(self):
     logger.debug('Prune containers')
     r = self.__get_docker_client().containers.prune()
-    deleted_list = r["ContainersDeleted"]
+    deleted_list = r["ContainersDeleted"] if r["ContainersDeleted"] else list()
     logger.info(f"Pruned {len(deleted_list)} container(s)")
     return deleted_list
 
@@ -359,7 +358,6 @@ class FogServices(Resource):
         }, 404
 
   def delete(self, s_id=""):
-    # TODO evitare di presupporre che ci siano da cancellare solo i servizi Docker, ma fare in modo che se chiamo delete su un servizio FVE deve solo deallocare il servizio ma mantenerlo, mentre se chiamo delete su servizi SDP o APP devo andare a vedere se sono allocati (nel caso di nodi PAAS o SAAS, quindi devo solo deallocarli e mantenere il servizio) o se sono deployati (nel caso di nodi IAAS), e se sono deployati su Docker (FVE001) allora chiamare i metodi di destroy basati su docker
     if s_id:
       FNVI.get_instance().destroy_service(s_id)
       return {
