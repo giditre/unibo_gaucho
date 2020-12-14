@@ -456,6 +456,9 @@ class FogServices(Resource):
           "node_port": sn.get_port()
           # "type": "FOCO_SERV_POST"
         }, 200
+    else:
+      # TODO handle case
+      pass
 
   def delete(self, s_id=""):
     """Submit request for deactivation of services."""

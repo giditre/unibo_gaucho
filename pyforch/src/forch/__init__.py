@@ -79,7 +79,7 @@ class ActiveService(Service):
     super().__init__(id=service_id)
 
     self.__service_id = self.get_id()
-    self.__node_id = self.add_node(ipv4=node_ip) if node_ip is not None else None
+    self.__node_id = super().add_node(ipv4=node_ip) if node_ip is not None else None
     self.__base_service_id = base_service_id if base_service_id is not None else self.__service_id
 
     self.__instance_name = instance_name
@@ -126,3 +126,6 @@ class ActiveService(Service):
     return self.__project
   def set_project(self, project) :
     self.__project = project
+
+  def add_node(self, *args, ipv4, **kwargs):
+    self.set_node_id(super().add_node(*args, ipv4=ipv4, **kwargs))
