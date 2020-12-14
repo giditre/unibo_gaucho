@@ -338,9 +338,9 @@ class FogServices(Resource):
 
       return {
         "message": f"Deployed service {s_id} on {base_id} with image {image_name}",
-        "type": "FN_DEPL_OK",
+        # "type": "FN_DEPL_OK",
         "name": container_name,
-        # "ip": container_ip, # TODO change in IP visible from outside
+        "ip": container_ip,
         "port_mappings": port_mappings
         }, 201
 
