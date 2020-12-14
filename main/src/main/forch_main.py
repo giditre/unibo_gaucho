@@ -160,6 +160,21 @@ class FOB(object):
       active_service_list.append(active_service)
       self.__set_active_service_list(active_service_list)
 
+  def find_active_services(self, *args, **kwargs):
+    """Find currently active services on known nodes"""
+    service_list = self.get_service_list(*args, **kwargs)
+    for s in service_list:
+      for sn in s.get_node_list():
+        node_ip = sn.get_ip()
+        # query node
+        # TODO do this through FOVIM
+        response = requests.get(f"http://{node_ip}:6001/services")
+        resp_json = response.json()
+        sn_service_id_list = resp_json["services"]
+        for sn_service_id in sn_service_id_list:
+          logger.debug(f"Found active service {sn_service_id}")
+          self.update_active_service_list(forch.ActiveService(service_id=sn_service_id, node_ip=node_ip))
+
   @staticmethod
   def get_service_list(*args, **kwargs):
     return FORS.get_instance().get_service_list(*args, **kwargs)
@@ -243,9 +258,10 @@ class FOB(object):
     # find relevant entry or entries in active services
     for active_service in self.get_active_service_list():
       if active_service.get_service_id() == service_id:
-        # use base_service_id to get Service object in order to get id of node where service is deployed
-        base_s = self.get_service(active_service.get_base_service_id())
-        sn = base_s.get_node_by_id(active_service.get_node_id())
+        # # use base_service_id to get Service object in order to get id of node where service is deployed
+        # base_s = self.get_service(active_service.get_base_service_id())
+        # sn = base_s.get_node_by_id(active_service.get_node_id())
+        sn = active_service.get_node_by_id(active_service.get_node_id())
         # destroy service on node
         FOVIM.get_instance().manage_destruction(service_id=service_id, node_ip=sn.get_ip())
 
@@ -254,7 +270,6 @@ class FOB(object):
     # find relevant entry or entries in active services
     for active_service in self.get_active_service_list():
       self.deactivate_service(active_service.get_service_id())
-
 
 
 class FORS(object):
@@ -440,6 +455,7 @@ class FogServices(Resource):
     """Submit request for deactivation of services."""
     if s_id:
       FOB.get_instance().deactivate_service(s_id)
+      # TODO check if operation was successful
       return {
           "message": f"Service {s_id} deactivated",
           # "node_ip": str(sn.get_ip()),
@@ -448,6 +464,7 @@ class FogServices(Resource):
         }, 200
     else:
       FOB.get_instance().deactivate_all_services()
+      # TODO check if operation was successful
       return {
           "message": f"All services deactivated",
           # "node_ip": str(sn.get_ip()),
@@ -474,11 +491,16 @@ if __name__ == '__main__':
 
   ### instantiate components
 
-  FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute()))
+  FOB.get_instance()
 
   FORS.get_instance()
 
   FOVIM.get_instance()
+
+  ### perform preliminary operations
+
+  FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute()))
+  FOB.get_instance().find_active_services(refresh_sc=True)
 
   ### REST API
 
