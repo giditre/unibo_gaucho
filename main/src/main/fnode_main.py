@@ -27,6 +27,7 @@ class FNVI(object):
 
     self.__sa = forch.SLPFactory.create_SA()
     self.__service_list = [] # TODO c'è modo di prendere la lista di servizi registrati sul ServiceAgent?
+    self.__active_service_list = []
 
     self.__ipv4 = None
 
@@ -60,6 +61,7 @@ class FNVI(object):
       self.__register_service(service)
     
   def load_service_list_from_json(self, json_file_name):
+    ipv4 = None
     if forch.is_orchestrator():
       ipv4 = IPv4Address("127.0.0.1")
     else:
@@ -69,6 +71,34 @@ class FNVI(object):
 
     self.__service_list = forch.Service.create_services_from_json(json_file_name=json_file_name, ipv4=ipv4)
 
+  def get_active_service_list(self):
+    return self.__active_service_list
+
+  def __set_active_service_list(self, active_service_list):
+    assert all( isinstance(s, forch.ActiveService) for s in active_service_list ), "All elements must be ActiveService objects!"
+    self.__active_service_list = active_service_list
+
+  def update_active_service_list(self, active_service):
+    active_service_list = self.get_active_service_list()
+    if active_service not in active_service_list:
+      active_service_list.append(active_service)
+      self.__set_active_service_list(active_service_list)
+
+  def find_active_services(self):
+    # find pre-existing services
+    # TODO avoid hardcoding of IDs
+    # cycle over known base services
+    for base_service_id in ["FVE001"]:
+      if base_service_id == "FVE001":
+        # Docker-specific
+        for cont_s_id in self.list_containerized_services_docker():
+          logger.debug(f"Found active service {cont_s_id} base FVE001")
+          self.update_active_service_list(forch.ActiveService(service_id=cont_s_id, base_service_id="FVE001"))
+      elif base_service_id == "FVExxx":
+        pass
+      else:
+        pass
+
   def get_ipv4(self):
     return self.__ipv4
 
@@ -77,6 +107,36 @@ class FNVI(object):
       ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address object!"
     self.__ipv4 = ipv4
+
+  def destroy_service(self, service_id):
+    """Returns ID of destroyed service"""
+    # TODO se il servizio è FVE allora devo solo deallocarlo, mentre se il servizio è SDP o APP allora devo andare a vedere se sono allocati (nel caso di nodi PAAS o SAAS, quindi devo solo deallocarli) o se sono deployati (nel caso di nodi IAAS), e se sono deployati su Docker (FVE001) allora chiamare i metodi di destroy basati su docker
+    # TODO avoid hardcoded FVE SDP APP
+    if service_id.startswith("FVE"):
+      # TODO deallocate
+      pass
+    else:
+      # check if service_id == base_service_id, meaning service is allocated, else service is deployed
+      # TODO move this search to a function ?
+      active_s = next( s for s in self.get_active_service_list() if s.get_id() == service_id )
+      base_service_id = active_s.get_base_service_id()
+      if service_id == base_service_id:
+        # TODO deallocate
+        pass
+      else:
+        # TODO avoid hardcoding FVE001
+        if base_service_id == "FVE001":
+          return self.destroy_service_docker(service_id)
+        elif base_service_id == "FVExxx":
+          pass
+        else:
+          pass
+
+  def destroy_all_services(self):
+    """Returns list of IDs of destroyed services"""
+    return [ self.destroy_service(active_s.get_service_id()) for active_s in self.get_active_service_list() ]
+  
+  # Docker methods
 
   def __get_docker_client(self):
     if self.__docker_client is None:
@@ -182,6 +242,10 @@ class FNVI(object):
     if container is None:
       return None
 
+    # just before returning, update active service list
+    # TODO avoid hardcoded base_service_id FVE001
+    self.update_active_service_list(forch.ActiveService(service_id=service_id, base_service_id="FVE001"))
+
     return container
 
   def destroy_service_docker(self, service_id, *, prune=True):
@@ -190,6 +254,7 @@ class FNVI(object):
         c.stop()
     if prune:
       self.docker_container_prune()
+    return service_id
 
   def destroy_all_services_docker(self):
     service_list = FNVI.get_instance().list_containerized_services_docker()
@@ -213,17 +278,18 @@ class Test(Resource):
     }
 
 class FogServices(Resource):
-  # this GET replies with the services in the MEC sense (i.e., deployed containers); services in the XaaS sense are discovered via SLP
+  # this GET replies with the active services, while available services (referred to as just "services") are discovered via SLP
   def get(self, s_id=""):
-    s_id_list = FNVI.get_instance().list_containerized_services_docker()
+    as_id_list = [ s.get_id() for s in FNVI.get_instance().get_active_service_list() ]
     return {
-      "message": f"Found {len(s_id_list)} service(s)",
+      "message": f"Found {len(as_id_list)} active service(s)",
       "type": "FN_LS",
-      "services": s_id_list
+      "services": as_id_list
       }, 200
 
   def put(self, s_id):
     """Allocate service."""
+    # TODO
     # request_json = flask.request.get_json(force=True)
     return {
       "message": f"Allocated service {s_id}",
@@ -293,21 +359,20 @@ class FogServices(Resource):
         }, 404
 
   def delete(self, s_id=""):
+    # TODO evitare di presupporre che ci siano da cancellare solo i servizi Docker, ma fare in modo che se chiamo delete su un servizio FVE deve solo deallocare il servizio ma mantenerlo, mentre se chiamo delete su servizi SDP o APP devo andare a vedere se sono allocati (nel caso di nodi PAAS o SAAS, quindi devo solo deallocarli e mantenere il servizio) o se sono deployati (nel caso di nodi IAAS), e se sono deployati su Docker (FVE001) allora chiamare i metodi di destroy basati su docker
     if s_id:
-      FNVI.get_instance().get_service_list()
-      FNVI.get_instance().destroy_service_docker(s_id)
+      FNVI.get_instance().destroy_service(s_id)
       return {
         "message": f"Deleted services matching {s_id}",
         "type": "FN_DEL_OK",
         }, 200
     else:
-      FNVI.get_instance().destroy_all_services_docker()
+      FNVI.get_instance().destroy_all_services()
       return {
-        "message": f"Deleted all deployed services",
+        "message": f"Deleted all services",
         "type": "FN_DEL_OK",
         }, 200
     
-
 
 if __name__ == '__main__':
 
@@ -332,6 +397,7 @@ if __name__ == '__main__':
   FNVI.get_instance().set_ipv4(args.address)
   FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath("fnode_services.json").absolute()))
   FNVI.get_instance().register_service_list()
+  FNVI.get_instance().find_active_services()
 
   ### REST API
 
