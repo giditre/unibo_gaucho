@@ -75,12 +75,14 @@ class Project():
 
 class ActiveService(Service):
 
-  def __init__(self, *, service_id, node_ip=None, base_service_id=None, user=None, project=None):
+  def __init__(self, *, service_id, node_ip=None, base_service_id=None, instance_name=None, user=None, project=None):
     super().__init__(id=service_id)
 
     self.__service_id = self.get_id()
     self.__node_id = self.add_node(ipv4=node_ip) if node_ip is not None else None
     self.__base_service_id = base_service_id if base_service_id is not None else self.__service_id
+
+    self.__instance_name = instance_name
 
     if user is not None:
       assert isinstance(user, User), ""
@@ -109,6 +111,11 @@ class ActiveService(Service):
     return self.__base_service_id
   def set_base_service_id(self, base_service_id) :
     self.__base_service_id = base_service_id
+
+  def get_instance_name(self):
+	  return self.__instance_name
+  def set_instance_name(self, instance_name) :
+	  self.__instance_name = instance_name
 
   def get_user(self):
 	  return self.__user

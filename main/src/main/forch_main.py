@@ -351,32 +351,35 @@ class FOVIM(object):
     """Manages deployment of service on node based on source. Returns ActiveService or None"""
     logger.debug(f"Deploy {service_id} on node {node_ip} with source {source}")
     
-    response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
-      json={"base": source.get_base(), "image": source.get_name()}
-      )
-    
-    response_code = response.status_code
-    if response_code == 201:
-      response_json = response.json()
-      active_s = forch.ActiveService(service_id=service_id)
-      
-      src_port_list = source.get_port_list()
+    base_service_id = source.get_base()
 
-      if len(src_port_list) == 0:
-        active_s.add_node(ipv4=node_ip)
-      elif len(src_port_list) == 1:
-        port = src_port_list[0]
-        active_s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
+    if base_service_id == "FVE001": # TODO avoid hardcoding of ID
+      # send deployment request to node
+      response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
+        json={"base": source.get_base(), "image": source.get_name()}
+        )
+      response_code = response.status_code
+      if response_code == 201:
+        response_json = response.json()
+        active_s = forch.ActiveService(service_id=service_id, instance_name=response_json["name"])
+        src_port_list = source.get_port_list()
+        if len(src_port_list) == 0:
+          active_s.add_node(ipv4=node_ip)
+        elif len(src_port_list) == 1:
+          port = src_port_list[0]
+          active_s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
+        else:
+          # TODO handle this case: what's better? Add a separate ServiceNode per port of the service, or a single ServiceNode with multiple ports? (in the latter case, probably need to modify ServiceNode)
+          raise NotImplementedError
+          # for port in src_port_list:
+          #   active_s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
+        return active_s
       else:
-        # TODO handle this case: what's better? Add a separate ServiceNode per port of the service, or a single ServiceNode with multiple ports? (in the latter case, probably need to modify ServiceNode)
-        raise NotImplementedError
-        # for port in src_port_list:
-        #   active_s.add_node(ipv4=node_ip, port=int(response_json["port_mappings"][port]))
-      
-      return active_s
+        # TODO handle case of wrong or unexpected status code of response
+        return None
     else:
-      # TODO handle this case
-      return None
+      # TODO handle case of unknown base_service_id -- is it even possible?
+      pass
 
   @staticmethod
   def manage_destruction(*, service_id, node_ip):
@@ -426,26 +429,29 @@ class FogServices(Resource):
 
   def post(self, s_id):
     """Submit request for allocation of a service."""
-    s = FOB.get_instance().activate_service(s_id) # returns ActiveService and code
-    if s is None:
+
+    active_s = FOB.get_instance().activate_service(s_id) # returns ActiveService
+    
+    if active_s is None:
       # service not found
       return {
           "message": f"Requested service {s_id} not found."
           # "type": "FOCO_SERV_POST",
           # "services": []
         }, 404
-    elif isinstance(s, forch.Service):
-      assert len(s.get_node_list()) in [0,1], "Too many ServiceNodes!"
-      if len(s.get_node_list()) == 0:
+    
+    if isinstance(active_s, forch.ActiveService):
+      assert len(active_s.get_node_list()) in [0,1], "Too many ServiceNodes!"
+      if len(active_s.get_node_list()) == 0:
         return {
-        "message": f"Service {s.get_id()} unavailable."
+        "message": f"Service {active_s.get_id()} unavailable."
         # "type": "FOCO_SERV_POST"
         }, 503
-      elif len(s.get_node_list()) == 1:
-        sn = s.get_node_list()[0]
-        # TODO find a way to distinguish 200 from 201
+      elif len(active_s.get_node_list()) == 1:
+        # TODO find a way to distinguish 200 from 201 -- maybe check if service_id and base_service_id are the same, meaning allocation (so 200) or otherwise it's deployment (so 201)
+        sn = active_s.get_node_by_id(active_s.get_node_id())
         return {
-          "message": f"Service {s.get_id()} available on node {sn.get_id()}",
+          "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
           "node_ip": str(sn.get_ip()),
           "node_port": sn.get_port()
           # "type": "FOCO_SERV_POST"
