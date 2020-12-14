@@ -38,21 +38,61 @@ from .fo_zabbix import ZabbixAPI, ZabbixAdapter, ZabbixNode, ZabbixNodeFields
 
 # __all__ = ()
 
+
+class User():
+
+  def __init__(self, *, name, id=None):
+    self.__name = name
+    self.__id = id
+
+  def get_name(self):
+    return self.__name
+  def set_name(self, name) :
+    self.__name = name
+
+  def get_id(self):
+    return self.__id
+  def set_id(self, id) :
+    self.__id = id
+
+
+class Project():
+  
+  def __init__(self, *, name, id=None):
+    self.__name = name
+    self.__id = id
+
+  def get_name(self):
+    return self.__name
+  def set_name(self, name) :
+    self.__name = name
+
+  def get_id(self):
+    return self.__id
+  def set_id(self, id) :
+    self.__id = id
+
+
 class ActiveService(Service):
 
-  def __init__(self, *, service_id, node_ip=None, base_service_id=None):
+  def __init__(self, *, service_id, node_ip=None, base_service_id=None, user=None, project=None):
     super().__init__(id=service_id)
 
     self.__service_id = self.get_id()
     self.__node_id = self.add_node(ipv4=node_ip) if node_ip is not None else None
     self.__base_service_id = base_service_id if base_service_id is not None else self.__service_id
+
+    if user is not None:
+      assert isinstance(user, User), ""
+    self.__user = user
+
+    if project is not None:
+      assert isinstance(project, Project), ""
+    self.__project = project
   
   def __eq__(self, obj):
     if isinstance(obj, self.__class__):
-      return ( self.get_service_id() == obj.get_service_id()
-        and self.get_node_id() == obj.get_node_id()
-        and self.get_base_service_id() == obj.get_base_service_id()
-        )
+      return self.__dict__ == obj.__dict__
     return False
 
   def get_service_id(self):
@@ -70,5 +110,12 @@ class ActiveService(Service):
   def set_base_service_id(self, base_service_id) :
     self.__base_service_id = base_service_id
 
-  # def add_node(self, *args, **kwargs):
-  #   super().add_node(*args, **kwargs)
+  def get_user(self):
+	  return self.__user
+  def set_user(self, user) :
+	  self.__user = user
+
+  def get_project(self):
+    return self.__project
+  def set_project(self, project) :
+    self.__project = project
