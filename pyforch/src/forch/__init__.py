@@ -41,9 +41,10 @@ from .fo_zabbix import ZabbixAPI, ZabbixAdapter, ZabbixNode, ZabbixNodeFields
 
 class User():
 
-  def __init__(self, *, name, id=None):
+  def __init__(self, *, name, id=None, role=None):
     self.__name = name
     self.__id = id
+    self.__role = role
 
   def get_name(self):
     return self.__name
@@ -54,13 +55,19 @@ class User():
     return self.__id
   def set_id(self, id) :
     self.__id = id
+
+  def get_role(self):
+    return self.__role
+  def set_role(self, role) :
+    self.__role = role
 
 
 class Project():
   
-  def __init__(self, *, name, id=None):
+  def __init__(self, *, name, id=None, user_list=None):
     self.__name = name
     self.__id = id
+    self.__user_list = user_list
 
   def get_name(self):
     return self.__name
@@ -71,6 +78,11 @@ class Project():
     return self.__id
   def set_id(self, id) :
     self.__id = id
+
+  def get_user_list(self):
+    return self.__user_list
+  def set_user_list(self, user_list) :
+    self.__user_list = user_list
 
 
 class ActiveService(Service):
