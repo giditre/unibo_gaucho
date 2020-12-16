@@ -8,8 +8,10 @@ logger.info(f"Load {__name__} with {logger}")
 from time import sleep
 import json
 
-from flask import Flask, request, jsonify
-from flask_restful import Resource, Api, reqparse, abort
+from enum import Enum
+
+import flask
+from flask_restful import Resource, Api
 
 import requests
 
@@ -17,6 +19,29 @@ import forch
 forch.set_orchestrator()
 
 logger.debug(f"IS_ORCHESTRATOR: {forch.is_orchestrator()}")
+
+
+class InstanceConfiguration(Enum):
+  ATTACH_TO_NETWORK = "network"
+  SET_IPv4_ADDRESS = "ipv4"
+  DETACH = "detach"
+  KEEP_STDIN_OPEN = "keep_stdin_open"
+  ALLOCATE_TERMINAL = "allocate_terminal"
+  FORWARD_ALL_PORTS = "forward_all_ports"
+  ENTRYPOINT = "entrypoint"
+  COMMAND = "command"
+
+
+DockerConfiguration = Enum("DockerConfiguration", {
+  InstanceConfiguration.ATTACH_TO_NETWORK.value: "network",
+  InstanceConfiguration.SET_IPv4_ADDRESS.value: "ip",
+  InstanceConfiguration.DETACH.value: "detach",
+  InstanceConfiguration.KEEP_STDIN_OPEN.value: "stdin_open",
+  InstanceConfiguration.ALLOCATE_TERMINAL.value: "tty",
+  InstanceConfiguration.FORWARD_ALL_PORTS.value: "publish_all_ports",
+  InstanceConfiguration.ENTRYPOINT.value: "entrypoint",
+  InstanceConfiguration.COMMAND.value: "command"
+})
 
 
 class Source():
@@ -58,37 +83,6 @@ class Source():
     return self.__description
   def set_description(self, description) :
     self.__description = description
-
-
-# class ActiveService():
-
-#   def __init__(self, *, service_id, node_id, base_service_id=None):
-#     self.__service_id = service_id
-#     self.__node_id = node_id
-#     self.__base_service_id = base_service_id if base_service_id is not None else service_id
-
-#   def __eq__(self, obj):
-#     if isinstance(obj, self.__class__):
-#       return ( self.get_service_id() == obj.get_service_id()
-#         and self.get_node_id() == obj.get_node_id()
-#         and self.get_base_service_id() == obj.get_base_service_id()
-#         )
-#     return False
-
-#   def get_service_id(self):
-#     return self.__service_id
-#   def set_service_id(self, service_id) :
-#     self.__service_id = service_id
-
-#   def get_node_id(self):
-#     return self.__node_id
-#   def set_node_id(self, node_id) :
-#     self.__node_id = node_id
-
-#   def get_base_service_id(self):
-#     return self.__base_service_id
-#   def set_base_service_id(self, base_service_id) :
-#     self.__base_service_id = base_service_id
 
 
 class FOB(object):
@@ -183,7 +177,7 @@ class FOB(object):
   def get_service(*args, **kwargs):
     return FORS.get_instance().get_service(*args, **kwargs)
 
-  def activate_service(self, service_id):
+  def activate_service(self, service_id, *, project):
     """Takes service ID and returns an ActiveService object or None."""
     logger.debug(f"Start activating instance of service {service_id}")
     s = FORS.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
@@ -237,7 +231,7 @@ class FOB(object):
           if True: # TODO set meaningful condition
             # if so, deploy the source and allocate service on it
             logger.debug(f"Deploy service {service_id} on node {sn.get_id()} on top of base {base_s.get_id()}")
-            active_s = FOVIM.get_instance().manage_deployment(service_id=service_id, source=src, node_ip=sn.get_ip())
+            active_s = FOVIM.get_instance().manage_deployment(service_id=service_id, project=project, source=src, node_ip=sn.get_ip())
             # verify response is a service with single service node and return it to user --> 201 Created
             assert isinstance(active_s, forch.ActiveService) and len(active_s.get_node_list()) == 1, ""
             # just before returning, update active service list
@@ -347,17 +341,22 @@ class FOVIM(object):
     return active_s
 
   @staticmethod
-  def manage_deployment(*, service_id, node_ip, source):
-    """Manages deployment of service on node based on source. Returns ActiveService or None"""
+  def manage_deployment(*, service_id, node_ip, source, project):
+    """Manages deployment of service on node based on source.
+    Returns: ActiveService or None
+    """
     logger.debug(f"Deploy {service_id} on node {node_ip} with source {source}")
     
     base_service_id = source.get_base()
 
-    if base_service_id == "FVE001": # TODO avoid hardcoding of ID
+    if base_service_id == "FVE001": # TODO avoid hardcoding of ID as string
+      # extract additional project configurations, relate them to Docker, and serialize them into the JSON of the POST
+      # TODO
+      project_conf = None
       # send deployment request to node
       response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
-        json={"base": source.get_base(), "image": source.get_name()}
-        )
+        json=dict(base=source.get_base(), image=source.get_name()).update(project_conf)
+      )
       response_code = response.status_code
       if response_code == 201:
         response_json = response.json()
@@ -430,7 +429,12 @@ class FogServices(Resource):
   def post(self, s_id):
     """Submit request for allocation of a service."""
 
-    active_s = FOB.get_instance().activate_service(s_id) # returns ActiveService
+    request_json = flask.request.get_json(force=True)
+    # TODO retrieve project name from request JSON, or if no project is specified, default to a default name
+    project_name = request_json["project"] if request_json["project"] else "default" # TODO avoid hardcoding strings
+    # TODO find Project instance in FOB
+    project = forch.Project(name=project_name)
+    active_s = FOB.get_instance().activate_service(s_id, project) # returns ActiveService
     
     if active_s is None:
       # service not found
@@ -513,7 +517,7 @@ if __name__ == '__main__':
 
   ### REST API
 
-  app = Flask(__name__)
+  app = flask.Flask(__name__)
 
   # @app.before_request
   # def before():

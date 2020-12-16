@@ -64,10 +64,11 @@ class User():
 
 class Project():
   
-  def __init__(self, *, name, id=None, user_list=None):
+  def __init__(self, *, name, id=None, user_list=None, configuration_list=None):
     self.__name = name
     self.__id = id
     self.__user_list = user_list
+    self.__configuration_list = configuration_list # list of configurations specific to this project, e.g., a network with a given IP address space on which all services deployed for this project must be
 
   def get_name(self):
     return self.__name
