@@ -21,29 +21,6 @@ forch.set_orchestrator()
 logger.debug(f"IS_ORCHESTRATOR: {forch.is_orchestrator()}")
 
 
-class InstanceConfiguration(Enum):
-  ATTACH_TO_NETWORK = "network"
-  SET_IPv4_ADDRESS = "ipv4"
-  DETACH = "detach"
-  KEEP_STDIN_OPEN = "keep_stdin_open"
-  ALLOCATE_TERMINAL = "allocate_terminal"
-  FORWARD_ALL_PORTS = "forward_all_ports"
-  ENTRYPOINT = "entrypoint"
-  COMMAND = "command"
-
-
-DockerConfiguration = Enum("DockerConfiguration", {
-  InstanceConfiguration.ATTACH_TO_NETWORK.value: "network",
-  InstanceConfiguration.SET_IPv4_ADDRESS.value: "ip",
-  InstanceConfiguration.DETACH.value: "detach",
-  InstanceConfiguration.KEEP_STDIN_OPEN.value: "stdin_open",
-  InstanceConfiguration.ALLOCATE_TERMINAL.value: "tty",
-  InstanceConfiguration.FORWARD_ALL_PORTS.value: "publish_all_ports",
-  InstanceConfiguration.ENTRYPOINT.value: "entrypoint",
-  InstanceConfiguration.COMMAND.value: "command"
-})
-
-
 class Source():
 
   def __init__(self, *, name, base, service, port_list, description=None):
@@ -350,12 +327,13 @@ class FOVIM(object):
     base_service_id = source.get_base()
 
     if base_service_id == "FVE001": # TODO avoid hardcoding of ID as string
-      # extract additional project configurations, relate them to Docker, and serialize them into the JSON of the POST
-      # TODO
-      project_conf = None
+      # extract additional project configurations for this instance
+      # then relate them to Docker, and serialize them into the JSON of the POST
+      instance_conf_dict = { forch.DockerConfiguration[conf_name]: conf_value
+        for conf_name, conf_value in project.get_configuration_dict().items() }
       # send deployment request to node
       response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
-        json=dict(base=source.get_base(), image=source.get_name()).update(project_conf)
+        json=dict(base=source.get_base(), image=source.get_name()).update(instance_conf_dict)
       )
       response_code = response.status_code
       if response_code == 201:

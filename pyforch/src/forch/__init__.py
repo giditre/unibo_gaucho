@@ -38,6 +38,30 @@ from .fo_zabbix import ZabbixAPI, ZabbixAdapter, ZabbixNode, ZabbixNodeFields
 
 # __all__ = ()
 
+from enum import Enum
+
+class InstanceConfiguration(Enum):
+  ATTACH_TO_NETWORK = "network"
+  SET_IPv4_ADDRESS = "ipv4"
+  DETACH = "detach"
+  KEEP_STDIN_OPEN = "keep_stdin_open"
+  ALLOCATE_TERMINAL = "allocate_terminal"
+  FORWARD_ALL_PORTS = "forward_all_ports"
+  ENTRYPOINT = "entrypoint"
+  COMMAND = "command"
+
+
+DockerConfiguration = Enum("DockerConfiguration", {
+  InstanceConfiguration.ATTACH_TO_NETWORK.value: "network",
+  InstanceConfiguration.SET_IPv4_ADDRESS.value: "ip",
+  InstanceConfiguration.DETACH.value: "detach",
+  InstanceConfiguration.KEEP_STDIN_OPEN.value: "stdin_open",
+  InstanceConfiguration.ALLOCATE_TERMINAL.value: "tty",
+  InstanceConfiguration.FORWARD_ALL_PORTS.value: "publish_all_ports",
+  InstanceConfiguration.ENTRYPOINT.value: "entrypoint",
+  InstanceConfiguration.COMMAND.value: "command"
+})
+
 
 class User():
 
@@ -64,11 +88,11 @@ class User():
 
 class Project():
   
-  def __init__(self, *, name, id=None, user_list=None, configuration_list=None):
+  def __init__(self, *, name, id=None, user_list=None, configuration_dict=None):
     self.__name = name
     self.__id = id
     self.__user_list = user_list
-    self.__configuration_list = configuration_list # list of configurations specific to this project, e.g., a network with a given IP address space on which all services deployed for this project must be
+    self.__configuration_dict = configuration_dict # list of configurations specific to this project, e.g., a network with a given IP address space on which all services deployed for this project must be
 
   def get_name(self):
     return self.__name
@@ -84,6 +108,11 @@ class Project():
     return self.__user_list
   def set_user_list(self, user_list) :
     self.__user_list = user_list
+
+  def get_configuration_dict(self):
+    return self.__configuration_dict
+  def set_configuration_dict(self, configuration_dict) :
+    self.__configuration_dict = configuration_dict
 
 
 class ActiveService(Service):
