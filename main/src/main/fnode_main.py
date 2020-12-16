@@ -86,14 +86,13 @@ class FNVI(object):
 
   def find_active_services(self):
     # find pre-existing services
-    # TODO avoid hardcoding of IDs
     # cycle over known base services
-    for base_service_id in ["FVE001"]:
-      if base_service_id == "FVE001":
+    for base_service_id in [forch.FogServiceID.DOCKER.value]:
+      if base_service_id == forch.FogServiceID.DOCKER.value:
         # Docker-specific
         for cont_s_id in self.list_containerized_services_docker():
-          logger.debug(f"Found active service {cont_s_id} base FVE001")
-          self.update_active_service_list(forch.ActiveService(service_id=cont_s_id, base_service_id="FVE001"))
+          logger.debug(f"Found active service {cont_s_id} base {forch.FogServiceID.DOCKER.value}")
+          self.update_active_service_list(forch.ActiveService(service_id=cont_s_id, base_service_id=forch.FogServiceID.DOCKER.value))
       elif base_service_id == "FVExxx":
         pass
       else:
@@ -123,8 +122,7 @@ class FNVI(object):
         # TODO deallocate
         pass
       else:
-        # TODO avoid hardcoding FVE001
-        if base_service_id == "FVE001":
+        if base_service_id == forch.FogServiceID.DOCKER.value:
           return self.destroy_service_docker(service_id)
         elif base_service_id == "FVExxx":
           pass
@@ -242,8 +240,7 @@ class FNVI(object):
       return None
 
     # just before returning, update active service list
-    # TODO avoid hardcoded base_service_id FVE001
-    self.update_active_service_list(forch.ActiveService(service_id=service_id, base_service_id="FVE001"))
+    self.update_active_service_list(forch.ActiveService(service_id=service_id, base_service_id=forch.FogServiceID.DOCKER.value))
 
     return container
 
@@ -307,7 +304,7 @@ class FogServices(Resource):
     assert "FVE" in request_json["base"], f"Must specify valid base service (FVExxx)"
     base_id = request_json["base"]
 
-    if base_id == "FVE001":
+    if base_id == forch.FogServiceID.DOCKER.value:
       assert "image" in request_json, f"Must specify image in {request_json}"
       image_name = request_json["image"]
 
