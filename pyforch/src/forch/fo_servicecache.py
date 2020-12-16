@@ -5,8 +5,8 @@ logger.addHandler(logging.NullHandler())
 
 import copy
 
-from .fo_service import Service
 from .fo_slp import SLPFactory
+
 
 class ServiceCache:
   def __init__(self, *, refresh=False): 
@@ -15,7 +15,7 @@ class ServiceCache:
     if refresh:
       self.refresh()
     
-  def get_list(self, *, deepcopy=False):
+  def get_list(self, *, deepcopy:bool=False):
     if deepcopy:
       return copy.deepcopy(self.__service_list)
     return self.__service_list

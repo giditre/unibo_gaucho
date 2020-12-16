@@ -9,6 +9,12 @@
 
 # TODO G: attenzione che il campo value delle Metric è una stringa e quindi il sorting dei nodi basati su quel value potrebbe non dare il risultato desiderato
 
+from typing import Any
+# This import allows to hint custom classes and to use | instead of Union[]
+# TODO: remove it when Python 3.10 will be used
+from __future__ import annotations
+
+
 _is_orchestrator = False
 
 def is_orchestrator():
@@ -19,12 +25,12 @@ def set_orchestrator():
   global _is_orchestrator
   _is_orchestrator = True
 
-def get_lst(item):
+def get_lst(item:Any) -> list[Any]|None:
   if item is None:
     return item
   return [item] if not isinstance(item, list) else item
 
-def raise_error(class_name, msg=""):
+def raise_error(class_name:str, msg:str=""):
   try:
     raise NameError(class_name)
   except NameError:

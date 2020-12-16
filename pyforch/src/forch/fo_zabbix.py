@@ -23,6 +23,9 @@ from pyzabbix import ZabbixAPI
 from ipaddress import IPv4Address
 from enum import Enum
 
+from __future__ import annotations
+
+
 class ZabbixNodeFields(Enum):
   ID = "id"
   NAME = "name"
@@ -38,34 +41,34 @@ class MeasurementFields(Enum):
   UNIT = "unit"
 
 class ZabbixNode:
-  def __init__(self, *, node_id="", node_name="", node_ipv4=None, is_available=""):
-    self.__node_id = node_id
-    self.__node_name = node_name
-    self.__node_ipv4 = IPv4Address(node_ipv4)
-    self.__is_available = is_available
+  def __init__(self, *, node_id:str="", node_name:str="", node_ipv4:IPv4Address|None=None, is_available:str=""):
+    self.__node_id: str = node_id
+    self.__node_name: str = node_name
+    self.__node_ipv4: IPv4Address = IPv4Address(node_ipv4)
+    self.__is_available: str = is_available
 
   def get_node_id(self):
     return self.__node_id
 
-  def set_node_id(self, node_id) :
+  def set_node_id(self, node_id:str) :
     self.__node_id = node_id
 
   def get_node_name(self):
     return self.__node_name
 
-  def set_node_name(self, node_name) :
+  def set_node_name(self, node_name:str) :
     self.__node_name = node_name
 
   def get_node_ipv4(self):
     return self.__node_ipv4
 
-  def set_node_ipv4(self, node_ipv4) :
+  def set_node_ipv4(self, node_ipv4:IPv4Address) :
     self.__node_ipv4 = node_ipv4
 
   def get_is_available(self):
     return self.__is_available
 
-  def set_is_available(self, is_available) :
+  def set_is_available(self, is_available:str) :
     self.__is_available = is_available
 
   def __repr__(self):
@@ -84,7 +87,7 @@ class ZabbixNode:
     return json.dumps(self.to_dict(), default=lambda x: str(x)) # the default function is applied when an object is not JSON serializable, e.g., IPv4Address
 
   @staticmethod
-  def validate_node_id(node):
+  def validate_node_id(node:ZabbixNode|str):
     assert isinstance(node, (ZabbixNode, str)), "Nodes must be provided as ZabbixNode or str, not {}".format(type(node))
     if isinstance(node, ZabbixNode):
       # "node" is a ZabbixNode object and we need to extract the ID
@@ -93,7 +96,7 @@ class ZabbixNode:
       # "node" is already an ID
       return node
     else:
-      raise TypeError # TODO G: rischiamo davvero di arrivare qui?
+      raise TypeError # TODO G: rischiamo davvero di arrivare qui? M: no, quindi rimuovere questo else
 
 class ZabbixAdapter(object):
   # Used as private static final dict
@@ -114,7 +117,7 @@ class ZabbixAdapter(object):
     self.__user = user
     self.__password = password
     # self.__zapi = ZabbixAPI(url=self.__url, user=self.__user, password=self.__password) # Python3.6
-    self.__zapi = ZabbixAPI(self.__url)
+    self.__zapi:ZabbixAPI = ZabbixAPI(self.__url)
     self.__zapi.login(user=self.__user, password=self.__password)
 
   def __repr__(self):
@@ -129,7 +132,7 @@ class ZabbixAdapter(object):
   def get_url(self):
     return self.__url
 
-  def get_nodes(self, server_name="Zabbix Server"):
+  def get_nodes(self, server_name:str="Zabbix Server") -> list[ZabbixNode]:
     # fields=["hostid", "name", "available"]
 
     # z_node_list = [ ZabbixNode( *[ h[f] for f in fields ] ) for h in self.zapi.host.get(search={"name": server_name}, excludeSearch=True) ]
@@ -154,9 +157,7 @@ class ZabbixAdapter(object):
 
     return z_node_list
 
-  def get_node_by_ip(self, ip):
-    if not isinstance(ip, IPv4Address):
-      ip = IPv4Address(ip)
+  def get_node_by_ip(self, ip:IPv4Address):
     for zn in self.get_nodes():
       if zn.get_node_ipv4() == ip:
         return zn
@@ -196,7 +197,7 @@ class ZabbixAdapter(object):
 
     return measurements
 
-  def get_measurements_by_item_id(self, item_id):
+  def get_measurements_by_item_id(self, item_id:str):
     return self.get_measurements_by_item_id_list([item_id])
 
   def get_measurements_by_item_id_list(self, item_id_list):
@@ -221,7 +222,7 @@ if __name__ == "__main__":
 
   node_ip = "192.168.64.123"
   print("Details on node having address {}:".format(node_ip))
-  node1 = zc.get_node_by_ip(node_ip)
+  node1 = zc.get_node_by_ip(IPv4Address(node_ip)) # TODO G: add an handler that manages the return None case
   print("As a string: ", node1)
   print("As a dict: ", node1.to_dict())
   print("As a JSON: ", node1.to_json())
