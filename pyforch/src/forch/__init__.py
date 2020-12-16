@@ -9,15 +9,15 @@
 
 # TODO G: attenzione che il campo value delle Metric è una stringa e quindi il sorting dei nodi basati su quel value potrebbe non dare il risultato desiderato
 
-_IS_ORCHESTRATOR = False
+_is_orchestrator = False
 
 def is_orchestrator():
-  global _IS_ORCHESTRATOR
-  return _IS_ORCHESTRATOR
+  global _is_orchestrator
+  return _is_orchestrator
 
 def set_orchestrator():
-  global _IS_ORCHESTRATOR
-  _IS_ORCHESTRATOR = True
+  global _is_orchestrator
+  _is_orchestrator = True
 
 def get_lst(item):
   if item is None:
