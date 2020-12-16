@@ -31,7 +31,7 @@ def raise_error(class_name, msg=""):
     print(msg)
     raise
 
-from .fo_service import Service, MetricType, MeasurementRetrievalMode
+from .fo_service import Service, MetricType, MeasurementRetrievalMode, ServiceCategory
 from .fo_servicecache import ServiceCache
 from .fo_slp import SLPFactory
 from .fo_zabbix import ZabbixAPI, ZabbixAdapter, ZabbixNode, ZabbixNodeFields
@@ -54,6 +54,10 @@ class FogServiceID(Enum):
 
 
 class InstanceConfiguration(Enum):
+  # general
+  BASE = "base"
+  IMAGE = "image"
+  # specific
   ALLOCATE_TERMINAL = "allocate_terminal"
   ATTACH_TO_NETWORK = "network"
   COMMAND = "command"
@@ -68,7 +72,7 @@ class InstanceConfiguration(Enum):
   SET_IPv4_ADDRESS = "ipv4"
 
 
-DockerConfiguration = Enum("DockerConfiguration", {
+DockerContainerConfiguration = Enum("DockerContainerConfiguration", {
   InstanceConfiguration.ALLOCATE_TERMINAL.value: "tty",
   InstanceConfiguration.ATTACH_TO_NETWORK.value: "network",
   InstanceConfiguration.COMMAND.value: "command",
@@ -81,6 +85,23 @@ DockerConfiguration = Enum("DockerConfiguration", {
   InstanceConfiguration.FORWARD_ALL_PORTS.value: "publish_all_ports",
   InstanceConfiguration.KEEP_STDIN_OPEN.value: "stdin_open",
   InstanceConfiguration.SET_IPv4_ADDRESS.value: "ip"
+})
+
+
+class NetworkConfiguration(Enum):
+  NAME = "network_name"
+  BRIDGE_NAME = "bridge_name"
+  IPv4_SUBNET = "ipv4_subnet"
+  IPv4_RANGE = "ipv4_range"
+  IPv4_GATEWAY = "ipv4_gateway"
+
+
+DockerNetworkConfiguration = Enum("DockerNetworkConfiguration", {
+  NetworkConfiguration.NAME.value: "network_name",
+  NetworkConfiguration.BRIDGE_NAME.value: "bridge_name",
+  NetworkConfiguration.IPv4_SUBNET.value: "subnet",
+  NetworkConfiguration.IPv4_RANGE.value: "dhcp_range",
+  NetworkConfiguration.IPv4_GATEWAY.value: "bridge_address"
 })
 
 

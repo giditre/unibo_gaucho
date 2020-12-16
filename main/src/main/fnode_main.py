@@ -1,6 +1,7 @@
 import logging
 from logging.config import fileConfig
 from pathlib import Path
+from pyforch.src.forch import DockerContainerConfiguration, InstanceConfiguration
 fileConfig(str(Path(__file__).parent.joinpath("logging.ini")))
 logger = logging.getLogger(__name__)
 logger.info(f"Load {__name__} with {logger}")
@@ -285,7 +286,7 @@ class Test(Resource):
   def get(self):
     return {
       "message": f"This component ({Path(__file__).name}) is up!",
-      "type": "FN_TEST_OK"
+      # "type": "FN_TEST_OK"
     }
 
 class FogServices(Resource):
@@ -315,17 +316,29 @@ class FogServices(Resource):
 
     request_json = flask.request.get_json(force=True)
 
-    assert "base" in request_json, f"Must specify a base service (FVExxx)"
-    assert "FVE" in request_json["base"], f"Must specify valid base service (FVExxx)"
-    base_id = request_json["base"]
+    assert forch.InstanceConfiguration.BASE.value in request_json, f"Must specify a base service"
+    assert forch.ServiceCategory.IAAS.value in request_json[forch.InstanceConfiguration.BASE.value], f"Must specify valid base service ({forch.ServiceCategory.IAAS.value}xxx)"
+    base_id = request_json[forch.InstanceConfiguration.BASE.value]
 
     if base_id == forch.FogServiceID.DOCKER.value:
-      assert "image" in request_json, f"Must specify image in {request_json}"
-      image_name = request_json["image"]
+      assert forch.InstanceConfiguration.IMAGE.value in request_json, f"Must specify image in {request_json}"
+      image_name = request_json[forch.InstanceConfiguration.IMAGE.value]
 
-      conf_dict = request_json["conf"]
+      instance_conf_dict = request_json["instance_conf"] # TODO avoid hardcoding string
 
-      container = FNVI.get_instance().deploy_service_docker(s_id, image_name, **conf_dict)
+      # preliminary configuration
+      # if a network configuration is requested, check that the network exists
+      if DockerContainerConfiguration[InstanceConfiguration.ATTACH_TO_NETWORK.value] in instance_conf_dict:
+        network_name = instance_conf_dict[DockerContainerConfiguration[InstanceConfiguration.ATTACH_TO_NETWORK.value]]
+        if self.docker_network_exists(network_name) == False:
+          logger.debug(f"Network {network_name} does not exist")
+          # create it, based on additional configuration info in the JSON
+          additional_conf_dict = request_json["additional_conf"] # TODO avoid hardcoding string
+          FNVI.get_instance().docker_network_create_with_bridge(network_name, )
+
+          
+
+      container = FNVI.get_instance().deploy_service_docker(s_id, image_name, **instance_conf_dict)
 
       assert container is not None, f'Error deploying service {s_id}, check image name "{image_name}"'
 

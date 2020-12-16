@@ -76,6 +76,9 @@ class FOB(object):
     # define list of active services - active means allocated or deployed, not just available
     self.__active_service_list = []
 
+    # define list of projects
+    self.__project_list = []
+
   @classmethod
   def get_instance(cls):
     if cls.__instance is None:
@@ -124,6 +127,13 @@ class FOB(object):
   def __set_active_service_list(self, active_service_list):
     assert all( isinstance(s, forch.ActiveService) for s in active_service_list ), "All elements must be ActiveService objects!"
     self.__active_service_list = active_service_list
+
+  def get_project_list(self):
+    return self.__project_list
+
+  def __set_project_list(self, project_list):
+    assert all( isinstance(s, forch.Project) for s in project_list ), "All elements must be Project objects!"
+    self.__project_list = project_list
 
   def update_active_service_list(self, active_service):
     active_service_list = self.get_active_service_list()
@@ -327,14 +337,15 @@ class FOVIM(object):
     base_service_id = source.get_base()
 
     if base_service_id == forch.FogServiceID.DOCKER.value:
+      # build JSON
+      request_json = dict(base=source.get_base(), image=source.get_name())
       # extract additional project configurations for this instance
       # then relate them to Docker, and serialize them into the JSON of the POST
-      instance_conf_dict = { forch.DockerConfiguration[conf_name]: conf_value
+      instance_conf_dict = { forch.DockerContainerConfiguration[conf_name]: conf_value
         for conf_name, conf_value in project.get_configuration_dict().items() }
+      request_json.update(instance_conf_dict)
       # send deployment request to node
-      response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
-        json=dict(base=source.get_base(), image=source.get_name()).update(instance_conf_dict)
-      )
+      response = requests.post(f"http://{node_ip}:6001/services/{service_id}", json=request_json)
       response_code = response.status_code
       if response_code == 201:
         response_json = response.json()
@@ -373,7 +384,7 @@ class Test(Resource):
   def get(self):
     return {
       "message": f"This component ({Path(__file__).name}) is up!",
-      "type": "TEST_OK"
+      # "type": "TEST_OK"
     }
 
 class FogServices(Resource):
@@ -492,6 +503,10 @@ if __name__ == '__main__':
 
   FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute()))
   FOB.get_instance().find_active_services(refresh_sc=True)
+
+  ### project configurations
+
+  # TODO
 
   ### REST API
 
