@@ -73,14 +73,14 @@ DockerConfiguration = Enum("DockerConfiguration", {
   InstanceConfiguration.ATTACH_TO_NETWORK.value: "network",
   InstanceConfiguration.COMMAND.value: "command",
   InstanceConfiguration.DETACH.value: "detach",
-  InstanceConfiguration.DNS_OPTION: "dns_opt",
-  InstanceConfiguration.DNS_SEARCH: "dns_search",
-  InstanceConfiguration.DNS_SERVER: "dns",
+  InstanceConfiguration.DNS_OPTION.value: "dns_opt",
+  InstanceConfiguration.DNS_SEARCH.value: "dns_search",
+  InstanceConfiguration.DNS_SERVER.value: "dns",
   InstanceConfiguration.ENTRYPOINT.value: "entrypoint",
-  InstanceConfiguration.ENVIRONMENT_VARIABLE: "env",
+  InstanceConfiguration.ENVIRONMENT_VARIABLE.value: "env",
   InstanceConfiguration.FORWARD_ALL_PORTS.value: "publish_all_ports",
   InstanceConfiguration.KEEP_STDIN_OPEN.value: "stdin_open",
-  InstanceConfiguration.SET_IPv4_ADDRESS.value: "ip",
+  InstanceConfiguration.SET_IPv4_ADDRESS.value: "ip"
 })
 
 
