@@ -88,7 +88,7 @@ class FNVI(object):
     # find pre-existing services
     # TODO avoid hardcoding of IDs
     # cycle over known base services
-    for base_service_id in ["FVE001"]:
+    for base_service_id in ["FVE001", "FVExxx"]:
       if base_service_id == "FVE001":
         # Docker-specific
         for cont_s_id in self.list_containerized_services_docker():
@@ -110,14 +110,16 @@ class FNVI(object):
 
   def destroy_service(self, service_id):
     """Returns ID of destroyed service"""
+    # get relevant instance of ActiveService
+    # TODO move this search to a function, handling non-existent service ?
+    active_s = next( s for s in self.get_active_service_list() if s.get_id() == service_id )
     # TODO avoid hardcoded FVE SDP APP
     if service_id.startswith("FVE"):
       # TODO deallocate
       pass
     else:
       # check if service_id == base_service_id, meaning service is allocated, else service is deployed
-      # TODO move this search to a function ?
-      active_s = next( s for s in self.get_active_service_list() if s.get_id() == service_id )
+      
       base_service_id = active_s.get_base_service_id()
       if service_id == base_service_id:
         # TODO deallocate
@@ -148,8 +150,11 @@ class FNVI(object):
   def docker_client_test(self):
     return self.__get_docker_client().ping()
 
+  def docker_network_list(self, *args, **kwargs):
+    return self.__get_docker_client().networks.list(*args, **kwargs)
+
   def docker_network_exists(self, network_name):
-    net_list = self.__get_docker_client().networks.list()
+    net_list = self.docker_network_list()
     for net in net_list:
       if net.name == network_name:
         return True
@@ -200,6 +205,9 @@ class FNVI(object):
   def docker_image_prune(self):
     self.__get_docker_client().images.prune()
 
+  def docker_container_list(self, *args, **kwargs):
+    return self.__get_docker_client().containers.list(*args, **kwargs)
+
   def docker_container_run(self, image_name, **kwargs):
     img = self.docker_image_pull(image_name)
     if img is None:
@@ -223,32 +231,34 @@ class FNVI(object):
     # check length (limit imposed by hostname field)
     assert len(container_name) < 64, f"Name {container_name} is longer than 63 chars"
     # check there is no other container with this name
-    assert container_name not in [ c.name for c in self.__get_docker_client().containers.list() ], f"Name {container_name} already in use by container {self.__get_docker_client().containers.get(container_name)}"
+    assert container_name not in [ c.name for c in self.docker_container_list() ], f"Name {container_name} already in use by container {self.__get_docker_client().containers.get(container_name)}"
     return container_name
 
   def list_containerized_services_docker(self, *, service_type_list=["APP", "SDP"]):
-    return list(set([ c.name.split("_")[0] for c in self.__get_docker_client().containers.list()
+    return list(set([ c.name.split("_")[0] for c in self.docker_container_list()
       if any(c.name.startswith(service_type) for service_type in service_type_list) ]))
 
-  def deploy_service_docker(self, service_id, image_name):
+  def deploy_service_docker(self, service_id, image_name, **kwargs):
 
     container_name = self.__generate_container_name(service_id, image_name)
 
     logger.debug(f"Deploy service {service_id} with container {container_name} using image {image_name}")
 
-    container = self.docker_container_run(image_name, name=container_name, hostname=container_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, command=None, entrypoint=None)
+    # container = self.docker_container_run(image_name, name=container_name, hostname=container_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, command=None, entrypoint=None)
+
+    container = self.docker_container_run(image_name, name=container_name, hostname=container_name, **kwargs)
 
     if container is None:
       return None
 
     # just before returning, update active service list
     # TODO avoid hardcoded base_service_id FVE001
-    self.update_active_service_list(forch.ActiveService(service_id=service_id, base_service_id="FVE001"))
+    self.update_active_service_list(forch.ActiveService(service_id=service_id, base_service_id="FVE001", instance_name=container_name))
 
     return container
 
   def destroy_service_docker(self, service_id, *, prune=True):
-    for c in self.__get_docker_client().containers.list():
+    for c in self.docker_container_list():
       if c.name.startswith(service_id):
         c.stop()
     if prune:
@@ -256,16 +266,21 @@ class FNVI(object):
     return service_id
 
   def destroy_all_services_docker(self):
-    service_list = FNVI.get_instance().list_containerized_services_docker()
-    logger.debug(f"Remove services {service_list}")
-    process_list = []
-    for s_id in service_list:
-      p = multiprocessing.Process(target=self.destroy_service_docker, args=(s_id,), kwargs={"prune": False})
-      p.start()
-      process_list.append(p)
-    for p in process_list:
-      p.join()
-    self.docker_container_prune()
+    active_service_list = self.get_active_service_list()
+    active_docker_service_id_list = [ active_s.get_service_id() for active_s in active_service_list
+      if active_s.get_base_service_id() == "FVE001" ] # TODO avoid hardcoding
+    if active_docker_service_id_list:
+      logger.debug(f"Remove services {active_docker_service_id_list}")
+      process_list = []
+      for as_id in active_docker_service_id_list:
+        p = multiprocessing.Process(target=self.destroy_service_docker, args=(as_id,), kwargs={"prune": False})
+        p.start()
+        process_list.append(p)
+      for p in process_list:
+        p.join()
+      self.docker_container_prune()
+    else:
+      logger.debug("No Docker service to destroy")
 
 ### API Resources
 
@@ -311,7 +326,9 @@ class FogServices(Resource):
       assert "image" in request_json, f"Must specify image in {request_json}"
       image_name = request_json["image"]
 
-      container = FNVI.get_instance().deploy_service_docker(s_id, image_name)
+      conf_dict = request_json["conf"]
+
+      container = FNVI.get_instance().deploy_service_docker(s_id, image_name, **conf_dict)
 
       assert container is not None, f'Error deploying service {s_id}, check image name "{image_name}"'
 
@@ -362,13 +379,13 @@ class FogServices(Resource):
       FNVI.get_instance().destroy_service(s_id)
       return {
         "message": f"Deleted services matching {s_id}",
-        "type": "FN_DEL_OK",
+        # "type": "FN_DEL_OK",
         }, 200
     else:
       FNVI.get_instance().destroy_all_services()
       return {
         "message": f"Deleted all services",
-        "type": "FN_DEL_OK",
+        # "type": "FN_DEL_OK",
         }, 200
     
 
