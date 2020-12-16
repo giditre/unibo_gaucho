@@ -40,26 +40,47 @@ from .fo_zabbix import ZabbixAPI, ZabbixAdapter, ZabbixNode, ZabbixNodeFields
 
 from enum import Enum
 
+
+class FogServiceID(Enum):
+  # APPs
+  APACHE_WEB_SERVER = "APP001"
+  STRESS = "APP002"
+  TRANSCODER = "APP003"
+  UNIBO_MEC_TEST = "APP004"
+  # SDPs
+  PYTHON = "SDP001"
+  # FVEs
+  DOCKER = "FVE001"
+
+
 class InstanceConfiguration(Enum):
-  ATTACH_TO_NETWORK = "network"
-  SET_IPv4_ADDRESS = "ipv4"
-  DETACH = "detach"
-  KEEP_STDIN_OPEN = "keep_stdin_open"
   ALLOCATE_TERMINAL = "allocate_terminal"
-  FORWARD_ALL_PORTS = "forward_all_ports"
-  ENTRYPOINT = "entrypoint"
+  ATTACH_TO_NETWORK = "network"
   COMMAND = "command"
+  DETACH = "detach"
+  DNS_OPTION = "dns_option"
+  DNS_SEARCH = "dns_search"
+  DNS_SERVER = "dns_server"
+  ENTRYPOINT = "entrypoint"
+  ENVIRONMENT_VARIABLE = "env_var"
+  FORWARD_ALL_PORTS = "forward_all_ports"
+  KEEP_STDIN_OPEN = "keep_stdin_open"
+  SET_IPv4_ADDRESS = "ipv4"
 
 
 DockerConfiguration = Enum("DockerConfiguration", {
-  InstanceConfiguration.ATTACH_TO_NETWORK.value: "network",
-  InstanceConfiguration.SET_IPv4_ADDRESS.value: "ip",
-  InstanceConfiguration.DETACH.value: "detach",
-  InstanceConfiguration.KEEP_STDIN_OPEN.value: "stdin_open",
   InstanceConfiguration.ALLOCATE_TERMINAL.value: "tty",
-  InstanceConfiguration.FORWARD_ALL_PORTS.value: "publish_all_ports",
+  InstanceConfiguration.ATTACH_TO_NETWORK.value: "network",
+  InstanceConfiguration.COMMAND.value: "command",
+  InstanceConfiguration.DETACH.value: "detach",
+  InstanceConfiguration.DNS_OPTION: "dns_opt",
+  InstanceConfiguration.DNS_SEARCH: "dns_search",
+  InstanceConfiguration.DNS_SERVER: "dns",
   InstanceConfiguration.ENTRYPOINT.value: "entrypoint",
-  InstanceConfiguration.COMMAND.value: "command"
+  InstanceConfiguration.ENVIRONMENT_VARIABLE: "env",
+  InstanceConfiguration.FORWARD_ALL_PORTS.value: "publish_all_ports",
+  InstanceConfiguration.KEEP_STDIN_OPEN.value: "stdin_open",
+  InstanceConfiguration.SET_IPv4_ADDRESS.value: "ip",
 })
 
 

@@ -326,7 +326,7 @@ class FOVIM(object):
     
     base_service_id = source.get_base()
 
-    if base_service_id == "FVE001": # TODO avoid hardcoding of ID as string
+    if base_service_id == forch.FogServiceID.DOCKER.value:
       # extract additional project configurations for this instance
       # then relate them to Docker, and serialize them into the JSON of the POST
       instance_conf_dict = { forch.DockerConfiguration[conf_name]: conf_value
