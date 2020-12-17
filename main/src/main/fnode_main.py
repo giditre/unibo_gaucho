@@ -16,7 +16,7 @@ from flask_restful import Resource, Api
 import docker
 
 import forch
-logger.debug("IS_ORCHESTRATOR: {}".format(forch.is_orchestrator()))
+logger.debug("Running as orchestrator? {}".format(forch.is_orchestrator()))
 
 
 class FNVI(object):
@@ -332,11 +332,11 @@ class FogServices(Resource):
         network_name = instance_conf_dict[DockerContainerConfiguration[InstanceConfiguration.ATTACH_TO_NETWORK.value]]
         if self.docker_network_exists(network_name) == False:
           logger.debug(f"Network {network_name} does not exist")
-          # create it, based on additional configuration info in the JSON
-          additional_conf_dict = request_json["additional_conf"] # TODO avoid hardcoding string
-          FNVI.get_instance().docker_network_create_with_bridge(network_name, )
-
-          
+          # create it, based on network configuration info in the JSON
+          # these configs are assumed to be compatible with the employed Docker method
+          network_conf_dict = request_json["network_conf"] # TODO avoid hardcoding string
+          FNVI.get_instance().docker_network_create_with_bridge(network_name, **network_conf_dict)
+          # TODO check network was correctly created
 
       container = FNVI.get_instance().deploy_service_docker(s_id, image_name, **instance_conf_dict)
 

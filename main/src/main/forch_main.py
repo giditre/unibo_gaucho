@@ -18,7 +18,7 @@ import requests
 import forch
 forch.set_orchestrator()
 
-logger.debug(f"IS_ORCHESTRATOR: {forch.is_orchestrator()}")
+logger.debug(f"Running as orchestrator? {forch.is_orchestrator()}")
 
 
 class Source():

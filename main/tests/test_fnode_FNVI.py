@@ -47,7 +47,7 @@ def test_docker_image_pull():
   assert FNVI.get_instance().docker_image_is_cached("giditre/gaucho-stress:latest"), ""
   FNVI.del_instance()
 
-def test_deploy_service():
+def test_deploy_service_docker():
   service_id = "APP001"
   image_name = "httpd"
   c = FNVI.get_instance().deploy_service_docker(service_id, image_name)
@@ -56,7 +56,7 @@ def test_deploy_service():
   assert c.attrs["Config"]["Image"] == image_name, str(c.attrs)
   FNVI.del_instance()
 
-def test_destroy_service():
+def test_destroy_service_docker():
   service_id = "APP001"
   FNVI.get_instance().destroy_service_docker(service_id)
   FNVI.del_instance()
