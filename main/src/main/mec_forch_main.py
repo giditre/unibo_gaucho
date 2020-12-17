@@ -35,7 +35,12 @@ if __name__ == '__main__':
   url = f"http://{args.endpoint}/{args.path}"
 
   if args.method == "GET":
-    pass
+
+    response = requests.get(url)
+
+    response_json = response.json()
+
+    print(f"Response: {json.dumps(response_json, indent=2)}")
 
   elif args.method == "PUT":
     pass

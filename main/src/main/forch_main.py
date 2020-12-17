@@ -7,6 +7,7 @@ logger.info(f"Load {__name__} with {logger}")
 
 from time import sleep
 import json
+import socket
 
 from enum import Enum
 
@@ -157,10 +158,12 @@ class FOB(object):
         # TODO do this through FOVIM
         response = requests.get(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services")
         resp_json = response.json()
-        sn_service_id_list = resp_json["services"]
-        for sn_service_id in sn_service_id_list:
-          logger.debug(f"Found active service {sn_service_id}")
-          self.update_active_service_list(forch.ActiveService(service_id=sn_service_id, node_ip=node_ip))
+        sn_service_list = resp_json["services"]
+        for s_dict in sn_service_list: # every element is expected tobe a dict with parameters of ActiveService
+          s_dict.update(node_ip=node_ip)
+          active_s = forch.ActiveService(**s_dict)
+          logger.info(f"Found active service {active_s.get_service_id()}") 
+          self.update_active_service_list(active_s)
 
   @staticmethod
   def get_service_list(*args, **kwargs):
@@ -520,95 +523,105 @@ class FogServices(Resource):
           # "type": "FOCO_SERV_POST"
         }, 200
 
-if __name__ == '__main__':
 
-  ### Command line argument parser
+### argument parser
 
-  import argparse
+# import argparse
 
-  default_address = "127.0.0.1"
-  default_port = 6000
+# default_address = "127.0.0.1"
+# default_port = 6000
 
-  parser = argparse.ArgumentParser()
-  parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
-    nargs="?", default=default_address)
-  parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
-    nargs="?", default=default_port)
-  parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
-  args = parser.parse_args()
+# parser = argparse.ArgumentParser()
+# parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
+#   nargs="?", default=default_address)
+# parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
+#   nargs="?", default=default_port)
+# parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
+# args = parser.parse_args()
 
-  ### instantiate components
+import configparser
 
-  FOB.get_instance()
+config_parser = configparser.ConfigParser()
+config_parser.read(str(Path(__file__).parent.joinpath("forch.ini").absolute()))
 
-  FORS.get_instance()
+local_config = config_parser[socket.gethostname()]
+logger.debug(f"Config: {dict(local_config.items())}")
 
-  FOVIM.get_instance()
+### instantiate components
 
-  ### perform preliminary operations
+FOB.get_instance()
 
-  FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute()))
-  FOB.get_instance().find_active_services(refresh_sc=True)
+FORS.get_instance()
 
-  # project configurations
+FOVIM.get_instance()
 
-  FOB.get_instance().set_project_list([
-    forch.Project("default"),
-    forch.Project("test-project",
-      instance_configuration_dict={
-        forch.InstanceConfiguration.DETACH.value: True,
-        forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
-        forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
-        forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "test-net",
-        forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
-      },
-      network_configuration_dict={
-        forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-test",
-        forch.NetworkConfiguration.IPv4_SUBNET.value: "192.168.111.0/24",
-        forch.NetworkConfiguration.IPv4_RANGE.value: "192.168.111.128/25",
-        forch.NetworkConfiguration.IPv4_GATEWAY.value: "192.168.111.10"
-      }
-    ),
-    forch.Project("mec-project",
-      instance_configuration_dict={
-        forch.InstanceConfiguration.DETACH.value: True,
-        forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
-        forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
-        forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "mec-net",
-        forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
-      },
-      network_configuration_dict={
-        forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-mec",
-        forch.NetworkConfiguration.IPv4_SUBNET.value: "10.15.0.0/16",
-        forch.NetworkConfiguration.IPv4_RANGE.value: "10.15.106.0/24",
-        forch.NetworkConfiguration.IPv4_GATEWAY.value: "10.15.106.0"
-      }
-    )
-  ])
+### perform preliminary operations
 
-  ### REST API
+FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute())) # TODO add configuration for file name
+FOB.get_instance().find_active_services(refresh_sc=True) # TODO add configuration flag for this
+preexisting_active_service_list = FOB.get_instance().get_active_service_list()
+if preexisting_active_service_list:
+  logger.debug(f"Found {len(preexisting_active_service_list)} pre-existing service(s): {[(s.get_service_id(), s.get_node_id(), s.get_instance_name()) for s in preexisting_active_service_list]}")
 
-  app = flask.Flask(__name__)
+# project configurations
 
-  # @app.before_request
-  # def before():
-  #   logger.debug("marker start {} {}".format(request.method, request.path))
-  
-  # @app.after_request
-  # def after(response):
-  #   logger.debug("marker end {} {}".format(request.method, request.path))
-  #   return response  
+FOB.get_instance().set_project_list([
+  forch.Project("default"),
+  forch.Project("test-project",
+    instance_configuration_dict={
+      forch.InstanceConfiguration.DETACH.value: True,
+      forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
+      forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
+      forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "test-net",
+      forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
+    },
+    network_configuration_dict={
+      forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-test",
+      forch.NetworkConfiguration.IPv4_SUBNET.value: "192.168.111.0/24",
+      forch.NetworkConfiguration.IPv4_RANGE.value: "192.168.111.128/25",
+      forch.NetworkConfiguration.IPv4_GATEWAY.value: "192.168.111.10"
+    }
+  ),
+  forch.Project("mec-project",
+    instance_configuration_dict={
+      forch.InstanceConfiguration.DETACH.value: True,
+      forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
+      forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
+      forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "mec-net",
+      forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
+    },
+    network_configuration_dict={
+      forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-mec",
+      forch.NetworkConfiguration.IPv4_SUBNET.value: "10.15.0.0/16",
+      forch.NetworkConfiguration.IPv4_RANGE.value: "10.15.106.0/24",
+      forch.NetworkConfiguration.IPv4_GATEWAY.value: "10.15.106.0"
+    }
+  )
+])
 
-  api = Api(app)
-  api.add_resource(Test, '/test')
-  api.add_resource(FogServices, '/services', '/services/<s_id>')
-  
-  try:
-    app.run(host=args.address, port=args.port, debug=args.debug)
-  except KeyboardInterrupt:
-    pass
-  finally:
-    logger.info("Cleanup after interruption")
-    FOB.del_instance()
-    FORS.del_instance()
-    FOVIM.del_instance()
+### REST API
+
+app = flask.Flask(__name__)
+
+# @app.before_request
+# def before():
+#   logger.debug("marker start {} {}".format(request.method, request.path))
+
+# @app.after_request
+# def after(response):
+#   logger.debug("marker end {} {}".format(request.method, request.path))
+#   return response  
+
+api = Api(app)
+api.add_resource(Test, '/test')
+api.add_resource(FogServices, '/services', '/services/<s_id>')
+
+try:
+  app.run(host=args.address, port=args.port, debug=args.debug)
+except KeyboardInterrupt:
+  pass
+finally:
+  logger.info("Cleanup after interruption")
+  FOB.del_instance()
+  FORS.del_instance()
+  FOVIM.del_instance()

@@ -172,14 +172,23 @@ class Project():
 
 class ActiveService(Service):
 
-  def __init__(self, *, service_id, node_ip=None, base_service_id=None, instance_name=None, instance_ip=None, user=None, project=None):
+  def __init__(self, *, service_id, node_id=None, node_ip=None, base_service_id=None, instance_name=None, instance_ip=None, user=None, project=None):
     super().__init__(id=service_id)
 
     self.__service_id = self.get_id()
-    self.__node_id = super().add_node(ipv4=node_ip) if node_ip is not None else None
+
+    self.__node_id = None
+    if node_id is not None:
+      self.__node_id = node_id
+    elif node_ip is not None:
+      self.__node_id = super().add_node(ipv4=node_ip)
+
+    self.__node_ip = node_ip
+
     self.__base_service_id = base_service_id if base_service_id is not None else self.__service_id
 
     self.__instance_name = instance_name
+
     self.__instance_ip = instance_ip
 
     if user is not None:
@@ -195,6 +204,9 @@ class ActiveService(Service):
       return self.__dict__ == obj.__dict__
     return False
 
+  def __repr__(self):
+      return str(self.__dict__)
+
   def get_service_id(self):
     return self.__service_id
   def set_service_id(self, service_id) :
@@ -204,6 +216,11 @@ class ActiveService(Service):
     return self.__node_id
   def set_node_id(self, node_id) :
     self.__node_id = node_id
+
+  def get_node_ip(self):
+    return self.__node_ip
+  def set_node_ip(self, node_ip) :
+    self.__node_ip = node_ip
 
   def get_base_service_id(self):
     return self.__base_service_id
