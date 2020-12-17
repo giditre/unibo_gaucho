@@ -451,6 +451,13 @@ class FogServices(Resource):
         # "type": "FN_DEL_OK",
         }, 200
 
+
+# def cleanup():
+#   try:
+#     logger.info("Cleanup")
+#   finally:
+#     FNVI.del_instance()
+
 ### argument parser
 
 # import argparse
@@ -478,15 +485,10 @@ logger.debug(f"Config: {dict(local_config.items())}")
 ### instantiate components
 
 FNVI.get_instance().set_ipv4(local_config["address"])
-FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath(local_config["services_json"]).absolute())) # TODO add configuration for file name
+FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath(local_config["services_json"]).absolute()))
 FNVI.get_instance().register_service_list()
-try:
-  FNVI.get_instance().find_active_services() # this might raise a RuntimeError
+FNVI.get_instance().find_active_services() # this might raise a RuntimeError
 # TODO add configuration flag for this
-except RuntimeError:
-  logger.info("Cleanup after error")
-  FNVI.del_instance()
-  sys.exit()
 
 ### REST API
 
