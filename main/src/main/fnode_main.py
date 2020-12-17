@@ -324,11 +324,17 @@ class Test(Resource):
 class FogServices(Resource):
   # this GET replies with the active services, while available services (referred to as just "services") are discovered via SLP
   def get(self, s_id=""):
-    as_id_list = [ s.get_id() for s in FNVI.get_instance().get_active_service_list() ]
+    as_list = [ {
+      "service_id": s.get_service_id(),
+      "base_service_id": s.get_base_service_id(),
+      "node_id": s.get_node_id(),
+      "instance_name": s.get_instance_name(),
+      "instance_ip": s.get_instance_ip()
+    } for s in FNVI.get_instance().get_active_service_list() ]
     return {
-      "message": f"Found {len(as_id_list)} active service(s)",
-      "type": "FN_LS",
-      "services": as_id_list
+      "message": f"Found {len(as_list)} active service(s)",
+      # "type": "FN_LS",
+      "services": as_list
       }, 200
 
   def put(self, s_id):
@@ -337,7 +343,7 @@ class FogServices(Resource):
     # request_json = flask.request.get_json(force=True)
     return {
       "message": f"Allocated service {s_id}",
-      "type": "FN_ALLC_OK",
+      # "type": "FN_ALLC_OK",
       # "name": container_name,
       # "ip": container_ip, # TODO change in IP visible from outside
       # "port_mappings": port_mappings
