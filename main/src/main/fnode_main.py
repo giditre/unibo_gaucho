@@ -476,7 +476,7 @@ class FogServices(Resource):
 # if args.address == default_address:
 #   logger.warning(f"Running with default IP address {args.address}")
 
-local_config = forch.get_local_config(Path(__file__).parent.joinpath("fnode.ini").absolute())
+local_config = forch.get_local_config(Path(__file__).parent.joinpath("main.ini").absolute())
 logger.debug(f"Config: {dict(local_config.items())}")
 
 ### instantiate components
