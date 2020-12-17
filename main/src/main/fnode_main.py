@@ -341,7 +341,8 @@ class FogServices(Resource):
         instance_conf_dict = {
           forch.DockerContainerConfiguration[forch.InstanceConfiguration.DETACH.value].value: True,
           forch.DockerContainerConfiguration[forch.InstanceConfiguration.KEEP_STDIN_OPEN.value].value: True,
-          forch.DockerContainerConfiguration[forch.InstanceConfiguration.ALLOCATE_TERMINAL.value].value: True
+          forch.DockerContainerConfiguration[forch.InstanceConfiguration.ALLOCATE_TERMINAL.value].value: True,
+          forch.DockerContainerConfiguration[forch.InstanceConfiguration.FORWARD_ALL_PORTS.value].value: True
         }
 
       container = FNVI.get_instance().deploy_service_docker(s_id, image_name, **instance_conf_dict)
