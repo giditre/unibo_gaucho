@@ -379,12 +379,19 @@ class SLPFactory:
       return None
 
     def __register_service(self, srvurl, attrs="", lifetime=slp.SLP_LIFETIME_DEFAULT):
-      try:
-        slp.SLPReg(self.get_handler(), srvurl, lifetime, None, attrs, True, self.__reg_callback, None)
-      except RuntimeError as e:
-        # TODO use logger instead of print everywhere
-        logger.error("Error registering new service: " + str(e)) # TODO undestand why it often raises SLP_NETWORK_INIT_FAILED error
-        raise RuntimeError
+      # TODO this is just a temporary fix
+      attempts = 1
+      while attempts <= 3:
+        try:
+          slp.SLPReg(self.get_handler(), srvurl, lifetime, None, attrs, True, self.__reg_callback, None)
+        except RuntimeError as e:
+          # TODO use logger instead of print everywhere
+          logger.error(f"Error in attempt {attempts} at registering new service: {e}") # TODO undestand why it often raises SLP_NETWORK_INIT_FAILED error
+          attempts += 1
+          time.sleep(3)
+        else:
+          logger.debug(f"Service registered on attempt {attempts}")
+          break
 
     def __deregister_service(self, srvurl):
       try:
