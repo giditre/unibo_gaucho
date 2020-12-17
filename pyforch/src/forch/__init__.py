@@ -38,7 +38,20 @@ from .fo_zabbix import ZabbixAPI, ZabbixAdapter, ZabbixNode, ZabbixNodeFields
 
 # __all__ = ()
 
+
 from enum import Enum
+import socket
+import configparser
+from pathlib import Path
+
+def get_local_config(file_name):
+  if not isinstance(Path, file_name):
+    file_name = Path(file_name)
+  assert file_name.is_absolute(), f"Path to configuration file must be absolute! Check: {file_name}"
+  config_parser = configparser.ConfigParser()
+  config_parser.read(file_name)
+  local_config = config_parser[socket.gethostname()]
+  return local_config
 
 
 class FogServiceID(Enum):

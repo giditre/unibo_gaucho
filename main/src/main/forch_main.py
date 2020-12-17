@@ -156,7 +156,11 @@ class FOB(object):
         node_ip = sn.get_ip()
         # query node
         # TODO do this through FOVIM
-        response = requests.get(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services")
+        try:
+          response = requests.get(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services")
+        except requests.exceptions.ConnectionError:
+          logger.debug(f"Node {sn.get_id()} not responding at {node_ip}")
+          continue
         resp_json = response.json()
         sn_service_list = resp_json["services"]
         for s_dict in sn_service_list: # every element is expected tobe a dict with parameters of ActiveService
@@ -539,12 +543,7 @@ class FogServices(Resource):
 # parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
 # args = parser.parse_args()
 
-import configparser
-
-config_parser = configparser.ConfigParser()
-config_parser.read(str(Path(__file__).parent.joinpath("forch.ini").absolute()))
-
-local_config = config_parser[socket.gethostname()]
+local_config = forch.get_local_config(Path(__file__).parent.joinpath("fnode.ini").absolute())
 logger.debug(f"Config: {dict(local_config.items())}")
 
 ### instantiate components
@@ -557,7 +556,7 @@ FOVIM.get_instance()
 
 ### perform preliminary operations
 
-FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute())) # TODO add configuration for file name
+FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath(local_config["sources_json"]).absolute()))
 FOB.get_instance().find_active_services(refresh_sc=True) # TODO add configuration flag for this
 preexisting_active_service_list = FOB.get_instance().get_active_service_list()
 if preexisting_active_service_list:
@@ -617,7 +616,9 @@ api.add_resource(Test, '/test')
 api.add_resource(FogServices, '/services', '/services/<s_id>')
 
 try:
-  app.run(host=args.address, port=args.port, debug=args.debug)
+  app.run(host=local_config.get("address"),
+      port=local_config.getint("port"),
+      debug=local_config.getboolean("debug"))
 except KeyboardInterrupt:
   pass
 finally:
