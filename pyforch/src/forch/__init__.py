@@ -45,7 +45,7 @@ import configparser
 from pathlib import Path
 
 def get_local_config(file_name):
-  if not isinstance(Path, file_name):
+  if not isinstance(file_name, Path):
     file_name = Path(file_name)
   assert file_name.is_absolute(), f"Path to configuration file must be absolute! Check: {file_name}"
   config_parser = configparser.ConfigParser()

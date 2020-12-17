@@ -543,7 +543,7 @@ class FogServices(Resource):
 # parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
 # args = parser.parse_args()
 
-local_config = forch.get_local_config(Path(__file__).parent.joinpath("fnode.ini").absolute())
+local_config = forch.get_local_config(Path(__file__).parent.joinpath("main.ini").absolute())
 logger.debug(f"Config: {dict(local_config.items())}")
 
 ### instantiate components
