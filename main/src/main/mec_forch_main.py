@@ -10,7 +10,8 @@ if __name__ == '__main__':
   default_path = "services"
   default_method = "GET"
   default_project = "default"
-  default_hostsfile = ""
+  default_hosts_file = None
+  default_hosts_domain = None
 
   import argparse
   parser = argparse.ArgumentParser()
@@ -18,7 +19,9 @@ if __name__ == '__main__':
   parser.add_argument("--path", help=f"FO path, default: {default_path}", nargs="?", default=default_path)
   parser.add_argument("--method", help=f"FO method, default: {default_method}", nargs="?", default=default_method)
   parser.add_argument("--project", help=f"FO project, default: {default_project}", nargs="?", default=default_project)
-  parser.add_argument("--foghostsfile", help=f"FO hosts file, default: {default_hostsfile}", nargs="?", default=default_hostsfile)
+  parser.add_argument("--overwrite-hosts", help="Overwrite hosts", action="store_true", default=False)
+  parser.add_argument("--hosts-file", help=f"FO hosts file, default: {default_hosts_file}", nargs="?", default=default_hosts_file)
+  parser.add_argument("--hosts-domain", help=f"FO hosts domain, default: {default_hosts_domain}", nargs="?", default=default_hosts_domain)
   parser.add_argument("-y", "--assume-yes", help="Automatic yes to prompts", action="store_true", default=False)
   args = parser.parse_args()
 
@@ -45,9 +48,13 @@ if __name__ == '__main__':
 
     print(f"Response: {json.dumps(response_json, indent=2)}")
 
-    if args.foghostsfile:
-      with open(args.foghostsfile, "a") as f:
-        f.write(f'{response_json["instance_ip"]} {response_json["instance_name"]}\n')
+    # TODO relegate this to function that also checks uniqueness of IP
+    if args.hosts_file:
+      with open(args.hosts_file, "w" if args.overwrite_hosts else "a") as f:
+        f.write(f'{response_json["instance_ip"]} {response_json["instance_name"]}')
+        if args.hosts_domain:
+          f.write(f".{args.hosts_domain}")
+        f.write("\n")
 
   elif args.method == "DELETE":
 

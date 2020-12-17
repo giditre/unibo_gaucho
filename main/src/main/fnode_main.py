@@ -109,27 +109,50 @@ class FNVI(object):
 
   def destroy_service(self, service_id):
     """Returns ID of destroyed service"""
-    # get relevant instance of ActiveService
-    # TODO move this search to a function, handling non-existent service ?
-    active_s = next( s for s in self.get_active_service_list() if s.get_id() == service_id )
-    # TODO avoid hardcoded FVE SDP APP
-    if service_id.startswith("FVE"):
+    # check if service is of category IaaS, meaning it must be deallocated
+    if service_id.startswith(forch.ServiceCategory.IAAS.value):
+      # service is of category IaaS
       # TODO deallocate
       pass
     else:
-      # check if service_id == base_service_id, meaning service is allocated, else service is deployed
-      
-      base_service_id = active_s.get_base_service_id()
-      if service_id == base_service_id:
-        # TODO deallocate
-        pass
-      else:
-        if base_service_id == forch.FogServiceID.DOCKER.value:
-          return self.destroy_service_docker(service_id)
-        elif base_service_id == "FVExxx":
+      # service is NOT of category IaaS -- need to discover base_service_id
+      # get relevant instance of ActiveService
+      # TODO move this search to a function, handling non-existent service ?
+      active_service_list = [ s for s in self.get_active_service_list() if s.get_service_id() == service_id ]
+      active_base_service_id_list = [ s.get_base_service_id() for s in active_service_list ]
+      base_to_instance_list_dict = { base_service_id: [ active_s.get_instance_name() for active_s in active_service_list
+        if active_s.get_instance_name()
+        ]
+        for base_service_id in active_base_service_id_list
+      }
+      for base_service_id, instance_name_list in base_to_instance_list_dict.items():
+        if service_id == base_service_id:
+          # TODO deallocate
           pass
         else:
+          # destroy
+          if base_service_id == forch.FogServiceID.DOCKER.value:
+            return self.destroy_container_list_docker(instance_name_list) # TODO make this multiprocessing (the method to destroy a list of containers already exists, but)
+          elif base_service_id == "FVExxx":
+            pass
+          else:
+            pass
+
+      for active_s in active_service_list:
+        # check if service_id == base_service_id, meaning service is allocated, else service is deployed
+        base_service_id = active_s.get_base_service_id()
+        if active_s.get_service_id() == base_service_id:
+          # TODO deallocate
           pass
+        else:
+          # destroy
+          if base_service_id == forch.FogServiceID.DOCKER.value:
+            # instance_list = [ s.get_instance_name() for s in active_service_list if s.get_instance_name()]
+            return self.destroy_container_docker(active_s.get_instance_name()) # TODO make this multiprocessing (the method to destroy a list of containers already exists, but)
+          elif base_service_id == "FVExxx":
+            pass
+          else:
+            pass
 
   def destroy_all_services(self):
     """Returns list of IDs of destroyed services"""
@@ -238,7 +261,7 @@ class FNVI(object):
     return list(set([ c.name.split("-")[0] for c in self.docker_container_list()
       if any(c.name.startswith(service_type) for service_type in service_type_list) ]))
 
-  def deploy_service_docker(self, service_id, image_name, **kwargs):
+  def deploy_container_docker(self, service_id, image_name, **kwargs):
 
     container_name = self.__generate_container_name(service_id)
 
@@ -254,32 +277,39 @@ class FNVI(object):
 
     return container
 
-  def destroy_service_docker(self, service_id, *, prune=True):
+  def destroy_container_docker(self, container_name, *, prune=True):
     for c in self.docker_container_list():
-      if c.name.startswith(service_id):
+      if c.name == container_name:
         c.stop()
+        break
     if prune:
       self.docker_container_prune()      
       self.docker_network_prune()
-    return service_id
+    return container_name
 
-  def destroy_all_services_docker(self):
-    active_service_list = self.get_active_service_list()
-    active_docker_service_id_list = [ active_s.get_service_id() for active_s in active_service_list
-      if active_s.get_base_service_id() == "FVE001" ] # TODO avoid hardcoding
-    if active_docker_service_id_list:
-      logger.debug(f"Remove services {active_docker_service_id_list}")
-      process_list = []
-      for as_id in active_docker_service_id_list:
-        p = multiprocessing.Process(target=self.destroy_service_docker, args=(as_id,), kwargs={"prune": False})
-        p.start()
-        process_list.append(p)
-      for p in process_list:
-        p.join()
-      self.docker_container_prune()
+  def destroy_container_list_docker(self, container_name_list, *, prune=True):
+    logger.debug(f"Remove containers {container_name_list}")
+    process_list = []
+    for container_name in container_name_list:
+      p = multiprocessing.Process(target=self.destroy_container_docker, args=(container_name,), kwargs={"prune": False})
+      p.start()
+      process_list.append(p)
+    for p in process_list:
+      p.join()
+    if prune:
+      self.docker_container_prune()      
       self.docker_network_prune()
+    return container_name_list
+
+  def destroy_all_containers_docker(self):
+    active_service_list = self.get_active_service_list()
+    active_docker_container_name_list = [ active_s.get_instance_name() for active_s in active_service_list
+      if active_s.get_base_service_id() == forch.FogServiceID.DOCKER.value ]
+    if active_docker_container_name_list:
+      self.destroy_container_list_docker(active_docker_container_name_list)
     else:
-      logger.debug("No Docker service to destroy")
+      logger.debug("No Docker containers to destroy")
+    return active_docker_container_name_list
 
 ### API Resources
 
@@ -347,8 +377,7 @@ class FogServices(Resource):
           forch.DockerContainerConfiguration[forch.InstanceConfiguration.FORWARD_ALL_PORTS.value].value: True
         }
 
-      container = FNVI.get_instance().deploy_service_docker(s_id, image_name, **instance_conf_dict)
-      # container = FNVI.get_instance().deploy_service_docker(s_id, image_name)
+      container = FNVI.get_instance().deploy_container_docker(s_id, image_name, **instance_conf_dict)
 
       assert container is not None, f'Error deploying service {s_id}, check image name "{image_name}"'
       assert container != b'', f'Error deploying service {s_id}, check run parameters'
