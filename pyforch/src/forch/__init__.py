@@ -107,7 +107,7 @@ DockerNetworkConfiguration = Enum("DockerNetworkConfiguration", {
 
 class User():
 
-  def __init__(self, *, name, id=None, role=None):
+  def __init__(self, name, *, id=None, role=None):
     self.__name = name
     self.__id = id
     self.__role = role
@@ -130,11 +130,13 @@ class User():
 
 class Project():
   
-  def __init__(self, *, name, id=None, user_list=None, configuration_dict=None):
+  def __init__(self, name, *, id=None, user_list=None, instance_configuration_dict=None, network_configuration_dict=None):
     self.__name = name
     self.__id = id
     self.__user_list = user_list
-    self.__configuration_dict = configuration_dict # list of configurations specific to this project, e.g., a network with a given IP address space on which all services deployed for this project must be
+    # dicts of configurations specific to this project, e.g., a network with a given IP address space on which all services deployed for this project must be
+    self.__instance_configuration_dict = instance_configuration_dict 
+    self.__network_configuration_dict = network_configuration_dict
 
   def get_name(self):
     return self.__name
@@ -151,15 +153,20 @@ class Project():
   def set_user_list(self, user_list) :
     self.__user_list = user_list
 
-  def get_configuration_dict(self):
-    return self.__configuration_dict
-  def set_configuration_dict(self, configuration_dict) :
-    self.__configuration_dict = configuration_dict
+  def get_instance_configuration_dict(self):
+    return self.__instance_configuration_dict
+  def set_instance_configuration_dict(self, instance_configuration_dict) :
+    self.__instance_configuration_dict = instance_configuration_dict
+
+  def get_network_configuration_dict(self):
+    return self.__network_configuration_dict
+  def set_network_configuration_dict(self, network_configuration_dict) :
+    self.__network_configuration_dict = network_configuration_dict
 
 
 class ActiveService(Service):
 
-  def __init__(self, *, service_id, node_ip=None, base_service_id=None, instance_name=None, user=None, project=None):
+  def __init__(self, *, service_id, node_ip=None, base_service_id=None, instance_name=None, instance_ip=None, user=None, project=None):
     super().__init__(id=service_id)
 
     self.__service_id = self.get_id()
@@ -167,6 +174,7 @@ class ActiveService(Service):
     self.__base_service_id = base_service_id if base_service_id is not None else self.__service_id
 
     self.__instance_name = instance_name
+    self.__instance_ip = instance_ip
 
     if user is not None:
       assert isinstance(user, User), ""
@@ -200,6 +208,11 @@ class ActiveService(Service):
 	  return self.__instance_name
   def set_instance_name(self, instance_name) :
 	  self.__instance_name = instance_name
+
+  def get_instance_ip(self):
+	  return self.__instance_ip
+  def set_instance_ip(self, instance_ip) :
+	  self.__instance_ip = instance_ip
 
   def get_user(self):
 	  return self.__user

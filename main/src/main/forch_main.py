@@ -131,9 +131,15 @@ class FOB(object):
   def get_project_list(self):
     return self.__project_list
 
-  def __set_project_list(self, project_list):
+  def set_project_list(self, project_list):
     assert all( isinstance(s, forch.Project) for s in project_list ), "All elements must be Project objects!"
     self.__project_list = project_list
+
+  def get_project_by_name(self, project_name):
+    for p in self.get_project_list():
+      if p.get_name() == project_name:
+        return p
+    return None
 
   def update_active_service_list(self, active_service):
     active_service_list = self.get_active_service_list()
@@ -341,15 +347,24 @@ class FOVIM(object):
       request_json = dict(base=source.get_base(), image=source.get_name())
       # extract additional project configurations for this instance
       # then relate them to Docker, and serialize them into the JSON of the POST
-      instance_conf_dict = { forch.DockerContainerConfiguration[conf_name]: conf_value
-        for conf_name, conf_value in project.get_configuration_dict().items() }
-      request_json.update(instance_conf_dict)
+      if project.get_instance_configuration_dict():
+        instance_conf_dict = { forch.DockerContainerConfiguration[conf_name].value: conf_value
+          for conf_name, conf_value in project.get_instance_configuration_dict().items() }
+        request_json["instance_conf"] = instance_conf_dict # TODO avoid hardcoding string
+        # network configuration
+        if forch.InstanceConfiguration.ATTACH_TO_NETWORK.value in project.get_instance_configuration_dict():
+          network_conf_dict = { forch.DockerNetworkConfiguration[conf_name].value: conf_value
+          for conf_name, conf_value in project.get_network_configuration_dict().items() }
+          request_json["network_conf"] = network_conf_dict # TODO avoid hardcoding string
       # send deployment request to node
+      logger.debug("Deployment request: {}".format(json.dumps(request_json)))
       response = requests.post(f"http://{node_ip}:6001/services/{service_id}", json=request_json)
       response_code = response.status_code
       if response_code == 201:
         response_json = response.json()
-        active_s = forch.ActiveService(service_id=service_id, instance_name=response_json["name"])
+        logger.debug("Deployment response: {}".format(json.dumps(response_json)))
+        active_s = forch.ActiveService(service_id=service_id,
+          instance_name=response_json["name"], instance_ip=response_json["ip"])
         src_port_list = source.get_port_list()
         if len(src_port_list) == 0:
           active_s.add_node(ipv4=node_ip)
@@ -419,12 +434,28 @@ class FogServices(Resource):
     """Submit request for allocation of a service."""
 
     request_json = flask.request.get_json(force=True)
-    # TODO retrieve project name from request JSON, or if no project is specified, default to a default name
-    project_name = request_json["project"] if request_json["project"] else "default" # TODO avoid hardcoding strings
-    # TODO find Project instance in FOB
-    project = forch.Project(name=project_name)
-    active_s = FOB.get_instance().activate_service(s_id, project) # returns ActiveService
+
+    # retrieve project name from request JSON, or if no project is specified, default to a default name
+    if "project" in request_json: # TODO avoid hardcoding strings
+      project_name = request_json["project"]
+    else:
+      return {
+          "message": f"Must specify project name"
+          # "type": "FOCO_SERV_POST",
+          # "services": []
+        }, 404
     
+    # find Project instance in FOB
+    project = FOB.get_instance().get_project_by_name(project_name)
+    if project is None:
+      # project not found
+      return {
+          "message": f"Project {project_name} not found."
+          # "type": "FOCO_SERV_POST",
+          # "services": []
+        }, 404
+
+    active_s = FOB.get_instance().activate_service(s_id, project=project) # returns ActiveService
     if active_s is None:
       # service not found
       return {
@@ -441,14 +472,27 @@ class FogServices(Resource):
         # "type": "FOCO_SERV_POST"
         }, 503
       elif len(active_s.get_node_list()) == 1:
-        # TODO find a way to distinguish 200 from 201 -- maybe check if service_id and base_service_id are the same, meaning allocation (so 200) or otherwise it's deployment (so 201)
-        sn = active_s.get_node_by_id(active_s.get_node_id())
-        return {
-          "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
-          "node_ip": str(sn.get_ip()),
-          "node_port": sn.get_port()
-          # "type": "FOCO_SERV_POST"
-        }, 200
+        # distinguish 200 from 201 by checking if service_id and base_service_id are the same
+        if active_s.get_service_id() == active_s.get_base_service_id():
+          # allocation
+          sn = active_s.get_node_by_id(active_s.get_node_id())
+          return {
+            "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
+            "node_ip": str(sn.get_ip()),
+            "instance_ip": str(active_s.get_instance_ip()),
+            "node_port": sn.get_port()
+            # "type": "FOCO_SERV_POST"
+          }, 200
+        else:
+          # deployment
+          sn = active_s.get_node_by_id(active_s.get_node_id())
+          return {
+            "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
+            "node_ip": str(sn.get_ip()),
+            "instance_ip": str(active_s.get_instance_ip()),
+            "node_port": sn.get_port()
+            # "type": "FOCO_SERV_POST"
+          }, 201
     else:
       # TODO handle case
       pass
@@ -504,9 +548,41 @@ if __name__ == '__main__':
   FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute()))
   FOB.get_instance().find_active_services(refresh_sc=True)
 
-  ### project configurations
+  # project configurations
 
-  # TODO
+  FOB.get_instance().set_project_list([
+    forch.Project("default"),
+    forch.Project("test-project",
+      instance_configuration_dict={
+        forch.InstanceConfiguration.DETACH.value: True,
+        forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
+        forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
+        forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "test-net",
+        forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
+      },
+      network_configuration_dict={
+        forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-test",
+        forch.NetworkConfiguration.IPv4_SUBNET.value: "192.168.111.0/24",
+        forch.NetworkConfiguration.IPv4_RANGE.value: "192.168.111.128/25",
+        forch.NetworkConfiguration.IPv4_GATEWAY.value: "192.168.111.10"
+      }
+    ),
+    forch.Project("mec-project",
+      instance_configuration_dict={
+        forch.InstanceConfiguration.DETACH.value: True,
+        forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
+        forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
+        forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "mec-net",
+        forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
+      },
+      network_configuration_dict={
+        forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-mec",
+        forch.NetworkConfiguration.IPv4_SUBNET.value: "10.15.0.0/16",
+        forch.NetworkConfiguration.IPv4_RANGE.value: "10.15.106.0/24",
+        forch.NetworkConfiguration.IPv4_GATEWAY.value: "10.15.106.0"
+      }
+    )
+  ])
 
   ### REST API
 
