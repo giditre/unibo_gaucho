@@ -617,7 +617,7 @@ api.add_resource(FogServices, '/services', '/services/<s_id>')
 
 try:
   app.run(host=local_config.get("address"),
-      port=local_config.getint("port"),
+      port=local_config.getint("forch_port"),
       debug=local_config.getboolean("debug"))
 except KeyboardInterrupt:
   pass

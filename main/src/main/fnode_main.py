@@ -499,7 +499,7 @@ if __name__ == "__main__":
 
   try:
     app.run(host=local_config.get("address"),
-      port=local_config.getint("port"),
+      port=local_config.getint("fnode_port"),
       debug=local_config.getboolean("debug"))
   except KeyboardInterrupt:
     pass
