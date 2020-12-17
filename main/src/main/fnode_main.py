@@ -355,6 +355,9 @@ class FogServices(Resource):
       container.reload()
       container_name = container.name # equivalent to container.attrs["Name"].strip("/")
       container_ip = container.attrs["NetworkSettings"]["IPAddress"]
+      if not container_ip:
+        container_ip = container.attrs["NetworkSettings"]["Networks"][container.attrs["HostConfig"]["NetworkMode"]]["IPAddress"]
+      
       
       # port_mappings = [ f'{host_port_dict["HostIp"]}:{host_port_dict["HostPort"]}->{container_port}'
       #   for host_port_dict in container.attrs["NetworkSettings"]["Ports"][container_port]
