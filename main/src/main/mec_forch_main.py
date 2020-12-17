@@ -43,14 +43,19 @@ if __name__ == '__main__':
 
     response_json = response.json()
 
-    print(f"{response_json}")
+    print(f"Response: {json.dumps(response_json, indent=2)}")
 
     if args.foghostsfile:
       with open(args.foghostsfile, "a") as f:
         f.write(f'{response_json["instance_ip"]} {response_json["instance_name"]}\n')
 
   elif args.method == "DELETE":
-    pass
+
+    response = requests.delete(url)
+
+    response_json = response.json()
+
+    print(f"Response: {json.dumps(response_json, indent=2)}")
 
   else:
     raise NotImplementedError

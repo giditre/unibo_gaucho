@@ -221,7 +221,8 @@ class FNVI(object):
     return deleted_list
 
   def __generate_container_name(self, service_id, *, image_name=None):
-    container_name = "_".join([
+    # TODO avoid hardcoding separator
+    container_name = "-".join([
       service_id,
       # image_name.replace("/", "-").replace(":", "-"),
       str(int(time()*1000)) # or '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.now())
@@ -233,7 +234,8 @@ class FNVI(object):
     return container_name
 
   def list_containerized_services_docker(self, *, service_type_list=["APP", "SDP"]):
-    return list(set([ c.name.split("_")[0] for c in self.docker_container_list()
+    # TODO avoid hardcoding separator
+    return list(set([ c.name.split("-")[0] for c in self.docker_container_list()
       if any(c.name.startswith(service_type) for service_type in service_type_list) ]))
 
   def deploy_service_docker(self, service_id, image_name, **kwargs):
