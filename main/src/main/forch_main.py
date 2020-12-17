@@ -479,6 +479,7 @@ class FogServices(Resource):
           return {
             "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
             "node_ip": str(sn.get_ip()),
+            "instance_name": str(active_s.get_instance_name()),
             "instance_ip": str(active_s.get_instance_ip()),
             "node_port": sn.get_port()
             # "type": "FOCO_SERV_POST"
@@ -489,6 +490,7 @@ class FogServices(Resource):
           return {
             "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
             "node_ip": str(sn.get_ip()),
+            "instance_name": str(active_s.get_instance_name()),
             "instance_ip": str(active_s.get_instance_ip()),
             "node_port": sn.get_port()
             # "type": "FOCO_SERV_POST"
