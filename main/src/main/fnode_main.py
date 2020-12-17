@@ -84,15 +84,16 @@ class FNVI(object):
       active_service_list.append(active_service)
       self.__set_active_service_list(active_service_list)
 
-  def find_active_services(self):
+  def find_active_services(self, *, service_category_list=["APP", "SDP"]):
     # find pre-existing services
     # cycle over known base services
     for base_service_id in [forch.FogServiceID.DOCKER.value]:
       if base_service_id == forch.FogServiceID.DOCKER.value:
         # Docker-specific
-        for cont_s_id in self.list_containerized_services_docker():
-          logger.debug(f"Found active service {cont_s_id} base {forch.FogServiceID.DOCKER.value}")
-          self.update_active_service_list(forch.ActiveService(service_id=cont_s_id, base_service_id=forch.FogServiceID.DOCKER.value))
+        for cont_name in [ c.name for c in self.docker_container_list() if any(c.name.startswith(service_category) for service_category in service_category_list) ]:
+          cont_s_id = cont_name.split("-")[0]
+          logger.debug(f"Found active service {cont_s_id} base {forch.FogServiceID.DOCKER.value} on container {cont_name}")
+          self.update_active_service_list(forch.ActiveService(service_id=cont_s_id, base_service_id=forch.FogServiceID.DOCKER.value, instance_name=cont_name))
       elif base_service_id == "FVExxx":
         pass
       else:
@@ -256,10 +257,10 @@ class FNVI(object):
     assert container_name not in [ c.name for c in self.docker_container_list() ], f"Name {container_name} already in use by container {self.__get_docker_client().containers.get(container_name)}"
     return container_name
 
-  def list_containerized_services_docker(self, *, service_type_list=["APP", "SDP"]):
+  def list_containerized_services_docker(self, *, service_category_list=["APP", "SDP"]):
     # TODO avoid hardcoding separator
     return list(set([ c.name.split("-")[0] for c in self.docker_container_list()
-      if any(c.name.startswith(service_type) for service_type in service_type_list) ]))
+      if any(c.name.startswith(service_category) for service_category in service_category_list) ]))
 
   def deploy_container_docker(self, service_id, image_name, **kwargs):
 
@@ -273,7 +274,7 @@ class FNVI(object):
       return None
 
     # just before returning, update active service list
-    self.update_active_service_list(forch.ActiveService(service_id=service_id, base_service_id=forch.FogServiceID.DOCKER.value))
+    self.update_active_service_list(forch.ActiveService(service_id=service_id, base_service_id=forch.FogServiceID.DOCKER.value, instance_name=container_name))
 
     return container
 
