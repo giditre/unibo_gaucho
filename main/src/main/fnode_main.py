@@ -476,10 +476,7 @@ class FogServices(Resource):
 # if args.address == default_address:
 #   logger.warning(f"Running with default IP address {args.address}")
 
-config_parser = configparser.ConfigParser()
-config_parser.read(str(Path(__file__).parent.joinpath("fnode.ini").absolute()))
-
-local_config = config_parser[socket.gethostname()]
+local_config = forch.get_local_config(Path(__file__).parent.joinpath("fnode.ini").absolute())
 logger.debug(f"Config: {dict(local_config.items())}")
 
 ### instantiate components
@@ -501,7 +498,7 @@ api.add_resource(FogServices, '/services', '/services/<s_id>')
 if __name__ == "__main__":
 
   try:
-    app.run(host=local_config["address"],
+    app.run(host=local_config.get("address"),
       port=local_config.getint("port"),
       debug=local_config.getboolean("debug"))
   except KeyboardInterrupt:
