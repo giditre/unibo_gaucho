@@ -1,12 +1,11 @@
 import logging
 from logging.config import fileConfig
 from pathlib import Path
-from pyforch.src.forch import DockerContainerConfiguration, InstanceConfiguration
 fileConfig(str(Path(__file__).parent.joinpath("logging.ini")))
 logger = logging.getLogger(__name__)
 logger.info(f"Load {__name__} with {logger}")
 
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, IPv4Network
 from time import time
 import multiprocessing
 
@@ -173,8 +172,8 @@ class FNVI(object):
     if bridge_address is not None or subnet is not None or dhcp_range is not None:
 
       assert IPv4Address(bridge_address), "Must provide a valid IPv4 address in CIDR notation!"
-      assert IPv4Address(subnet), "Must provide a valid IPv4 subnet in CIDR notation!"
-      assert IPv4Address(dhcp_range), "Must provide a valid IPv4 subnet in CIDR notation!"
+      assert IPv4Network(subnet), "Must provide a valid IPv4 subnet in CIDR notation!"
+      assert IPv4Network(dhcp_range), "Must provide a valid IPv4 subnet in CIDR notation!"
 
       ipam_config = docker.types.IPAMConfig( pool_configs=[ docker.types.IPAMPool(
         subnet=subnet, iprange=dhcp_range, gateway=bridge_address)
@@ -243,8 +242,6 @@ class FNVI(object):
 
     logger.debug(f"Deploy service {service_id} with container {container_name} using image {image_name}")
 
-    # container = self.docker_container_run(image_name, name=container_name, hostname=container_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, command=None, entrypoint=None)
-
     container = self.docker_container_run(image_name, name=container_name, hostname=container_name, **kwargs)
 
     if container is None:
@@ -260,7 +257,8 @@ class FNVI(object):
       if c.name.startswith(service_id):
         c.stop()
     if prune:
-      self.docker_container_prune()
+      self.docker_container_prune()      
+      self.docker_network_prune()
     return service_id
 
   def destroy_all_services_docker(self):
@@ -277,6 +275,7 @@ class FNVI(object):
       for p in process_list:
         p.join()
       self.docker_container_prune()
+      self.docker_network_prune()
     else:
       logger.debug("No Docker service to destroy")
 
@@ -324,23 +323,32 @@ class FogServices(Resource):
       assert forch.InstanceConfiguration.IMAGE.value in request_json, f"Must specify image in {request_json}"
       image_name = request_json[forch.InstanceConfiguration.IMAGE.value]
 
-      instance_conf_dict = request_json["instance_conf"] # TODO avoid hardcoding string
+      if "instance_conf" in request_json: # TODO avoid hardcoding string
+        instance_conf_dict = request_json["instance_conf"] 
 
-      # preliminary configuration
-      # if a network configuration is requested, check that the network exists
-      if DockerContainerConfiguration[InstanceConfiguration.ATTACH_TO_NETWORK.value] in instance_conf_dict:
-        network_name = instance_conf_dict[DockerContainerConfiguration[InstanceConfiguration.ATTACH_TO_NETWORK.value]]
-        if self.docker_network_exists(network_name) == False:
-          logger.debug(f"Network {network_name} does not exist")
-          # create it, based on network configuration info in the JSON
-          # these configs are assumed to be compatible with the employed Docker method
-          network_conf_dict = request_json["network_conf"] # TODO avoid hardcoding string
-          FNVI.get_instance().docker_network_create_with_bridge(network_name, **network_conf_dict)
-          # TODO check network was correctly created
+        # preliminary configuration
+        # if a network configuration is requested, check that the network exists
+        if forch.DockerContainerConfiguration[forch.InstanceConfiguration.ATTACH_TO_NETWORK.value].value in instance_conf_dict:
+          network_name = instance_conf_dict[forch.DockerContainerConfiguration[forch.InstanceConfiguration.ATTACH_TO_NETWORK.value].value]
+          if FNVI.get_instance().docker_network_exists(network_name) == False:
+            logger.debug(f"Network {network_name} does not exist")
+            # create it, based on network configuration info in the JSON
+            # these configs are assumed to be compatible with the employed Docker method
+            network_conf_dict = request_json["network_conf"] # TODO avoid hardcoding string
+            FNVI.get_instance().docker_network_create_with_bridge(network_name, **network_conf_dict)
+            # TODO check network was correctly created
+      else:
+        instance_conf_dict = {
+          forch.DockerContainerConfiguration[forch.InstanceConfiguration.DETACH.value].value: True,
+          forch.DockerContainerConfiguration[forch.InstanceConfiguration.KEEP_STDIN_OPEN.value].value: True,
+          forch.DockerContainerConfiguration[forch.InstanceConfiguration.ALLOCATE_TERMINAL.value].value: True
+        }
 
       container = FNVI.get_instance().deploy_service_docker(s_id, image_name, **instance_conf_dict)
+      # container = FNVI.get_instance().deploy_service_docker(s_id, image_name)
 
       assert container is not None, f'Error deploying service {s_id}, check image name "{image_name}"'
+      assert container != b'', f'Error deploying service {s_id}, check run parameters'
 
       # refresh attrs dictionary
       container.reload()
