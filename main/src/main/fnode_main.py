@@ -220,10 +220,10 @@ class FNVI(object):
     logger.info(f"Pruned {len(deleted_list)} container(s)")
     return deleted_list
 
-  def __generate_container_name(self, service_id, image_name):
+  def __generate_container_name(self, service_id, *, image_name=None):
     container_name = "_".join([
       service_id,
-      image_name.replace("/", "-").replace(":", "-"),
+      # image_name.replace("/", "-").replace(":", "-"),
       str(int(time()*1000)) # or '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.now())
       ])
     # check length (limit imposed by hostname field)
@@ -238,7 +238,7 @@ class FNVI(object):
 
   def deploy_service_docker(self, service_id, image_name, **kwargs):
 
-    container_name = self.__generate_container_name(service_id, image_name)
+    container_name = self.__generate_container_name(service_id)
 
     logger.debug(f"Deploy service {service_id} with container {container_name} using image {image_name}")
 
@@ -418,11 +418,14 @@ if __name__ == '__main__':
   import argparse
 
   default_address = "0.0.0.0"
+  default_port = forch.get_fog_node_main_port()
 
   parser = argparse.ArgumentParser()
-  parser.add_argument("-a", "--address", help="This component's IP address", nargs="?", default=default_address)
-  parser.add_argument("-p", "--port", help="This component's TCP port", type=int, nargs="?", default=6001)
-  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
+  parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
+    nargs="?", default=default_address)
+  parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
+    nargs="?", default=default_port)
+  parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
   args = parser.parse_args()
 
   if args.address == default_address:

@@ -53,6 +53,12 @@ class FogServiceID(Enum):
   DOCKER = "FVE001"
 
 
+_FOG_NODE_MAIN_PORT = 6001
+
+def get_fog_node_main_port():
+  return _FOG_NODE_MAIN_PORT
+
+
 class InstanceConfiguration(Enum):
   # general
   BASE = "base"

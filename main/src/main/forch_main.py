@@ -155,7 +155,7 @@ class FOB(object):
         node_ip = sn.get_ip()
         # query node
         # TODO do this through FOVIM
-        response = requests.get(f"http://{node_ip}:6001/services")
+        response = requests.get(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services")
         resp_json = response.json()
         sn_service_id_list = resp_json["services"]
         for sn_service_id in sn_service_id_list:
@@ -358,7 +358,7 @@ class FOVIM(object):
           request_json["network_conf"] = network_conf_dict # TODO avoid hardcoding string
       # send deployment request to node
       logger.debug("Deployment request: {}".format(json.dumps(request_json)))
-      response = requests.post(f"http://{node_ip}:6001/services/{service_id}", json=request_json)
+      response = requests.post(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}", json=request_json)
       response_code = response.status_code
       if response_code == 201:
         response_json = response.json()
@@ -388,7 +388,7 @@ class FOVIM(object):
   def manage_destruction(*, service_id, node_ip):
     logger.debug(f"Destroy {service_id} on node {node_ip}")
     
-    response = requests.delete(f"http://{node_ip}:6001/services/{service_id}")
+    response = requests.delete(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}")
     # TODO avoid returning this directly, but process it and return a single value, maybe the service id
     return response.json(), response.status_code
 
@@ -525,16 +525,16 @@ if __name__ == '__main__':
   ### Command line argument parser
 
   import argparse
+
+  default_address = "127.0.0.1"
+  default_port = 6000
+
   parser = argparse.ArgumentParser()
-  parser.add_argument("address", help="This component's IP address", nargs="?", default="127.0.0.1")
-  parser.add_argument("port", help="This component's TCP port", type=int, nargs="?", default=6001)
-  # parser.add_argument("--db-json", help="Database JSON file, default: rsdb.json", nargs="?", default="rsdb.json")
-  # parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-  # parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", type=int, nargs="?", default=5004)
-  # parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
-  # parser.add_argument("--mon-history", help="Number of monitoring elements to keep in memory, default: 300", type=int, nargs="?", default=300)
-  # parser.add_argument("--mon-period", help="Monitoring period in seconds, default: 10", type=int, nargs="?", default=10)
-  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
+  parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
+    nargs="?", default=default_address)
+  parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
+    nargs="?", default=default_port)
+  parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
   args = parser.parse_args()
 
   ### instantiate components
