@@ -382,7 +382,7 @@ class SLPFactory:
       try:
         slp.SLPReg(self.get_handler(), srvurl, lifetime, None, attrs, True, self.__reg_callback, None)
       except RuntimeError as e:
-        print("Error registering new service: " + str(e))
+        print("Error registering new service: " + str(e)) # TODO undestand why it often raises SLP_NETWORK_INIT_FAILED error
 
     def __deregister_service(self, srvurl):
       try:
