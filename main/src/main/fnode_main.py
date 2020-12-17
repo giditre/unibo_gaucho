@@ -138,21 +138,21 @@ class FNVI(object):
           else:
             pass
 
-      for active_s in active_service_list:
-        # check if service_id == base_service_id, meaning service is allocated, else service is deployed
-        base_service_id = active_s.get_base_service_id()
-        if active_s.get_service_id() == base_service_id:
-          # TODO deallocate
-          pass
-        else:
-          # destroy
-          if base_service_id == forch.FogServiceID.DOCKER.value:
-            # instance_list = [ s.get_instance_name() for s in active_service_list if s.get_instance_name()]
-            return self.destroy_container_docker(active_s.get_instance_name()) # TODO make this multiprocessing (the method to destroy a list of containers already exists, but)
-          elif base_service_id == "FVExxx":
-            pass
-          else:
-            pass
+      # for active_s in active_service_list:
+      #   # check if service_id == base_service_id, meaning service is allocated, else service is deployed
+      #   base_service_id = active_s.get_base_service_id()
+      #   if active_s.get_service_id() == base_service_id:
+      #     # TODO deallocate
+      #     pass
+      #   else:
+      #     # destroy
+      #     if base_service_id == forch.FogServiceID.DOCKER.value:
+      #       # instance_list = [ s.get_instance_name() for s in active_service_list if s.get_instance_name()]
+      #       return self.destroy_container_docker(active_s.get_instance_name()) # TODO make this multiprocessing (the method to destroy a list of containers already exists, but)
+      #     elif base_service_id == "FVExxx":
+      #       pass
+      #     else:
+      #       pass
 
   def destroy_all_services(self):
     """Returns list of IDs of destroyed services"""
@@ -465,7 +465,8 @@ if __name__ == '__main__':
   ### instantiate components
 
   # FNVI.get_instance().set_ipv4("192.168.64.123")
-  FNVI.get_instance().set_ipv4(args.address)
+  FNVI.get_instance().set_ipv4("10.15.5.48")
+  # FNVI.get_instance().set_ipv4(args.address)
   FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath("fnode_services.json").absolute()))
   FNVI.get_instance().register_service_list()
   FNVI.get_instance().find_active_services()
