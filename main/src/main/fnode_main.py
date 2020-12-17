@@ -8,6 +8,9 @@ logger.info(f"Load {__name__} with {logger}")
 from ipaddress import IPv4Address, IPv4Network
 from time import time
 import multiprocessing
+import sys
+import configparser
+import socket
 
 import flask
 from flask_restful import Resource, Api
@@ -317,7 +320,7 @@ class FNVI(object):
 class Test(Resource):
   def get(self):
     return {
-      "message": f"This component ({Path(__file__).name}) is up!",
+      "message": f"Component {Path(__file__).name} on {socket.gethostname()} is up!",
       # "type": "FN_TEST_OK"
     }
 
@@ -447,47 +450,58 @@ class FogServices(Resource):
         "message": f"Deleted all services",
         # "type": "FN_DEL_OK",
         }, 200
-    
 
-if __name__ == '__main__':
+### argument parser
 
-  ### Command line argument parser
+# import argparse
 
-  import argparse
+# default_address = "0.0.0.0"
+# default_port = forch.get_fog_node_main_port()
 
-  default_address = "0.0.0.0"
-  default_port = forch.get_fog_node_main_port()
+# parser = argparse.ArgumentParser()
+# parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
+#   nargs="?", default=default_address)
+# parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
+#   nargs="?", default=default_port)
+# parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
+# args = parser.parse_args()
 
-  parser = argparse.ArgumentParser()
-  parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
-    nargs="?", default=default_address)
-  parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
-    nargs="?", default=default_port)
-  parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
-  args = parser.parse_args()
+# if args.address == default_address:
+#   logger.warning(f"Running with default IP address {args.address}")
 
-  if args.address == default_address:
-    logger.warning(f"Running with default IP address {args.address}")
+config_parser = configparser.ConfigParser()
+config_parser.read(str(Path(__file__).parent.joinpath("fnode.ini").absolute()))
 
-  ### instantiate components
+local_config = config_parser[socket.gethostname()]
+logger.debug(f"Config: {dict(local_config.items())}")
 
-  # FNVI.get_instance().set_ipv4("192.168.64.123")
-  FNVI.get_instance().set_ipv4("10.15.5.48")
-  # FNVI.get_instance().set_ipv4(args.address)
-  FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath("fnode_services.json").absolute()))
-  FNVI.get_instance().register_service_list()
-  FNVI.get_instance().find_active_services()
+### instantiate components
 
-  ### REST API
+FNVI.get_instance().set_ipv4(local_config["address"])
+FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath(local_config["services_json"]).absolute())) # TODO add configuration for file name
+FNVI.get_instance().register_service_list()
+try:
+  FNVI.get_instance().find_active_services() # this might raise a RuntimeError
+# TODO add configuration flag for this
+except RuntimeError:
+  logger.info("Cleanup after error")
+  FNVI.del_instance()
+  sys.exit()
 
-  app = flask.Flask(__name__)
-  api = Api(app)
+### REST API
 
-  api.add_resource(Test, '/test')
-  api.add_resource(FogServices, '/services', '/services/<s_id>')
-  
+app = flask.Flask(__name__)
+api = Api(app)
+
+api.add_resource(Test, '/test')
+api.add_resource(FogServices, '/services', '/services/<s_id>')
+
+if __name__ == "__main__":
+
   try:
-    app.run(host=args.address, port=args.port, debug=args.debug)
+    app.run(host=local_config["address"],
+      port=local_config.getint("port"),
+      debug=local_config.getboolean("debug"))
   except KeyboardInterrupt:
     pass
   finally:
