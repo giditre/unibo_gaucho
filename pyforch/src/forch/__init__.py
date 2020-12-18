@@ -100,7 +100,7 @@ DockerContainerConfiguration = Enum("DockerContainerConfiguration", {
   InstanceConfiguration.DNS_SEARCH.value: "dns_search",
   InstanceConfiguration.DNS_SERVER.value: "dns",
   InstanceConfiguration.ENTRYPOINT.value: "entrypoint",
-  InstanceConfiguration.ENVIRONMENT_VARIABLE.value: "env",
+  InstanceConfiguration.ENVIRONMENT_VARIABLE.value: "environment",
   InstanceConfiguration.FORWARD_ALL_PORTS.value: "publish_all_ports",
   InstanceConfiguration.KEEP_STDIN_OPEN.value: "stdin_open",
   InstanceConfiguration.SET_IPv4_ADDRESS.value: "ip"
