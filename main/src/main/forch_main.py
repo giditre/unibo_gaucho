@@ -590,13 +590,13 @@ FOB.get_instance().set_project_list([
       forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
       forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "mec-net",
       forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True,
-      forch.InstanceConfiguration.ENVIRONMENT_VARIABLE.value: {"VAR": "fog"}
+      forch.InstanceConfiguration.ENVIRONMENT_VARIABLE.value: {"INFRA": "fog"}
     },
     network_configuration_dict={
       forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-mec",
-      forch.NetworkConfiguration.IPv4_SUBNET.value: "10.15.0.0/16",
-      forch.NetworkConfiguration.IPv4_RANGE.value: "10.15.106.0/24",
-      forch.NetworkConfiguration.IPv4_GATEWAY.value: "10.15.106.0"
+      forch.NetworkConfiguration.IPv4_SUBNET.value: "172.30.30.0/24",
+      # forch.NetworkConfiguration.IPv4_RANGE.value: "172.24.24.0/24",
+      forch.NetworkConfiguration.IPv4_GATEWAY.value: "172.24.24.254"
     }
   )
 ])

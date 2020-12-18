@@ -58,7 +58,7 @@ if __name__ == '__main__':
     # TODO relegate this to function that also checks uniqueness of IP
     if args.hosts_file:
       with open(args.hosts_file, "w" if args.overwrite_hosts else "a") as f:
-        f.write(f'{response_json["instance_name"]} 60 IN A {response_json["instance_ip"]} ') # TODO parametrize format
+        f.write(f'{response_json["instance_name"]} 60 IN A {response_json["instance_ip"]}\n') # TODO parametrize format
         # if args.hosts_domain:
         #   f.write(f".{args.hosts_domain}")
         # f.write("\n")
