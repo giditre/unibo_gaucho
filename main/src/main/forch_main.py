@@ -564,6 +564,8 @@ if preexisting_active_service_list:
 
 # project configurations
 
+# TODO add configuration file for this
+
 FOB.get_instance().set_project_list([
   forch.Project("default"),
   forch.Project("test-project",
@@ -587,7 +589,8 @@ FOB.get_instance().set_project_list([
       forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
       forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
       forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "mec-net",
-      forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
+      forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True,
+      forch.InstanceConfiguration.ENVIRONMENT_VARIABLE.value: {"VAR": "fog"}
     },
     network_configuration_dict={
       forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-mec",
