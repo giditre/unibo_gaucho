@@ -154,7 +154,7 @@ class Service:
       self.get_node_list().append(self.__ServiceNode(id=node_id, ipv4=ipv4, port=port, path=path, lifetime=lifetime))
       return node_id
 
-  def get_node_by_id(self, node_id:str):
+  def get_node_by_id(self, node_id:str) -> Service.__ServiceNode|None:
     # assert ...
     try:
       return next(sn for sn in self.get_node_list() if sn.get_id() == node_id)
@@ -165,7 +165,7 @@ class Service:
   # https://stackoverflow.com/questions/9835762/how-do-i-find-the-duplicates-in-a-list-and-create-another-list-with-them
   # https://stackoverflow.com/questions/9542738/python-find-in-list
   @classmethod
-  def aggregate_nodes_of_equal_services(cls, service_list:List[Service]): #TODO M: trovare nome migliore
+  def aggregate_nodes_of_equal_services(cls, service_list:List[Service]) -> List[Service]: #TODO M: trovare nome migliore
     assert isinstance(service_list, list), "Parameter service_list must be a list!"
     ret_list = []
     for srvc in service_list:
@@ -179,7 +179,7 @@ class Service:
         ret_list[ret_list.index(srvc)] = cls(name=srvc.get_name(), protocol=srvc.get_protocol(), node_list=new_node_list, id=srvc.get_id(), category=srvc.get_category(), description=srvc.get_descr())
     return ret_list
 
-  def get_node_by_metric(self, m_type:MetricType=MetricType.CPU, check:str="min"):
+  def get_node_by_metric(self, m_type:MetricType=MetricType.CPU, check:str="min") -> Service.__ServiceNode|None:
     assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
 
     # check is there are nodes offering this service
@@ -213,7 +213,7 @@ class Service:
       if res_metric == node.get_metric_by_type(m_type):
         return node
         
-  def refresh_measurements(self, mode:MeasurementRetrievalMode=MeasurementRetrievalMode.SERVICE):
+  def refresh_measurements(self, mode:MeasurementRetrievalMode=MeasurementRetrievalMode.SERVICE) -> None:
     assert self.__class__.__orchestrator, "This method cannot be called since this node in not the orchestrator!"
     assert isinstance(mode, MeasurementRetrievalMode), "Parameter mode must be a MeasurementRetrievalMode!"
     # check retrieval mode
@@ -262,7 +262,7 @@ class Service:
   #   return cls(id=service_id)
 
   @classmethod
-  def create_services_from_json(cls, *, json_file_name:str, ipv4:IPv4Address):
+  def create_services_from_json(cls, *, json_file_name:str, ipv4:IPv4Address) -> List[Service]:
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address object!"
