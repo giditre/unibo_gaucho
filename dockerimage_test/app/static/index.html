@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css">
+
+    <title>GAUCHO Test Web Application</title>
+    <style>
+        html {
+            background-color:#212529;
+            color: white;
+        }
+
+        h3 {
+          background-color:white;
+          color:#212529;
+        }
+        
+        h1,h2,h5 {
+            color:white;
+        }
+
+        #main {
+            min-height: 100%;
+            height: 100%;
+            background-color:#212529;
+        }
+
+        #result {
+            color: white;
+            margin-left: 10%;
+            margin-right: 10%;
+            min-width: 80%;
+            min-height: 200px;
+            border-radius:5px;
+            border: solid white 2px;
+            text-align: left;
+            padding: 1%;
+        }
+
+        #service_ready_led {
+            background-color: red;
+            max-width: 10px;
+            max-height: 10px;
+            min-width: 10px;
+            min-height: 10px;
+            border-radius:50%;
+            padding-left: 10px;
+            margin-left: 15px;
+            padding-right: 15px;
+            /*float: left;*/
+        }
+        li {
+            color:white;
+        }
+        label {
+            color: white;
+        }
+        input {
+            width: 80%;
+        }
+        .form-group {
+            margin-left: 10%;
+            margin-right: 10%;
+            text-align: left;
+        }
+    </style>
+  </head>
+
+  <body>
+    <div id="main" class="text-center">
+      <h1>GAUCHO Test Web Application</h1>
+
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li id="navhello" class="nav-item active">
+              <a class="nav-link" onclick="activate_menu('hello')" href="#">Hello</a>
+            </li>
+            <li id="navqrcode" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('qrcode')" href="#">QR code</a>
+            </li>
+            <li id="navconfiguration" class="nav-item">
+              <!-- <a class="nav-link" onclick="activate_menu('form') ; get_configuration()" href="#">Form</a> -->
+              <a class="nav-link" onclick="activate_menu('sum')" href="#">Sum</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div id="hello" class="float-none d-block">
+        <br/>
+        <h5>Hello!</h5>
+        <br/>
+        <button type="button" class="btn btn-success btn-lg"
+          onclick="hello()">Hello</button>
+        <button type="button" class="btn btn-danger btn-lg"
+          onclick="bye()">Bye</button>
+      </div>
+
+      <div id="qrcode" class="float-none d-none">
+        <br/>
+        <h5>QR code</h5>
+        <br/>
+        <form>
+        <form href="#">
+          <div class="form-group">
+            <label for="string">Text input</label>
+            <input type="text" class="form-control" id="string" placeholder="Enter text here!">
+            <small id="input1help" class="form-text text-muted">Some text to encode as QR code</small>
+          </div>
+          <button type="submit" class="btn btn-primary" onclick="qrcode()">QRize</button>
+        </form>
+        <!-- <img id="my_image" src="first.jpg"/> -->
+        <!-- <img id="qrcodeimg" src="{{ qrcode('test') }}"> -->
+      </div>
+
+      <div id="sum" class="float-none d-none">
+        <br/>
+        <h5>Sum</h5>
+        <br/>
+        <form>
+        <form href="#">
+          <div class="form-group">
+            <label for="input1">First input</label>
+            <input type="text" class="form-control" id="input1" placeholder="1">
+            <small id="input1help" class="form-text text-muted">First input</small>
+          </div>
+          <div class="form-group">
+            <label for="input2">Second input</label>
+            <input type="text" class="form-control" id="input2" placeholder="2">
+            <small id="input2help" class="form-text text-muted">Second input</small>
+          </div>
+          <button type="submit" class="btn btn-primary" onclick="sum()">Sum</button>
+        </form>
+      </div>
+
+      <br/>
+
+      <br/>
+      <h2>Result</h2>
+      <br/>
+      <div id='result'></div>
+
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="jquery.min.js"></script>
+    <script src="index.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+
+  </body>
+
+</html>

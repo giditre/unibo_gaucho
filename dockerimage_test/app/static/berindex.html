@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css">
+
+    <title>UniBO Test MEC Application</title>
+    <style>
+      html {
+        background-color:#212529;
+        color: white;
+      }
+
+      h1,h2,h5 {
+        color:white;
+      }
+
+      #main {
+        min-height: 100%;
+        height: 100%;
+        background-color:#212529;
+      }
+
+      #result {
+        color: white;
+        margin-left: 10%;
+        margin-right: 10%;
+        min-width: 80%;
+        min-height: 200px;
+        border-radius:5px;
+        border: solid white 2px;
+        text-align: left;
+        padding: 1%;
+      }
+
+      #service_ready_led {
+        background-color: red;
+        max-width: 10px;
+        max-height: 10px;
+        min-width: 10px;
+        min-height: 10px;
+        border-radius:50%;
+        padding-left: 10px;
+        margin-left: 15px;
+        padding-right: 15px;
+        /*float: left;*/
+      }
+      li {
+        color:white;
+      }
+      label {
+        color: white;
+      }
+      input {
+        width: 80%;
+      }
+      .form-group {
+        margin-left: 10%;
+        margin-right: 10%;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="main" class="text-center">
+      <h1>UniBO Test MEC Application</h1>
+
+
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li id="navservices" class="nav-item active">
+              <a class="nav-link" onclick="activate_menu('services')" href="#">Services</a>
+            </li>
+            <li id="navsubscriptions" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('subscriptions')" href="#">Subscriptions</a>
+            </li>
+            <li id="navinteraction" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('interaction')" href="#">Interactions with Apps</a>
+            </li>
+            <li id="navtransports" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('transports')" href="#">Transports</a>
+            </li>
+            <li id="navdnsRules" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('dnsRules')" href="#">DNS rules</a>
+            </li>
+            <li id="navtimings" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('timings')" href="#">Timings</a>
+            </li>
+            <li id="navtrafficRules" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('trafficRules')" href="#">Traffic Rules</a>
+            </li>
+            <li id="navconfiguration" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('configuration') ; get_configuration()" href="#">Configuration</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+        <div id="services" class="float-none d-block">
+          <br/>
+          <h5>Services</h5>
+          <br/>
+          <button type="button" class="btn btn-primary btn-lg"
+             onclick="services()">Services</button>
+          <button type="button" class="btn btn-success btn-lg"
+             onclick="service_subscribe()">Register</button>
+          <button type="button" class="btn btn-danger btn-lg"
+             onclick="service_unsubscribe()">Unregister</button>
+        </div>
+        <div id="subscriptions" class="float-none d-none">
+          <br/>
+          <h5>Service subscriptions</h5>
+          <br/>
+          <button type="button" class="btn btn-primary btn-lg"
+             onclick="notifications()">Subscriptions</button>
+          <button type="button" class="btn btn-success btn-lg"
+             onclick="notification_subscribe()">Subscribe</button>
+          <button type="button" class="btn btn-danger btn-lg"
+             onclick="notification_unsubscribe()">Unsubscribe</button>
+          <button type="button" class="btr btn-secondary btn-lg"
+             onclick="notify_ready()">Confirm Ready</button>
+        </div>
+        <div id="interaction" class="float-none d-none">
+          <br/>
+          <h5>Interaction with applications</h5>
+          <br/>
+          <button type="button" class="btn btn-secondary btn-lg"
+             onclick="application_interaction()">Interact with the other application</button>
+        </div>
+        <div id="transports" class="float-none d-none">
+          <br/>
+          <h5>Transports</h5>
+          <br/>
+          <button type="button" class="btn btn-secondary btn-lg"
+             onclick="transports()">Transports</button>
+        </div>
+        <div id="dnsRules" class="float-none d-none">
+          <br/>
+          <h5>Dns Rules</h5>
+          <br/>
+          <button type="button" class="btn btn-primary btn-lg"
+             onclick="dns_rules()">DNS Rules</button>
+          <button type="button" class="btn btn-success btn-lg"
+             onclick="dns_rule_activate()">Activate</button>
+          <button type="button" class="btn btn-danger btn-lg"
+             onclick="dns_rule_deactivate()">Deactivate</button>
+        </div>
+        <div id="timings" class="float-none d-none">
+          <br/>
+          <h5>Timings</h5>
+          <br/>
+          <button type="button" class="btn btn-secondary btn-lg"
+             onclick="timings_caps()">Timing Caps</button>
+          <button type="button" class="btn btn-secondary btn-lg"
+             onclick="timings_current_time()">Current Time</button>
+          <button type="button" class="btn btn-secondary btn-lg"
+             onclick="start_ptp()">Start PTP</button>
+          <button type="button" class="btn btn-secondary btn-lg"
+             onclick="ptp_status()">Get PTP status</button>
+          <button type="button" class="btn btn-secondary btn-lg"
+             onclick="ptp_time()">Get PTP time</button>
+        </div>
+        <div id="trafficRules" class="float-none d-none">
+          <br/>
+          <h5>Traffic Rules</h5>
+          <br/>
+          <button type="button" class="btn btn-primary btn-lg"
+             onclick="traffic_rules()">Traffic Rules</button>
+          <button type="button" class="btn btn-success btn-lg"
+             onclick="traffic_rule_activate()">Activate</button>
+          <button type="button" class="btn btn-danger btn-lg"
+             onclick="traffic_rule_deactivate()">Deactivate</button>
+        </div>
+        <div id="configuration" class="float-none d-none">
+          <br/>
+          <h5>Configuration</h5>
+          <br/>
+          <form>
+      <form href="#">
+            <div class="form-group">
+              <label for="mec_base">MEC base address</label>
+              <input type="text" class="form-control" id="mec_base" placeholder="http://mec_base_address:80">
+              <small id="mec_basehelp" class="form-text text-muted">Should be the complete endpoint without the /mec_ part</small>
+            </div>
+
+            <div class="form-group">
+              <label for="target_service">Target Service Name</label>
+              <input type="text" class="form-control" id="target_service"
+              placeholder="mMTCSlicingService">
+              <small id="target_servicehelp" class="form-text text-muted">
+                      If empty or wrong the application will use the
+                      Other Application URI value.
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="other_application_uri">Other application URI</label>
+              <input type="text" class="form-control" id="other_application_uri" placeholder="http://other_application:80/api/v1/testendpoint">
+              <small id="other_application_urihelp" class="form-text text-muted">You
+                      can leave the field blank to automatically get the
+              endpoint when you get the service list if the service match the Service Name</small>
+            </div>
+
+            <div class="form-group">
+              <label for="app_instance_id">Application Instance ID</label>
+              <input type="text" class="form-control" id="app_instance_id" placeholder="cf1f8f9a-a925-4297-8ea4-1110149c2cba">
+              <small id="app_instance_idhelp" class="form-text text-muted">
+                      This should match the one present in the
+                      MEC platform.
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="service_data">Announced Service Data</label>
+              <textarea class="form-control" id="service_data"
+               placeholder='{ "serName": "UniboMECService" }'></textarea>
+              <small id="service_datahelp" class="form-text text-muted">
+                      The service data that will get announced to the
+                      MEC platform.
+              </small>
+            </div>
+
+            <button type="submit" class="btn btn-primary" onclick="put_configuration()">Submit</button>
+          </form>
+        </div>
+
+      <br/>
+      <br/>
+      <div>
+        <h5>Service Ready <span id='service_ready_led'></span>
+        </h5>
+      </div>
+      <br/>
+      <br/>
+      <h2>Result</h2>
+      <br/>
+      <div id='result'></div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="jquery.min.js"></script>
+    <script src="index.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+  </body>
+</html>
