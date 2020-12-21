@@ -198,9 +198,9 @@ class FNVI(object):
     ipam_config = None
     if bridge_address is not None or subnet is not None or dhcp_range is not None:
 
-      assert IPv4Address(bridge_address), "Must provide a valid IPv4 address in CIDR notation!"
-      assert IPv4Network(subnet), "Must provide a valid IPv4 subnet in CIDR notation!"
-      assert IPv4Network(dhcp_range), "Must provide a valid IPv4 subnet in CIDR notation!"
+      assert bridge_address is None or IPv4Address(bridge_address), "Must provide a valid IPv4 address in CIDR notation!"
+      assert subnet is None or IPv4Network(subnet), "Must provide a valid IPv4 subnet in CIDR notation!"
+      assert dhcp_range is None or IPv4Network(dhcp_range), "Must provide a valid IPv4 subnet in CIDR notation!"
 
       ipam_config = docker.types.IPAMConfig( pool_configs=[ docker.types.IPAMPool(
         subnet=subnet, iprange=dhcp_range, gateway=bridge_address)
@@ -366,7 +366,7 @@ class FogServices(Resource):
       image_name = request_json[forch.InstanceConfiguration.IMAGE.value]
 
       if "instance_conf" in request_json: # TODO avoid hardcoding string
-        instance_conf_dict = request_json["instance_conf"] 
+        instance_conf_dict = request_json["instance_conf"]
 
         # preliminary configuration
         # if a network configuration is requested, check that the network exists
