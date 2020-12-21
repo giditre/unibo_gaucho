@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 # from logging.config import fileConfig
 # from pathlib import Path
@@ -46,8 +47,9 @@ class MeasurementRetrievalMode(IntEnum):
 
 
 class Service:
+  __orchestrator: bool=False # default value will be never used in theory, but it is necessary to avoid pylint no-member error
 
-  def __init__(self, *, name:str="", protocol:str="", node_list:list[Service.__ServiceNode]|None=None, id:str="", category:ServiceCategory|None=None, description:str=""):
+  def __init__(self, *, name:str="", protocol:str="", node_list:List[Service.__ServiceNode]|None=None, id:str="", category:ServiceCategory|None=None, description:str=""):
     if node_list is None:
       node_list = []
     assert all( isinstance(node, self.__ServiceNode) for node in node_list ), "Parameter node_list must be a list of ServiceNode!"
@@ -57,9 +59,11 @@ class Service:
     else:
       category = ServiceCategory.NONE
 
+    self.__class__.__orchestrator = is_orchestrator()
+
     self.__name: str = name
     self.__protocol: str = protocol
-    self.__node_list: list[Service.__ServiceNode] = node_list
+    self.__node_list: List[Service.__ServiceNode] = node_list
     self.__id: str = id
     self.__category: ServiceCategory = category
     self.__description: str = description
@@ -119,7 +123,7 @@ class Service:
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address objects!"
 
     # merge with zabbix only if is_orchestrator
-    if is_orchestrator():
+    if self.__class__.__orchestrator:
       node = ZabbixAdapter.get_instance().get_node_by_ip(ipv4)
       logger.debug("Retrieved ZabbixNode {}".format(node))
       node_dict = node.to_dict()
@@ -161,7 +165,7 @@ class Service:
   # https://stackoverflow.com/questions/9835762/how-do-i-find-the-duplicates-in-a-list-and-create-another-list-with-them
   # https://stackoverflow.com/questions/9542738/python-find-in-list
   @classmethod
-  def aggregate_nodes_of_equal_services(cls, service_list:list[Service]): #TODO M: trovare nome migliore
+  def aggregate_nodes_of_equal_services(cls, service_list:List[Service]): #TODO M: trovare nome migliore
     assert isinstance(service_list, list), "Parameter service_list must be a list!"
     ret_list = []
     for srvc in service_list:
@@ -210,7 +214,7 @@ class Service:
         return node
         
   def refresh_measurements(self, mode:MeasurementRetrievalMode=MeasurementRetrievalMode.SERVICE):
-    assert is_orchestrator(), "This method cannot be called since this node in not the orchestrator!"
+    assert self.__class__.__orchestrator, "This method cannot be called since this node in not the orchestrator!"
     assert isinstance(mode, MeasurementRetrievalMode), "Parameter mode must be a MeasurementRetrievalMode!"
     # check retrieval mode
     if mode == MeasurementRetrievalMode.SERVICE:
@@ -292,7 +296,7 @@ class Service:
 
   class __ServiceNode:
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM
-    def __init__(self, *, id:str, ipv4:IPv4Address, name:str="", available:bool=False, port:int=0, path:str="", lifetime:int=0xffff, metrics_list:list[Service.__ServiceNode.__Metric]|None=None):
+    def __init__(self, *, id:str, ipv4:IPv4Address, name:str="", available:bool=False, port:int=0, path:str="", lifetime:int=0xffff, metrics_list:List[Service.__ServiceNode.__Metric]|None=None):
       if metrics_list is None:
         metrics_list = []
       for metric in metrics_list:
@@ -308,7 +312,7 @@ class Service:
       self.__port: int = port
       self.__path: str = path
       self.__lifetime: int = lifetime
-      self.__metrics_list: list[Service.__ServiceNode.__Metric] = metrics_list
+      self.__metrics_list: List[Service.__ServiceNode.__Metric] = metrics_list
 
     def __repr__(self):
       # return "{}(id={},name={},ip={},metrics={})".format(self.__class__.__name__, self.get_id(), self.get_name(), self.get_ip(), self.get_metrics_list())

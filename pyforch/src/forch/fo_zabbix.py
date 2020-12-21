@@ -1,4 +1,7 @@
+#TODO G: create/complete docstrings and declare variables types statically using hints
+
 import logging
+from typing import List
 
 # from logging.config import fileConfig
 # from pathlib import Path
@@ -132,7 +135,7 @@ class ZabbixAdapter(object):
   def get_url(self):
     return self.__url
 
-  def get_nodes(self, server_name:str="Zabbix Server") -> list[ZabbixNode]:
+  def get_nodes(self, server_name:str="Zabbix Server") -> List[ZabbixNode]:
     # fields=["hostid", "name", "available"]
 
     # z_node_list = [ ZabbixNode( *[ h[f] for f in fields ] ) for h in self.zapi.host.get(search={"name": server_name}, excludeSearch=True) ]

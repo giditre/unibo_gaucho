@@ -93,7 +93,7 @@ class SLPFactory:
 
   @classmethod
   def __destroy_common_slp_agent(cls):
-    cls.__common_slp_agent = None #TODO M: basta questo per distruggere l'agente o devo esplicitamente chiamare il suo distruttore?
+    cls.__common_slp_agent = None # Set to None in order to destroy the agent instance
 
   class __SLPAgent:
     def __init__(self, slp_handler:object=None):
@@ -118,7 +118,6 @@ class SLPFactory:
 
   # Attenction: Only one slpd at a time is allowed, otherwise it is a mess!
   class __SLPActiveAgent(__SLPAgent):
-    __daemon_pid = None # TODO M: rimuovere questo parametro inutilizzato
 
     def __init__(self, slp_handler:object=None, is_DA:bool=False):
       if not is_DA:
@@ -145,7 +144,7 @@ class SLPFactory:
 
     @classmethod
     def __start_daemon(cls, optns:str=""):
-      assert isinstance(optns, str) or optns is None, "Parameter optns must be a string!" # TODO M: rimuovere possibilità di none
+      assert isinstance(optns, str), "Parameter optns must be a string!"
 
       if cls.__daemon_is_running():
         logger.warning("Local slpd is already running.")
@@ -191,8 +190,8 @@ class SLPFactory:
       found_srvs_list = []
       for srvc_type in srvc_types_list:
         found_srvs_list.extend(self.__find_service(srvc_type))
-      # TODO M: verificare se è possibile che la lista contenga elementi uguali. Nel caso toglierli
-      # NOTE: Il TODO precedente dovrebbe essere automaticamente risolto nell'istruzione di return
+      # TODO M: check if the list contain equal elements. If yes keep only one of them
+      # NOTE: Theoretically the previous TODO is already solved in the return instruction by aggregate_nodes_of_equal_services()
 
       srvs_dict = {}
       for i, srvc_tuple in enumerate(found_srvs_list):
@@ -213,7 +212,7 @@ class SLPFactory:
             srvc.set_category(tmp_srvc.get_category())
             srvc.set_descr(tmp_srvc.get_descr())
           else:
-            #TODO M: mettere errore perchè gli attributi ci devono essere?
+            #TODO M: raise error because attributes must be present?
             pass
         else:
           assert isinstance(srvc, Service), "Unexpected type of srvc: " + type(srvc)
@@ -273,7 +272,7 @@ class SLPFactory:
         elif _SLPAttributes.has_value(attrs_list[i]):
           warnings.warn("Known service attribute {} not used.".format(attrs_list[i]))
         else:
-          raise_error(__class__.__name__, "Unexpected service attribute received!") # TODO M: forse mettere un semplice warning?
+          raise_error(__class__.__name__, "Unexpected service attribute received!") # TODO M: is a simple warning sufficient?
 
       if srvc.get_id() == "":
         return None
