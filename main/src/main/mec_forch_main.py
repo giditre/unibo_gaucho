@@ -55,9 +55,35 @@ if __name__ == '__main__':
 
     print(f"Response: {json.dumps(response_json, indent=2)}")
 
+    if response.status_code not in [200, 201]:
+      sys.exit(f"Code {response.status_code}")
+
     # TODO relegate this to function that also checks uniqueness of IP
     if args.hosts_file:
-      with open(args.hosts_file, "w" if args.overwrite_hosts else "a") as f:
+      # increment serial number
+      lines = []
+      with open(args.hosts_file) as f:
+        lines = f.readlines()
+      for i in range(len(lines)):
+        l = lines[i]
+        # print(l)
+        if "serial" in l:
+          splitted_l = l.split()
+          # print(splitted_l)
+          for j in range(len(splitted_l)):
+            e = splitted_l[j]
+            # print(e)
+            if e.isdigit():
+              splitted_l[j] = str(int(e)+1)
+              new_l = " ".join(["\t"] + splitted_l + ["\n"])
+              # print(new_l)
+              lines[i] = new_l
+              break
+          with open(args.hosts_file, "w") as f:
+            f.writelines(lines)
+          break
+      
+      with open(args.hosts_file, "a") as f:
         f.write(f'{response_json["instance_name"]} 60 IN A {response_json["instance_ip"]}\n') # TODO parametrize format
         # if args.hosts_domain:
         #   f.write(f".{args.hosts_domain}")
