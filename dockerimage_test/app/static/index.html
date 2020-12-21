@@ -82,9 +82,9 @@
             <li id="navhello" class="nav-item active">
               <a class="nav-link" onclick="activate_menu('hello')" href="#">Hello</a>
             </li>
-            <li id="navqrcode" class="nav-item">
+            <!-- <li id="navqrcode" class="nav-item">
               <a class="nav-link" onclick="activate_menu('qrcode')" href="#">QR code</a>
-            </li>
+            </li> -->
             <li id="navconfiguration" class="nav-item">
               <!-- <a class="nav-link" onclick="activate_menu('form') ; get_configuration()" href="#">Form</a> -->
               <a class="nav-link" onclick="activate_menu('sum')" href="#">Sum</a>
@@ -103,7 +103,7 @@
           onclick="bye()">Bye</button>
       </div>
 
-      <div id="qrcode" class="float-none d-none">
+      <!-- <div id="qrcode" class="float-none d-none">
         <br/>
         <h5>QR code</h5>
         <br/>
@@ -116,9 +116,8 @@
           </div>
           <button type="submit" class="btn btn-primary" onclick="qrcode()">QRize</button>
         </form>
-        <!-- <img id="my_image" src="first.jpg"/> -->
-        <!-- <img id="qrcodeimg" src="{{ qrcode('test') }}"> -->
-      </div>
+        <img id="qrcodeimg" src="{{ qrcode('test') }}">
+      </div> -->
 
       <div id="sum" class="float-none d-none">
         <br/>
@@ -145,7 +144,7 @@
       <br/>
       <h2>Result</h2>
       <br/>
-      <div id='result'></div>
+      <pre id='result'></pre>
 
     </div>
 

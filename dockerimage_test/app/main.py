@@ -9,7 +9,11 @@ import time
 
 class Hello(Resource):
   def get(self):
-    return f"Hello World from Flask in a uWSGI Nginx Docker container - {time.time()}"
+    # return f"Hello World from Flask in a uWSGI Nginx Docker container - {int(time.time())}"
+    return {
+      "message": "Hello World from Flask in a uWSGI Nginx Docker container",
+      "epoch_time": int(time.time())
+    }
 
 
 class Sum(Resource):
@@ -34,21 +38,10 @@ api = Api(app)
 api.add_resource(Hello, '/hello')
 api.add_resource(Sum, '/sum')
 
-# qrcode = QRcode(app)
-
-
 @app.route("/")
 def main():
     index_path = os.path.join(app.static_folder, "index.html")
     return flask.send_file(index_path)
-
-
-# @app.route("/qrcode", methods=["GET"])
-# def get_qrcode():
-#     # please get /qrcode?data=<qrcode_data>
-#     data = flask.request.args.get("data", "")
-#     return flask.send_file(qrcode(data, mode="raw"), mimetype="image/png")
-
 
 # Everything not declared before (not a Flask route / API endpoint)...
 @app.route("/<path:path>")
@@ -62,7 +55,6 @@ def route_frontend(path):
     else:
         index_path = os.path.join(app.static_folder, "index.html")
         return flask.send_file(index_path)
-
 
 if __name__ == "__main__":
     # Only for debugging while developing

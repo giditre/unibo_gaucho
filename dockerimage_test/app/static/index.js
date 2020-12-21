@@ -1,43 +1,53 @@
 /* 5g MEC Related */
-var _updateResult = function(data) {
+var _updateResultPlain = function(data) {
 	$( "#result" ).text(
 		data
 	)
 }
 
-var _clear_result = function() {
-	_updateResult("");
+var _updateResultJSON = function(data) {
+	$( "#result" ).text(
+		JSON.stringify(data, null, 2)
+	)
 }
 
-var _get_query = function(endpoint) {
-	$.get(endpoint).done(_updateResult);
+var _clear_result = function() {
+	_updateResultPlain("");
+}
+
+var _get_text = function(endpoint) {
+	$.get(endpoint).done(_updateResultPlain);
+}
+
+var _get_json = function(endpoint) {
+	$.get(endpoint).done(_updateResultJSON);
 }
 
 var hello = function() {
-	_get_query("hello");
+	_get_json("hello");
 }
 
 var bye = function() {
-	_clear_result();
+	_updateResultPlain("Bye!");
 }
 
-var get_configuration = function() {
-	$.get("_configuration").done( function (data_s) {
-		data = JSON.parse(data_s)
-		console.log("%o", data)
-		Object.keys(data).forEach((key) => {
-			if (typeof(data[key]) === 'string') {
-				$( `#${key}` ).val(
-					data[key]
-				)
-			} else {
-				$( `#${key}` ).val(
-					JSON.stringify(data[key], null, 4)
-				)
-			}
-		})
-	})
-}
+// var get_configuration = function() {
+// 	$.get("_configuration").done( function (data_s) {
+// 		data = JSON.parse(data_s)
+// 		console.log("%o", data)
+// 		Object.keys(data).forEach((key) => {
+// 			if (typeof(data[key]) === 'string') {
+// 				$( `#${key}` ).val(
+// 					data[key]
+// 				)
+// 			} else {
+// 				$( `#${key}` ).val(
+// 					JSON.stringify(data[key], null, 4)
+// 				)
+// 			}
+// 		})
+// 	})
+// }
 
 var sum = function() {
 	data = {};
@@ -58,22 +68,22 @@ var sum = function() {
 		contentType:"application/json; charset=utf-8",
 		dataType:"json",
 		success: function(r) {
-      _updateResult(r)
+      _updateResultJSON(r)
     }
 	})
 }
 
-var qrcode = function() {
-	string = {};
-	[ "string" ].forEach((k) => {
-		string[k] = $( `#${k}` ).val()
-	})
-	qrObj = new Object();
-  qrObj.data = string["string"];
-  $("button").click(function(){
-    $("div").text($.param(personObj));
-  });
-}
+// var qrcode = function() {
+// 	string = {};
+// 	[ "string" ].forEach((k) => {
+// 		string[k] = $( `#${k}` ).val()
+// 	})
+// 	qrObj = new Object();
+//   qrObj.data = string["string"];
+//   $("button").click(function(){
+//     $("div").text($.param(personObj));
+//   });
+// }
 
 // function executed periodically
 // setInterval(function() {
@@ -97,6 +107,7 @@ var activate_menu = function(menu) {
 	$( `#${menu}` ).removeClass('d-none')
 	$( `#${menu}` ).addClass('d-block')
 	$( `#nav${menu}` ).addClass('active')
+	_clear_result()
 
 	activeMenu = menu
 }
