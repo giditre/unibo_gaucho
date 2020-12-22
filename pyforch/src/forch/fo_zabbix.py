@@ -95,11 +95,9 @@ class ZabbixNode:
     if isinstance(node, ZabbixNode):
       # "node" is a ZabbixNode object and we need to extract the ID
       return node.get_node_id()
-    elif isinstance(node, str):
+    else:
       # "node" is already an ID
       return node
-    else:
-      raise TypeError # TODO G: rischiamo davvero di arrivare qui? M: no, quindi rimuovere questo else
 
 class ZabbixAdapter(object):
   # Used as private static final dict
