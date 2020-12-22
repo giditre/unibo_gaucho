@@ -246,7 +246,7 @@ class SLPFactory:
 
       srvc = Service(name=name, protocol=protocol)
       srvc.add_node(ipv4=host_ipv4, port=host_port, path=path)
-      # TODO: maybe check return value se Zabbix non trova il nodo che ha trovato SLP e in caso exception?
+      # TODO: maybe check return value and, if Zabbix didn't found the node found by SLP, raise an exception?
       return srvc
 
     @staticmethod

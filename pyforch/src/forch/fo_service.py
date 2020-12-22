@@ -415,7 +415,7 @@ class Service:
           return metric
       return None
       
-    # def refresh_measurements(self): # TODO G: tenere questo metodo o no?
+    # def refresh_measurements(self): # TODO G: keep this method or not?
     #   # method to refresh the value of all metrics of a node
     #   measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id([m.get_id() for m in self.get_metrics_list()])da dentro una sottoclasse?
     #   # populate the data structure
@@ -424,9 +424,9 @@ class Service:
     #     if m_id in measurements:
     #       metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP])
     #       metric.set_value(measurements[m_id][MeasurementFields.VALUE])
-    #       metric.set_unit(measurements[m_id][MeasurementFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
+    #       metric.set_unit(measurements[m_id][MeasurementFields.UNIT]) # TODO G: set the unit each time is useless (?)
     #     else:
-    #       # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
+    #       # TODO G: how can i handle the case in which a node have a metric that is not in the measurements? Is it possible to handle?
     #       pass
 
 
@@ -501,7 +501,7 @@ class Service:
       #   vars(o).update(pickle.loads(p))
       #   return o    
         
-      # def refresh_measurements(self): # TODO G: tenere questo metodo o no?
+      # def refresh_measurements(self): # TODO G: keep this method or not?
       #   # method to refresh the value of a single metric
       #   measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id(self.get_id())
       #   # populate the data structure
@@ -511,5 +511,5 @@ class Service:
       #     metric.set_value(measurements[m_id][MeasurementFields.VALUE])
       #     metric.set_unit(measurements[m_id][MeasurementFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
       #   else:
-      #     # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
+      #       # TODO G: how can i handle the case in which a node have a metric that is not in the measurements? Is it possible to handle?
       #     pass

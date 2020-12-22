@@ -129,7 +129,7 @@ class ZabbixAdapter(object):
   @classmethod
   def get_instance(cls):
     if cls.__zc is None:
-      cls.__zc = cls(key=cls.__key, url='http://localhost/zabbix/', user='Admin', password='zabbix') # TODO M: fare parse dati costruttore prendendoli da qualche parte. JSON, __init__.py, ecc...
+      cls.__zc = cls(key=cls.__key, url='http://localhost/zabbix/', user='Admin', password='zabbix') # TODO G: parse values from configfile
     return cls.__zc
 
   def get_url(self):
