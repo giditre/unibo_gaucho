@@ -227,20 +227,35 @@ class Service:
       # populate the data structure
       for node in node_list:
         for metric in node.get_metrics_list():
-          metric.update(measurements)
+          m_id = metric.get_id()
+          assert m_id in measurements, "Measurement of metric {} is not in provided measurements!".format(m_id)
+          metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP.value])
+          metric.set_value(measurements[m_id][MeasurementFields.VALUE.value])
+          if metric.get_unit() == "":
+            metric.set_unit(measurements[m_id][MeasurementFields.UNIT.value])
     elif mode == MeasurementRetrievalMode.NODE:
       # refresh the value of all metrics of a node
       for node in self.get_node_list(): 
         measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id_list([m.get_id() for m in node.get_metrics_list()])
         # populate the data structure
         for metric in node.get_metrics_list():
-          metric.update(measurements)
+          m_id = metric.get_id()
+          assert m_id in measurements, "Measurement of metric {} is not in provided measurements!".format(m_id)
+          metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP.value])
+          metric.set_value(measurements[m_id][MeasurementFields.VALUE.value])
+          if metric.get_unit() == "":
+            metric.set_unit(measurements[m_id][MeasurementFields.UNIT.value])
     elif mode == MeasurementRetrievalMode.METRIC:
       # refresh the value of a single metric
       for node in self.get_node_list():
         for metric in node.get_metrics_list():
           measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id(metric.get_id())
-          metric.update(measurements)
+          m_id = metric.get_id()
+          assert m_id in measurements, "Measurement of metric {} is not in provided measurements!".format(m_id)
+          metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP.value])
+          metric.set_value(measurements[m_id][MeasurementFields.VALUE.value])
+          if metric.get_unit() == "":
+            metric.set_unit(measurements[m_id][MeasurementFields.UNIT.value])
     else:
       # should never happen
       pass
@@ -394,6 +409,7 @@ class Service:
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       self.get_metrics_list().append(self.__Metric(m_id=m_id, m_type=m_type))
     
+    # This method supposes that, for each MetricType, there is only a single MetricType entry in metrics_list
     def get_metric_by_type(self, m_type:MetricType) -> Service.__ServiceNode.__Metric|None:
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       #return next((metric for metric in self.__metric_list if metric.get_name() == m_type), None) # not used because readability    
@@ -492,16 +508,7 @@ class Service:
       #   logger.debug(f"Create object {cls.__name__} from pickle {p}")
       #   o = cls()
       #   vars(o).update(pickle.loads(p))
-      #   return o
-        
-      def update(self, measurements_dict):
-        # measurements_dict is expected to be a dictionary formatted as {'30254': {'node_id': '10313', 'metric_id': '30254', 'metric_name': 'CPU utilization', 'timestamp': '0', 'value': '0', 'unit': '%'}}
-        m_id = self.get_id()
-        assert m_id in measurements_dict, "Measurement of metric {} is not in provided measurements!".format(m_id)
-        self.set_timestamp(measurements_dict[m_id][MeasurementFields.TIMESTAMP.value])
-        self.set_value(measurements_dict[m_id][MeasurementFields.VALUE.value])
-        if self.get_unit() == "":
-          self.set_unit(measurements_dict[m_id][MeasurementFields.UNIT.value])        
+      #   return o    
         
       # def refresh_measurements(self): # TODO G: tenere questo metodo o no?
       #   # method to refresh the value of a single metric
