@@ -14,14 +14,14 @@ def test_counter_methods_effectiveness():
 
   for i in range(1, number_of_agents+1, 1):
      agents_list.append(SLPFactory.create_UA())
-     assert SLPFactory._SLPFactory__common_agents_counter == i, ""
+     assert SLPFactory._SLPFactory__common_agents_counter == i, "" # fake pylance type analysis error
 
   for i in range(number_of_agents-1, -1, -1):
     agents_list.pop(i)
-    assert SLPFactory._SLPFactory__common_agents_counter == i, ""
+    assert SLPFactory._SLPFactory__common_agents_counter == i, ""  # fake pylance type analysis error
 
   SLPFactory.create_UA(True)
-  assert SLPFactory._SLPFactory__common_agents_counter == 0, ""
+  assert SLPFactory._SLPFactory__common_agents_counter == 0, ""    # fake pylance type analysis error
 
 def test_SA_and_UA():
   # SA MAIN
