@@ -17,7 +17,7 @@ def test_create_single_service():
   assert isinstance(s, Service), ""
   assert s.get_id() == "APP001", ""
   assert is_orchestrator(), ""
-  s.add_node(ipv4="192.168.64.123")
+  s.add_node(ipv4=IPv4Address("192.168.64.123"))
   node_list = s.get_node_list()
   assert isinstance(node_list, list), ""
   assert len(node_list) == 1, ""

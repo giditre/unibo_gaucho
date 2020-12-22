@@ -5,7 +5,7 @@
 
 # TODO G: attenzione che il campo value delle Metric è una stringa e quindi il sorting dei nodi basati su quel value potrebbe non dare il risultato desiderato
 
-from typing import Any, List
+from typing import Any, List, NoReturn
 # This import allows to hint custom classes and to use | instead of Union[]
 # TODO: remove it when Python 3.10 will be used
 from __future__ import annotations
@@ -26,8 +26,7 @@ def get_lst(item:Any) -> List[Any]|None:
     return item
   return [item] if not isinstance(item, list) else item
 
-# TODO M: add NoReturn
-def raise_error(class_name:str, msg:str=""):
+def raise_error(class_name:str, msg:str="") -> NoReturn:
   try:
     raise NameError(class_name)
   except NameError:
