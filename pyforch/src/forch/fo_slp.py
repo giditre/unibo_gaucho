@@ -190,8 +190,8 @@ class SLPFactory:
       found_srvs_list = []
       for srvc_type in srvc_types_list:
         found_srvs_list.extend(self.__find_service(srvc_type))
-      # TODO M: check if the list contain equal elements. If yes keep only one of them
-      # NOTE: Theoretically the previous TODO is already solved in the return instruction by aggregate_nodes_of_equal_services()
+      # Now it should be checked if the list contain equal elements. If yes keep only one of them
+      # Theoretically the previous comment is already solved in the return instruction by aggregate_nodes_of_equal_services()
 
       srvs_dict = {}
       for i, srvc_tuple in enumerate(found_srvs_list):
@@ -205,14 +205,14 @@ class SLPFactory:
 
           if srvs_dict[key] != "":
             tmp_srvc = self.__attrs_to_service(srvs_dict[key])
-            # TODO M: put this in something different from an assert?
-            assert tmp_srvc is not None, "Unexpected __attrs_to_service result!"
+            if tmp_srvc is None:
+              raise_error(self.__class__.__name__, "Unexpected __attrs_to_service result!")
 
             srvc.set_id(tmp_srvc.get_id())
             srvc.set_category(tmp_srvc.get_category())
             srvc.set_descr(tmp_srvc.get_descr())
           else:
-            #TODO M: raise error because attributes must be present?
+            # TODO: raise error because attributes must be present?
             pass
         else:
           assert isinstance(srvc, Service), "Unexpected type of srvc: " + type(srvc)
@@ -272,7 +272,7 @@ class SLPFactory:
         elif _SLPAttributes.has_value(attrs_list[i]):
           warnings.warn("Known service attribute {} not used.".format(attrs_list[i]))
         else:
-          raise_error(__class__.__name__, "Unexpected service attribute received!") # TODO M: is a simple warning sufficient?
+          raise_error(__class__.__name__, "Unexpected service attribute received!") # TODO: is a simple warning sufficient?
 
       if srvc.get_id() == "":
         return None

@@ -10,9 +10,6 @@ from typing import List
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-#TODO M: Se serve: mettere controllo dei parametri di input nei vari metodi (soprattutto i costruttori)
-#TODO M: Se serve: override __repr__ di tutte le classi?
-
 from ipaddress import IPv4Address
 from socket import getservbyname
 from enum import Enum, IntEnum
@@ -165,7 +162,7 @@ class Service:
   # https://stackoverflow.com/questions/9835762/how-do-i-find-the-duplicates-in-a-list-and-create-another-list-with-them
   # https://stackoverflow.com/questions/9542738/python-find-in-list
   @classmethod
-  def aggregate_nodes_of_equal_services(cls, service_list:List[Service]) -> List[Service]: #TODO M: trovare nome migliore
+  def aggregate_nodes_of_equal_services(cls, service_list:List[Service]) -> List[Service]: # TODO: find a more concise name
     assert isinstance(service_list, list), "Parameter service_list must be a list!"
     ret_list = []
     for srvc in service_list:
@@ -460,12 +457,6 @@ class Service:
         return self.__type
       def set_type(self, m_type:MetricType):
         self.__type = m_type
-        
-      # TODO M: eliminare questi 2 metodi perchè non esiste il relativo parametro
-      def get_name(self):
-        return self.__name
-      def set_name(self, name:str):
-        self.__name = name
         
       def get_timestamp(self):
         return self.__timestamp

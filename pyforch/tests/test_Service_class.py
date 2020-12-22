@@ -6,12 +6,6 @@ set_orchestrator()
 
 from ipaddress import IPv4Address
 
-def test_create_services_from_json_out_in():
-  # Service.create_services_from_json("127.0.0.1", "tests/service_example.json")
-  # TODO M: raisare l'eccezione IPv4
-  # TODO M: raisare che il file non esiste
-  pass
-
 def test_create_services_from_json_out():
   s_list = Service.create_services_from_json(json_file_name="tests/service_example.json", ipv4=IPv4Address("127.0.0.1"))
   assert isinstance(s_list, list), ""
