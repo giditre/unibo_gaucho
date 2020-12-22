@@ -27,7 +27,7 @@ def test_create_single_service():
 
 def test_refresh_measurements():
   s = Service(id="APP001")
-  s.add_node(ipv4="192.168.64.123")
+  s.add_node(ipv4=IPv4Address("192.168.64.123"))
   s.refresh_measurements()
   node_list = s.get_node_list()
   sn = node_list[0]
