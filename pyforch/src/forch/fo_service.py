@@ -390,15 +390,15 @@ class Service:
     def get_metrics_list(self):
       return self.__metrics_list
     
-    def create_and_add_metric_by_type(self, m_type:MetricType):
+    def create_and_add_metric_by_type(self, m_type:MetricType) -> None:
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       self.get_metrics_list().append(self.__Metric(m_type=m_type))
 
-    def add_metric(self, m_id:str, m_type:MetricType):
+    def add_metric(self, m_id:str, m_type:MetricType) -> None:
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       self.get_metrics_list().append(self.__Metric(m_id=m_id, m_type=m_type))
     
-    def get_metric_by_type(self, m_type:MetricType):
+    def get_metric_by_type(self, m_type:MetricType) -> Service.__ServiceNode.__Metric|None:
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       #return next((metric for metric in self.__metric_list if metric.get_name() == m_type), None) # not used because readability    
       for metric in self.get_metrics_list():
