@@ -147,7 +147,7 @@ class ZabbixAdapter(object):
       h_name = h["name"]
       h_avail = h["available"]
       
-      # TODO G: gestire caso in cui un host abbia più di una interfaccia? O supporre che ogni nodo esponga solo una interfaccia di rete al sistema Fog?
+      # TODO G: does it handle the case in which a host had more than one interface? Or is it better to suppose that each node exposes only a single net iface to the fog system?
       h_ip = None
       for i in self.__zapi.hostinterface.get(hostids= h_id):
         h_ip = i["ip"]
@@ -164,7 +164,7 @@ class ZabbixAdapter(object):
         return zn
     return None
 
-  def get_item_id_by_node_and_item_name(self, node, item_name): # TODO G: maybe find better name
+  def get_item_id_by_node_and_item_name(self, node, item_name): # TODO G: maybe find better (shorter) name
     node_id = ZabbixNode.validate_node_id(node)
     item_list = self.__zapi.item.get(hostids=node_id, search={"name": item_name})
     if len(item_list) == 1:

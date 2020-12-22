@@ -37,5 +37,5 @@ def test_refresh_measurements():
   # assert False, str(s)
 
 # def test_metric_json():
-#   # TODO G: verificare che si riesca a creare un oggetto Metric a partire da un JSON che lo rappresenta. Fare lo stesso per ServiceNode e Service
+#   # TODO G: verify that it is possible to create a Metric object from a JSON that represent it. Do the same for ServiceNode and Service classes.
 #   pass
