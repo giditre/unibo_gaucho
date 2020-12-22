@@ -389,10 +389,6 @@ class Service:
 
     def get_metrics_list(self):
       return self.__metrics_list
-    
-    def create_and_add_metric_by_type(self, m_type:MetricType) -> None:
-      assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
-      self.get_metrics_list().append(self.__Metric(m_type=m_type))
 
     def add_metric(self, m_id:str, m_type:MetricType) -> None:
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
