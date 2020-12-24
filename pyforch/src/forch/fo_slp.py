@@ -138,7 +138,7 @@ class SLPFactory:
     def __get_daemon_pid():
       out = subprocess.run(shlex.split("pgrep slpd"), capture_output=True).stdout.decode('utf-8')
       if not out:
-        return None
+        return None # TODO: maybe it is better to raise an error
       assert out.count("\n") == 1, "Found more than one slpd PID!"
       return int(out)
 
