@@ -3,6 +3,8 @@
 # slp.SLP_LIFETIME_MAXIMUM = 65535
 
 import logging
+from typing import List, Tuple
+from __future__ import annotations
 
 # from logging.config import fileConfig
 # from pathlib import Path
@@ -121,7 +123,7 @@ class SLPFactory:
 
     def __init__(self, slp_handler:object=None, is_DA:bool=False):
       if not is_DA:
-        self.__start_daemon()
+        self.__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_SA.conf"))))
       else:
         self.__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_DA.conf"))))
       super().__init__(slp_handler)
@@ -183,7 +185,7 @@ class SLPFactory:
   class __UserAgent(__SLPAgent):
     __discovery_list = []
 
-    def find_all_services(self):
+    def find_all_services(self) -> List[Service]:
       srvc_types_list = self.__find_srvc_types()
       srvc_types_list = list(set(srvc_types_list)) #if equals elements are returned keep only one of them
 
@@ -225,7 +227,7 @@ class SLPFactory:
 
     # TODO M: vedere se spariscono errori importando slp
     @staticmethod
-    def __srvurl_to_service(srvurl:str):
+    def __srvurl_to_service(srvurl:str) -> Service:
       parsed_data = slp.SLPParseSrvURL(srvurl)
       logger.debug("Parsed URL: {}".format(parsed_data))
       srvc_type, url, host_port, _, _ = parsed_data
@@ -250,7 +252,7 @@ class SLPFactory:
       return srvc
 
     @staticmethod
-    def __attrs_to_service(attrs_str:str):
+    def __attrs_to_service(attrs_str:str) -> Service|None:
       if attrs_str == "":
         return None
 
@@ -282,7 +284,7 @@ class SLPFactory:
     # Expected inputs: {key1:value1, key2:value2, ...}, int, string
     # errcode and rqst_type are only for debug
     @staticmethod
-    def __rqsts_callback_core(param_dict, errcode:int, rqst_type:str=""):
+    def __rqsts_callback_core(param_dict, errcode:int, rqst_type:str="") -> bool:
       rv = False
       if errcode == slp.SLP_OK:
         for key in param_dict:
@@ -296,27 +298,27 @@ class SLPFactory:
       return rv
     
     @staticmethod
-    def __srvc_types_callback(h:object, srvc_type:str, errcode:int, cookie_data:object):
+    def __srvc_types_callback(h:object, srvc_type:str, errcode:int, cookie_data:object) -> bool:
       res = __class__.__rqsts_callback_core({"srvc_type":srvc_type}, errcode, "service types")
       if res == True:
         __class__.__discovery_list = srvc_type.split(",")
       return res
 
     @staticmethod
-    def __service_callback(h:object, srvurl:str, lifetime:int, errcode:int, cookie_data:object):
+    def __service_callback(h:object, srvurl:str, lifetime:int, errcode:int, cookie_data:object) -> bool:
       res = __class__.__rqsts_callback_core({"url":srvurl, "timeout":lifetime}, errcode, "service")
       if res == True:
         __class__.__discovery_list.append((srvurl, lifetime))
       return res
 
     @staticmethod
-    def __attr_callback(h:object, attrs:str, errcode:int, cookie_data:object):
+    def __attr_callback(h:object, attrs:str, errcode:int, cookie_data:object) -> bool:
       res = __class__.__rqsts_callback_core({"attrs":attrs}, errcode, "attribute lists")
       if res == True:
         __class__.__discovery_list.append(attrs)
       return res
 
-    def __find_srvc_types(self):
+    def __find_srvc_types(self) -> List[str]:
       self.__class__.__discovery_list = []
       try:
         slp.SLPFindSrvTypes(self.get_handler(), "*", "", self.__srvc_types_callback, None)
@@ -324,7 +326,7 @@ class SLPFactory:
         raise_error(self.__class__.__name__, "Error discovering the service types: " + str(e))
       return self.__class__.__discovery_list
       
-    def __find_service(self, service_type:str):
+    def __find_service(self, service_type:str) -> List[Tuple[str, int]]:
       self.__class__.__discovery_list = []
       try:
         slp.SLPFindSrvs(self.get_handler(), service_type, None, None, self.__service_callback, None)
@@ -332,13 +334,12 @@ class SLPFactory:
         raise_error(self.__class__.__name__, "Error discovering the service: " + str(e))
       return self.__class__.__discovery_list
 
-    def __find_attr_list(self, srvurl:str):
+    def __find_attr_list(self, srvurl:str) -> str:
       self.__class__.__discovery_list = []
       try:
         slp.SLPFindAttrs(self.get_handler(), srvurl, None, None, self.__attr_callback, None)
       except RuntimeError as e:
-        print("Error discovering the service attributes: " + str(e))
-        return None
+        raise_error(self.__class__.__name__, "Error discovering the service attributes: " + str(e))
       if not self.__class__.__discovery_list:
         return ""
 
