@@ -133,11 +133,11 @@ class SLPFactory:
       self.__stop_daemon()
 
     @classmethod
-    def __daemon_is_running(cls):
+    def __daemon_is_running(cls) -> bool:
       return bool(cls.__get_daemon_pid())
 
     @staticmethod
-    def __get_daemon_pid():
+    def __get_daemon_pid() -> int|None:
       out = subprocess.run(shlex.split("pgrep slpd"), capture_output=True).stdout.decode('utf-8')
       if not out:
         return None
@@ -145,7 +145,7 @@ class SLPFactory:
       return int(out)
 
     @classmethod
-    def __start_daemon(cls, optns:str=""):
+    def __start_daemon(cls, optns:str="") -> bool:
       assert isinstance(optns, str), "Parameter optns must be a string!"
 
       if cls.__daemon_is_running():
@@ -167,7 +167,7 @@ class SLPFactory:
       return True
     
     @classmethod
-    def __stop_daemon(cls):
+    def __stop_daemon(cls) -> bool:
       if not cls.__daemon_is_running():
         return False
 
@@ -272,7 +272,7 @@ class SLPFactory:
         elif attrs_list[i] == _SLPAttributes.DESCRIPTION.value:
           srvc.set_descr(attrs_list[i+1])
         elif _SLPAttributes.has_value(attrs_list[i]):
-          warnings.warn("Known service attribute {} not used.".format(attrs_list[i]))
+          logger.warning("Known service attribute {} not used.".format(attrs_list[i]))
         else:
           raise_error(__class__.__name__, "Unexpected service attribute received!") # TODO: is a simple warning sufficient?
 
@@ -359,7 +359,7 @@ class SLPFactory:
         self.__deregister_service(srvurl)
 
     @staticmethod
-    def __service_to_slp_service(service:Service):
+    def __service_to_slp_service(service:Service) -> Tuple[List[str], str, List[int]]:
       assert isinstance(service, Service), "Parameter service must be a Service() object!"
       srvc_type = "service:" + service.get_name() + ":" + service.get_protocol()
 
@@ -377,9 +377,9 @@ class SLPFactory:
       return (srvurl_list, attrs, lifetime_list)
 
     @staticmethod
-    def __reg_callback(h:object, errcode:int, data:object):
+    def __reg_callback(h:object, errcode:int, data:object) -> None:
       if errcode != slp.SLP_OK:
-        print("Error de/registering service: " + str(errcode))
+        logger.warning("Error de/registering service: " + str(errcode))
       return None
 
     def __register_service(self, srvurl:str, attrs:str="", lifetime:int=slp.SLP_LIFETIME_DEFAULT):
