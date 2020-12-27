@@ -4,38 +4,49 @@ import flask
 from flask_restful import Resource, Api
 # from flask_qrcode import QRcode
 
-import time
+from datetime import datetime
 
 
 class Hello(Resource):
   def get(self):
-    # return f"Hello World from Flask in a uWSGI Nginx Docker container - {int(time.time())}"
     return {
-      "message": "Hello World from Flask in a uWSGI Nginx Docker container",
-      "epoch_time": int(time.time())
+      "message": "Hello World from Flask in a uWSGI Nginx Docker container"
+    }
+
+
+class Info(Resource):
+  def get(self):
+    return {
+      "message": "I'm alive!",
+      "time": f"{datetime.now():%c}"
     }
 
 
 class Sum(Resource):
   def post(self):
     r_json = flask.request.get_json(force=True)
-    if r_json['input1']:
+    try:
       i1 = int(r_json['input1'])
-    else:
-      i1 = 1
-    if r_json['input2']:
       i2 = int(r_json['input2'])
-    else:
-      i2 = 2
+    except ValueError:
+      return {
+        "message": f"Invalid inputs"
+      }, 404
+    # i1 = int(r_json['input1'])
+    # i2 = int(r_json['input2'])
     sum = i1+i2
-    print(f"Sum: {sum}")
-    return str(sum)
+    # print(f"Sum: {sum}")
+    return {
+      "message": "All done!",
+      "result": str(sum)
+    }
 
 
 app = flask.Flask(__name__)
 
 api = Api(app)
 api.add_resource(Hello, '/hello')
+api.add_resource(Info, '/info')
 api.add_resource(Sum, '/sum')
 
 @app.route("/")
@@ -58,4 +69,4 @@ def route_frontend(path):
 
 if __name__ == "__main__":
     # Only for debugging while developing
-    app.run(host="0.0.0.0", debug=True, port=8000)
+    app.run(host="0.0.0.0", debug=True, port=80)

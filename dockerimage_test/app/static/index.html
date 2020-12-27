@@ -74,14 +74,14 @@
 
   <body>
     <div id="main" class="text-center">
-      <h1>GAUCHO Test Web Application</h1>
+      <!-- <h1>GAUCHO Test Web Application</h1> -->
 
       <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
-            <li id="navhello" class="nav-item active">
+            <!-- <li id="navhello" class="nav-item active">
               <a class="nav-link" onclick="activate_menu('hello')" href="#">Hello</a>
-            </li>
+            </li> -->
             <!-- <li id="navqrcode" class="nav-item">
               <a class="nav-link" onclick="activate_menu('qrcode')" href="#">QR code</a>
             </li> -->
@@ -89,19 +89,22 @@
               <!-- <a class="nav-link" onclick="activate_menu('form') ; get_configuration()" href="#">Form</a> -->
               <a class="nav-link" onclick="activate_menu('sum')" href="#">Sum</a>
             </li>
+            <li id="navinfo" class="nav-item active">
+              <a class="nav-link" onclick="activate_menu('info')" href="#">Info</a>
+            </li>
           </ul>
         </div>
       </nav>
 
-      <div id="hello" class="float-none d-block">
+      <!-- <div id="hello" class="float-none d-block">
         <br/>
-        <h5>Hello!</h5>
+        <h2>Hello!</h2>
         <br/>
         <button type="button" class="btn btn-success btn-lg"
           onclick="hello()">Hello</button>
         <button type="button" class="btn btn-danger btn-lg"
           onclick="bye()">Bye</button>
-      </div>
+      </div> -->
 
       <!-- <div id="qrcode" class="float-none d-none">
         <br/>
@@ -121,22 +124,47 @@
 
       <div id="sum" class="float-none d-none">
         <br/>
-        <h5>Sum</h5>
+        <h2>Sum</h2>
         <br/>
-        <form>
-        <form href="#">
-          <div class="form-group">
-            <label for="input1">First input</label>
-            <input type="text" class="form-control" id="input1" placeholder="1">
-            <small id="input1help" class="form-text text-muted">First input</small>
+        <!-- <form> -->
+        <form href="#" class="needs-validation" novalidate>
+          <div class="container">
+            <div class="row justify-content-around align-items-end">
+              <div class="col">
+                <div class="form-group">
+                  <label for="input1">First input</label>
+                  <input type="text" class="form-control" id="input1" placeholder="First input" value="2" required pattern="[0-9]+">
+                  <div class="invalid-tooltip">
+                    Please insert a number.
+                  </div>
+                  <!-- <small id="input1help" class="form-text text-muted">First input</small> -->
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-group">
+                  <label for="input2">Second input</label>
+                  <input type="text" class="form-control" id="input2" placeholder="Second input" value="2" required pattern="[0-9]+">
+                  <div class="invalid-tooltip">
+                    Please insert a number.
+                  </div>
+                  <!-- <small id="input2help" class="form-text text-muted">Second input</small> -->
+                </div>
+              </div>
+            </div>
+            <br/>
+            <button type="submit" class="btn btn-primary btn-lg" onclick="sum()">Compute</button>
           </div>
-          <div class="form-group">
-            <label for="input2">Second input</label>
-            <input type="text" class="form-control" id="input2" placeholder="2">
-            <small id="input2help" class="form-text text-muted">Second input</small>
-          </div>
-          <button type="submit" class="btn btn-primary" onclick="sum()">Sum</button>
         </form>
+      </div>
+
+      <div id="info" class="float-none d-block">
+        <br/>
+        <h2>Info</h2>
+        <br/>
+        <button type="button" class="btn btn-success btn-lg"
+          onclick="info()">Refresh</button>
+        <!-- <button type="button" class="btn btn-danger btn-lg"
+          onclick="clear()">Clear</button> -->
       </div>
 
       <br/>
@@ -154,6 +182,27 @@
     <script src="index.js"></script>
     <script src="popper.min.js"></script>
     <script src="bootstrap.min.js"></script>
+
+    <script>
+      // Example starter JavaScript for disabling form submissions if there are invalid fields
+      (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+          // Fetch all the forms we want to apply custom Bootstrap validation styles to
+          var forms = document.getElementsByClassName('needs-validation');
+          // Loop over them and prevent submission
+          var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+              if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add('was-validated');
+            }, false);
+          });
+        }, false);
+      })();
+    </script>
 
   </body>
 

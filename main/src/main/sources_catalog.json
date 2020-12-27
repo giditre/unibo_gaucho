@@ -53,6 +53,15 @@
       "base": "FVE001",
       "service": "APP004",
       "ports": ["80/tcp"]
+    },
+    {
+      "id": "SRC007",
+      "name": "giditre/gaucho-sum",
+      "descr": "",
+      "uri": "",
+      "base": "FVE001",
+      "service": "APP005",
+      "ports": ["80/tcp"]
     }
   ]
 }

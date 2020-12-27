@@ -31,6 +31,10 @@ var bye = function() {
 	_updateResultPlain("Bye!");
 }
 
+var info = function() {
+	_get_json("info");
+}
+
 // var get_configuration = function() {
 // 	$.get("_configuration").done( function (data_s) {
 // 		data = JSON.parse(data_s)
@@ -69,7 +73,10 @@ var sum = function() {
 		dataType:"json",
 		success: function(r) {
       _updateResultJSON(r)
-    }
+		},
+		error : function(r) {
+      _updateResultJSON(r.responseJSON)
+		}
 	})
 }
 
@@ -97,7 +104,7 @@ var sum = function() {
 // 	});
 // }, 1000)
 
-var activeMenu = 'hello'
+var activeMenu = 'sum'
 
 /* UI related */
 var activate_menu = function(menu) {
