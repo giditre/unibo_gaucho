@@ -6,7 +6,7 @@
 # TODO: remove it when Python 3.10 will be used
 from __future__ import annotations
 import logging
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 # from logging.config import fileConfig
 # from pathlib import Path
@@ -284,7 +284,7 @@ class SLPFactory:
     # Expected inputs: {key1:value1, key2:value2, ...}, int, string
     # errcode and rqst_type are only for debug
     @staticmethod
-    def __rqsts_callback_core(param_dict, errcode:int, rqst_type:str="") -> bool:
+    def __rqsts_callback_core(param_dict:Dict[str,str|int], errcode:int, rqst_type:str="") -> bool:
       rv = False
       if errcode == slp.SLP_OK:
         for key in param_dict:
