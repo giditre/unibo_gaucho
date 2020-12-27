@@ -6,8 +6,6 @@ from src.forch.fo_service import Service
 from src.forch.fo_slp import SLPFactory
 from ipaddress import IPv4Address
 
-import asyncio
-
 def test_counter_methods_effectiveness():
   number_of_agents = 5
   agents_list = []
@@ -26,7 +24,7 @@ def test_counter_methods_effectiveness():
 def test_SA_and_UA():
   # SA MAIN
   sa = SLPFactory.create_SA()
-  srv_list = Service.create_services_from_json(json_file_name=str(Path(__file__).parent.joinpath("service_example.json").absolute()), ipv4=IPv4Address("127.0.0.1"))
+  srv_list = Service.create_services_from_json(json_file_name=Path(__file__).parent.joinpath("service_example.json").absolute(), ipv4=IPv4Address("127.0.0.1"))
   for srv in srv_list:
     sa.register_service(srv)
 

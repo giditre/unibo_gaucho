@@ -94,7 +94,9 @@ class Service:
 
   def get_category(self):
     return self.__category
-  def set_category(self, category:ServiceCategory):
+  def set_category(self, category:str|ServiceCategory):
+    if isinstance(category, str):
+      category = ServiceCategory[category]
     self.__category = category
 
   def get_descr(self):
