@@ -19,7 +19,7 @@ from enum import Enum, IntEnum
 import json
 from pathlib import Path
 
-from . import is_orchestrator
+from . import is_orchestrator, raise_error
 from .fo_zabbix import ZabbixAdapter, ZabbixNodeFields, MeasurementFields
 
 
@@ -96,7 +96,10 @@ class Service:
     return self.__category
   def set_category(self, category:str|ServiceCategory):
     if isinstance(category, str):
-      category = ServiceCategory[category]
+      try:
+        category = ServiceCategory[category.upper()]
+      except:
+        raise_error(self.__class__.__name__, "Unexpected service category. Check ServiceCategory class for the allowed possibilities.")
     self.__category = category
 
   def get_descr(self):
