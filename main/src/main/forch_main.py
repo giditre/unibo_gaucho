@@ -528,107 +528,109 @@ class FogServices(Resource):
         }, 200
 
 
-### argument parser
+if __name__ == "__main__":
 
-# import argparse
+  ### argument parser
 
-# default_address = "127.0.0.1"
-# default_port = 6000
+  # import argparse
 
-# parser = argparse.ArgumentParser()
-# parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
-#   nargs="?", default=default_address)
-# parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
-#   nargs="?", default=default_port)
-# parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
-# args = parser.parse_args()
+  # default_address = "127.0.0.1"
+  # default_port = 6000
 
-local_config = forch.get_local_config(Path(__file__).parent.joinpath("main.ini").absolute())
-logger.debug(f"Config: {dict(local_config.items())}")
+  # parser = argparse.ArgumentParser()
+  # parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
+  #   nargs="?", default=default_address)
+  # parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
+  #   nargs="?", default=default_port)
+  # parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
+  # args = parser.parse_args()
 
-### instantiate components
+  local_config = forch.get_local_config(Path(__file__).parent.joinpath("main.ini").absolute())
+  logger.debug(f"Config: {dict(local_config.items())}")
 
-FOB.get_instance()
+  ### instantiate components
 
-FORS.get_instance()
+  FOB.get_instance()
 
-FOVIM.get_instance()
+  FORS.get_instance()
 
-### perform preliminary operations
+  FOVIM.get_instance()
 
-FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath(local_config["sources_json"]).absolute()))
-FOB.get_instance().find_active_services(refresh_sc=True) # TODO add configuration flag for this
-preexisting_active_service_list = FOB.get_instance().get_active_service_list()
-if preexisting_active_service_list:
-  logger.debug(f"Found {len(preexisting_active_service_list)} pre-existing service(s): {[(s.get_service_id(), s.get_node_id(), s.get_instance_name()) for s in preexisting_active_service_list]}")
+  ### perform preliminary operations
 
-# project configurations
+  FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath(local_config["sources_json"]).absolute()))
+  FOB.get_instance().find_active_services(refresh_sc=True) # TODO add configuration flag for this
+  preexisting_active_service_list = FOB.get_instance().get_active_service_list()
+  if preexisting_active_service_list:
+    logger.debug(f"Found {len(preexisting_active_service_list)} pre-existing service(s): {[(s.get_service_id(), s.get_node_id(), s.get_instance_name()) for s in preexisting_active_service_list]}")
 
-# TODO add configuration file for this
+  # project configurations
 
-FOB.get_instance().set_project_list([
-  forch.Project("default"),
-  forch.Project("test-project",
-    instance_configuration_dict={
-      forch.InstanceConfiguration.DETACH.value: True,
-      forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
-      forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
-      forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "test-net",
-      forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
-    },
-    network_configuration_dict={
-      forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-test",
-      forch.NetworkConfiguration.IPv4_SUBNET.value: "192.168.111.0/24",
-      forch.NetworkConfiguration.IPv4_RANGE.value: "192.168.111.128/25",
-      forch.NetworkConfiguration.IPv4_GATEWAY.value: "192.168.111.10"
-    }
-  ),
-  forch.Project("mec-project",
-    instance_configuration_dict={
-      forch.InstanceConfiguration.DETACH.value: True,
-      forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
-      forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
-      forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "mec-net",
-      forch.InstanceConfiguration.DNS_SERVER.value: ["10.15.105.11"],
-      forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True,
-      forch.InstanceConfiguration.ENVIRONMENT_VARIABLE.value: {
-        "INFRA": "fog",
-        "MEC_BASE": "http://mec-platform.mec.mec.host"
+  # TODO add configuration file for this
+
+  FOB.get_instance().set_project_list([
+    forch.Project("default"),
+    forch.Project("test-project",
+      instance_configuration_dict={
+        forch.InstanceConfiguration.DETACH.value: True,
+        forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
+        forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
+        forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "test-net",
+        forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
+      },
+      network_configuration_dict={
+        forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-test",
+        forch.NetworkConfiguration.IPv4_SUBNET.value: "192.168.111.0/24",
+        forch.NetworkConfiguration.IPv4_RANGE.value: "192.168.111.128/25",
+        forch.NetworkConfiguration.IPv4_GATEWAY.value: "192.168.111.10"
       }
-    },
-    network_configuration_dict={
-      forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-mec",
-      forch.NetworkConfiguration.IPv4_SUBNET.value: "172.30.30.0/24",
-      forch.NetworkConfiguration.IPv4_GATEWAY.value: "172.30.30.254"
-    }
-  )
-])
+    ),
+    forch.Project("mec-project",
+      instance_configuration_dict={
+        forch.InstanceConfiguration.DETACH.value: True,
+        forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
+        forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
+        forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "mec-net",
+        forch.InstanceConfiguration.DNS_SERVER.value: ["10.15.105.11"],
+        forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True,
+        forch.InstanceConfiguration.ENVIRONMENT_VARIABLE.value: {
+          "INFRA": "fog",
+          "MEC_BASE": "http://mec-platform.mec.mec.host"
+        }
+      },
+      network_configuration_dict={
+        forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-mec",
+        forch.NetworkConfiguration.IPv4_SUBNET.value: "172.30.30.0/24",
+        forch.NetworkConfiguration.IPv4_GATEWAY.value: "172.30.30.254"
+      }
+    )
+  ])
 
-### REST API
+  ### REST API
 
-app = flask.Flask(__name__)
+  app = flask.Flask(__name__)
 
-# @app.before_request
-# def before():
-#   logger.debug("marker start {} {}".format(request.method, request.path))
+  # @app.before_request
+  # def before():
+  #   logger.debug("marker start {} {}".format(request.method, request.path))
 
-# @app.after_request
-# def after(response):
-#   logger.debug("marker end {} {}".format(request.method, request.path))
-#   return response  
+  # @app.after_request
+  # def after(response):
+  #   logger.debug("marker end {} {}".format(request.method, request.path))
+  #   return response  
 
-api = Api(app)
-api.add_resource(Test, '/test')
-api.add_resource(FogServices, '/services', '/services/<s_id>')
+  api = Api(app)
+  api.add_resource(Test, '/test')
+  api.add_resource(FogServices, '/services', '/services/<s_id>')
 
-try:
-  app.run(host=local_config.get("address"),
-      port=local_config.getint("forch_port"),
-      debug=local_config.getboolean("debug"))
-except KeyboardInterrupt:
-  pass
-finally:
-  logger.info("Cleanup after interruption")
-  FOB.del_instance()
-  FORS.del_instance()
-  FOVIM.del_instance()
+  try:
+    app.run(host=local_config.get("address"),
+        port=local_config.getint("forch_port"),
+        debug=local_config.getboolean("debug"))
+  except KeyboardInterrupt:
+    pass
+  finally:
+    logger.info("Cleanup after interruption")
+    FOB.del_instance()
+    FORS.del_instance()
+    FOVIM.del_instance()

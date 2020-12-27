@@ -458,44 +458,44 @@ class FogServices(Resource):
 #   finally:
 #     FNVI.del_instance()
 
-### argument parser
-
-# import argparse
-
-# default_address = "0.0.0.0"
-# default_port = forch.get_fog_node_main_port()
-
-# parser = argparse.ArgumentParser()
-# parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
-#   nargs="?", default=default_address)
-# parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
-#   nargs="?", default=default_port)
-# parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
-# args = parser.parse_args()
-
-# if args.address == default_address:
-#   logger.warning(f"Running with default IP address {args.address}")
-
-local_config = forch.get_local_config(Path(__file__).parent.joinpath("main.ini").absolute())
-logger.debug(f"Config: {dict(local_config.items())}")
-
-### instantiate components
-
-FNVI.get_instance().set_ipv4(local_config["address"])
-FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath(local_config["services_json"]).absolute()))
-FNVI.get_instance().register_service_list()
-FNVI.get_instance().find_active_services() # this might raise a RuntimeError
-# TODO add configuration flag for this
-
-### REST API
-
-app = flask.Flask(__name__)
-api = Api(app)
-
-api.add_resource(Test, '/test')
-api.add_resource(FogServices, '/services', '/services/<s_id>')
-
 if __name__ == "__main__":
+
+  ### argument parser
+
+  # import argparse
+
+  # default_address = "0.0.0.0"
+  # default_port = forch.get_fog_node_main_port()
+
+  # parser = argparse.ArgumentParser()
+  # parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
+  #   nargs="?", default=default_address)
+  # parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
+  #   nargs="?", default=default_port)
+  # parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
+  # args = parser.parse_args()
+
+  # if args.address == default_address:
+  #   logger.warning(f"Running with default IP address {args.address}")
+
+  local_config = forch.get_local_config(Path(__file__).parent.joinpath("main.ini").absolute())
+  logger.debug(f"Config: {dict(local_config.items())}")
+
+  ### instantiate components
+
+  FNVI.get_instance().set_ipv4(local_config["address"])
+  FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath(local_config["services_json"]).absolute()))
+  FNVI.get_instance().register_service_list()
+  FNVI.get_instance().find_active_services() # this might raise a RuntimeError
+  # TODO add configuration flag for this
+
+  ### REST API
+
+  app = flask.Flask(__name__)
+  api = Api(app)
+
+  api.add_resource(Test, '/test')
+  api.add_resource(FogServices, '/services', '/services/<s_id>')
 
   try:
     app.run(host=local_config.get("address"),
