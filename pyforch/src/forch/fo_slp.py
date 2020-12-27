@@ -2,9 +2,11 @@
 # slp.SLP_LIFETIME_DEFAULT = 10800
 # slp.SLP_LIFETIME_MAXIMUM = 65535
 
+# This import allows to hint custom classes and to use | instead of Union[]
+# TODO: remove it when Python 3.10 will be used
+from __future__ import annotations
 import logging
 from typing import List, Tuple
-from __future__ import annotations
 
 # from logging.config import fileConfig
 # from pathlib import Path
@@ -19,7 +21,6 @@ import shlex
 import subprocess
 import re
 from enum import Enum
-import warnings
 from socket import getservbyname
 import time
 from pathlib import Path
@@ -103,15 +104,15 @@ class SLPFactory:
       self.__hslp = slp_handler
       if self.__hslp is None:
         self.__new_handler = True
-        self.__hslp: object = slp.SLPOpen("en", False) # TODO M: vedere se installando SLP il warning sparisce, in tal caso vedere se rimuovere :object dall'handler
+        self.__hslp: object = slp.SLPOpen("en", False)
         logger.debug(self.__hslp)
 
     def __del__(self):
       if SLPFactory._get_common_agents_counter() == 0:
-        slp.SLPClose(self.__hslp) # TODO M: vedere se installando SLP il warning sparisce
+        slp.SLPClose(self.__hslp)
       else:
         if self.__new_handler:
-          slp.SLPClose(self.__hslp) # TODO M: vedere se installando SLP il warning sparisce
+          slp.SLPClose(self.__hslp)
         else:
           SLPFactory._decrement_agents_counter()
 
@@ -225,7 +226,6 @@ class SLPFactory:
 
       return Service.aggregate_nodes_of_equal_services(srvs_list)
 
-    # TODO M: vedere se spariscono errori importando slp
     @staticmethod
     def __srvurl_to_service(srvurl:str) -> Service:
       parsed_data = slp.SLPParseSrvURL(srvurl)

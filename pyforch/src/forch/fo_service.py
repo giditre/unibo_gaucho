@@ -1,3 +1,6 @@
+# This import allows to hint custom classes and to use | instead of Union[]
+# TODO: remove it when Python 3.10 will be used
+from __future__ import annotations
 import logging
 from typing import List
 
@@ -18,10 +21,6 @@ from pathlib import Path
 
 from . import is_orchestrator
 from .fo_zabbix import ZabbixAdapter, ZabbixNodeFields, MeasurementFields
-
-# This import allows to hint custom classes and to use | instead of Union[]
-# TODO: remove it when Python 3.10 will be used
-from __future__ import annotations
 
 
 class ServiceCategory(Enum):
@@ -274,11 +273,11 @@ class Service:
   #   return cls(id=service_id)
 
   @classmethod
-  def create_services_from_json(cls, *, json_file_name:str, ipv4:IPv4Address) -> List[Service]:
+  def create_services_from_json(cls, *, json_file_name:str|Path, ipv4:IPv4Address) -> List[Service]:
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address object!"
-    assert isinstance(json_file_name, str), "Parameter json_file_name must be a string!"
+    assert isinstance(json_file_name, (str, Path)), "Parameter json_file_name must be a string!"
     assert Path(json_file_name).is_file(), "{} is not a file or it does not exist.".format(json_file_name)
 
     service_list = []

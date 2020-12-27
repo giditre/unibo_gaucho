@@ -1,13 +1,14 @@
 from src.forch.fo_zabbix import ZabbixAdapter
 from src.forch.fo_service import Service, MetricType
 from src.forch import set_orchestrator, is_orchestrator
+from pathlib import Path
 
 set_orchestrator()
 
 from ipaddress import IPv4Address
 
 def test_create_services_from_json_out():
-  s_list = Service.create_services_from_json(json_file_name="tests/service_example.json", ipv4=IPv4Address("127.0.0.1"))
+  s_list = Service.create_services_from_json(json_file_name=Path(__file__).parent.joinpath("service_example.json").absolute(), ipv4=IPv4Address("127.0.0.1"))
   assert isinstance(s_list, list), ""
   assert all([isinstance(s, Service) for s in s_list]), ""
   assert all([s.get_node_list() for s in s_list]), ""

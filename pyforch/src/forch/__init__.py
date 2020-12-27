@@ -5,10 +5,10 @@
 
 # TODO G: attenzione che il campo value delle Metric è una stringa e quindi il sorting dei nodi basati su quel value potrebbe non dare il risultato desiderato
 
-from typing import Any, List, NoReturn
 # This import allows to hint custom classes and to use | instead of Union[]
 # TODO: remove it when Python 3.10 will be used
 from __future__ import annotations
+from typing import Any, List, NoReturn
 
 
 _is_orchestrator = False

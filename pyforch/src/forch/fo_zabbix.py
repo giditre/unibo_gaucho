@@ -1,5 +1,9 @@
 #TODO G: create/complete docstrings and declare variables types statically using hints
 
+
+# This import allows to hint custom classes and to use | instead of Union[]
+# TODO: remove it when Python 3.10 will be used
+from __future__ import annotations
 import logging
 from typing import List
 
@@ -25,9 +29,6 @@ import json
 from pyzabbix import ZabbixAPI
 from ipaddress import IPv4Address
 from enum import Enum
-
-from __future__ import annotations
-
 
 class ZabbixNodeFields(Enum):
   ID = "id"
