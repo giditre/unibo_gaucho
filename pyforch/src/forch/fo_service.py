@@ -1,4 +1,8 @@
+# This import allows to hint custom classes and to use | instead of Union[]
+# TODO: remove it when Python 3.10 will be used
+from __future__ import annotations
 import logging
+from typing import List
 
 # from logging.config import fileConfig
 # from pathlib import Path
@@ -9,11 +13,6 @@ import logging
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-#TODO M: Se serve: mettere controllo dei parametri di input nei vari metodi (soprattutto i costruttori)
-#TODO M: Se serve: override __repr__ di tutte le classi?
-
-import os
-import copy
 from ipaddress import IPv4Address
 from socket import getservbyname
 from enum import Enum, IntEnum
@@ -21,7 +20,7 @@ import json
 from pathlib import Path
 
 from . import is_orchestrator
-from .fo_zabbix import ZabbixNode, ZabbixAdapter, ZabbixNodeFields, MeasurementFields
+from .fo_zabbix import ZabbixAdapter, ZabbixNodeFields, MeasurementFields
 
 
 class ServiceCategory(Enum):
@@ -29,6 +28,7 @@ class ServiceCategory(Enum):
   PAAS = "SDP"    # Software Development Platform
   SAAS = "APP"    # APPlication
   FAAS = "LAF"    # Lightweight Atomic Function
+  NONE = "None"
 
 
 class MetricType(Enum):
@@ -43,21 +43,26 @@ class MeasurementRetrievalMode(IntEnum):
 
 
 class Service:
+  __orchestrator: bool=False # default value will be never used in theory, but it is necessary to avoid pylint no-member error
 
-  def __init__(self, *, name="", protocol="", node_list=None, id="", category=None, description=""):
+  def __init__(self, *, name:str="", protocol:str="", node_list:List[Service.__ServiceNode]|None=None, id:str="", category:ServiceCategory|None=None, description:str=""):
     if node_list is None:
       node_list = []
     assert all( isinstance(node, self.__ServiceNode) for node in node_list ), "Parameter node_list must be a list of ServiceNode!"
 
     if category is not None:
       assert isinstance(category, ServiceCategory), "Parameter category must be of type ServiceCategory!"
+    else:
+      category = ServiceCategory.NONE
 
-    self.__name = name
-    self.__protocol = protocol
-    self.__node_list = node_list
-    self.__id = id
-    self.__category = category
-    self.__description = description
+    self.__class__.__orchestrator = is_orchestrator()
+
+    self.__name: str = name
+    self.__protocol: str = protocol
+    self.__node_list: List[Service.__ServiceNode] = node_list
+    self.__id: str = id
+    self.__category: ServiceCategory = category
+    self.__description: str = description
 
   def __repr__(self):
     return str(self.__dict__)
@@ -69,12 +74,12 @@ class Service:
 
   def get_name(self):
     return self.__name
-  def set_name(self, name):
+  def set_name(self, name:str):
     self.__name = name
 
   def get_protocol(self):
     return self.__protocol
-  def set_protocol(self, protocol):
+  def set_protocol(self, protocol:str):
     self.__protocol = protocol
 
   def get_node_list(self):
@@ -84,17 +89,19 @@ class Service:
 
   def get_id(self):
     return self.__id
-  def set_id(self, id):
+  def set_id(self, id:str):
     self.__id = id
 
   def get_category(self):
     return self.__category
-  def set_category(self, category):
+  def set_category(self, category:str|ServiceCategory):
+    if isinstance(category, str):
+      category = ServiceCategory[category]
     self.__category = category
 
   def get_descr(self):
     return self.__description
-  def set_descr(self, description):
+  def set_descr(self, description:str):
     self.__description = description
 
   # def to_json(self):
@@ -102,7 +109,7 @@ class Service:
   #   return self.__dict__
 
   # This is the convergence point between Zabbix and SLP
-  def add_node(self, *, ipv4, port=0, path="", lifetime=0xffff):
+  def add_node(self, *, ipv4:IPv4Address, port:int=0, path:str="", lifetime:int=0xffff) -> str|None:
     """
     This is the convergence point between Zabbix and SLP.
     Adds a node to the service. Requires at least the IP address of the node.
@@ -114,7 +121,7 @@ class Service:
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address objects!"
 
     # merge with zabbix only if is_orchestrator
-    if is_orchestrator():
+    if self.__class__.__orchestrator:
       node = ZabbixAdapter.get_instance().get_node_by_ip(ipv4)
       logger.debug("Retrieved ZabbixNode {}".format(node))
       node_dict = node.to_dict()
@@ -145,7 +152,7 @@ class Service:
       self.get_node_list().append(self.__ServiceNode(id=node_id, ipv4=ipv4, port=port, path=path, lifetime=lifetime))
       return node_id
 
-  def get_node_by_id(self, node_id):
+  def get_node_by_id(self, node_id:str) -> Service.__ServiceNode|None:
     # assert ...
     try:
       return next(sn for sn in self.get_node_list() if sn.get_id() == node_id)
@@ -156,7 +163,7 @@ class Service:
   # https://stackoverflow.com/questions/9835762/how-do-i-find-the-duplicates-in-a-list-and-create-another-list-with-them
   # https://stackoverflow.com/questions/9542738/python-find-in-list
   @classmethod
-  def aggregate_nodes_of_equal_services(cls, service_list): #TODO M: trovare nome migliore
+  def aggregate_nodes_of_equal_services(cls, service_list:List[Service]) -> List[Service]: # TODO: find a more concise name
     assert isinstance(service_list, list), "Parameter service_list must be a list!"
     ret_list = []
     for srvc in service_list:
@@ -170,7 +177,7 @@ class Service:
         ret_list[ret_list.index(srvc)] = cls(name=srvc.get_name(), protocol=srvc.get_protocol(), node_list=new_node_list, id=srvc.get_id(), category=srvc.get_category(), description=srvc.get_descr())
     return ret_list
 
-  def get_node_by_metric(self, m_type=MetricType.CPU, check="min"):
+  def get_node_by_metric(self, m_type:MetricType=MetricType.CPU, check:str="min") -> Service.__ServiceNode|None:
     assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
 
     # check is there are nodes offering this service
@@ -204,8 +211,8 @@ class Service:
       if res_metric == node.get_metric_by_type(m_type):
         return node
         
-  def refresh_measurements(self, mode=MeasurementRetrievalMode.SERVICE):
-    assert is_orchestrator(), "This method cannot be called since this node in not the orchestrator!"
+  def refresh_measurements(self, mode:MeasurementRetrievalMode=MeasurementRetrievalMode.SERVICE) -> None:
+    assert self.__class__.__orchestrator, "This method cannot be called since this node in not the orchestrator!"
     assert isinstance(mode, MeasurementRetrievalMode), "Parameter mode must be a MeasurementRetrievalMode!"
     # check retrieval mode
     if mode == MeasurementRetrievalMode.SERVICE:
@@ -218,20 +225,35 @@ class Service:
       # populate the data structure
       for node in node_list:
         for metric in node.get_metrics_list():
-          metric.update(measurements)
+          m_id = metric.get_id()
+          assert m_id in measurements, "Measurement of metric {} is not in provided measurements!".format(m_id)
+          metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP.value])
+          metric.set_value(measurements[m_id][MeasurementFields.VALUE.value])
+          if metric.get_unit() == "":
+            metric.set_unit(measurements[m_id][MeasurementFields.UNIT.value])
     elif mode == MeasurementRetrievalMode.NODE:
       # refresh the value of all metrics of a node
       for node in self.get_node_list(): 
-        measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id([m.get_id() for m in node.get_metrics_list()])
+        measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id_list([m.get_id() for m in node.get_metrics_list()])
         # populate the data structure
         for metric in node.get_metrics_list():
-          metric.update(measurements)
+          m_id = metric.get_id()
+          assert m_id in measurements, "Measurement of metric {} is not in provided measurements!".format(m_id)
+          metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP.value])
+          metric.set_value(measurements[m_id][MeasurementFields.VALUE.value])
+          if metric.get_unit() == "":
+            metric.set_unit(measurements[m_id][MeasurementFields.UNIT.value])
     elif mode == MeasurementRetrievalMode.METRIC:
       # refresh the value of a single metric
       for node in self.get_node_list():
         for metric in node.get_metrics_list():
           measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id(metric.get_id())
-          metric.update(measurements)
+          m_id = metric.get_id()
+          assert m_id in measurements, "Measurement of metric {} is not in provided measurements!".format(m_id)
+          metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP.value])
+          metric.set_value(measurements[m_id][MeasurementFields.VALUE.value])
+          if metric.get_unit() == "":
+            metric.set_unit(measurements[m_id][MeasurementFields.UNIT.value])
     else:
       # should never happen
       pass
@@ -253,11 +275,11 @@ class Service:
   #   return cls(id=service_id)
 
   @classmethod
-  def create_services_from_json(cls, *, json_file_name, ipv4):
+  def create_services_from_json(cls, *, json_file_name:str|Path, ipv4:IPv4Address) -> List[Service]:
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address object!"
-    assert isinstance(json_file_name, str), "Parameter json_file_name must be a string!"
+    assert isinstance(json_file_name, (str, Path)), "Parameter json_file_name must be a string!"
     assert Path(json_file_name).is_file(), "{} is not a file or it does not exist.".format(json_file_name)
 
     service_list = []
@@ -287,7 +309,7 @@ class Service:
 
   class __ServiceNode:
     # 0xffff = slp.SLP_LIFETIME_MAXIMUM
-    def __init__(self, *, id, ipv4, name="", available=False, port=0, path="", lifetime=0xffff, metrics_list=None):
+    def __init__(self, *, id:str, ipv4:IPv4Address, name:str="", available:bool=False, port:int=0, path:str="", lifetime:int=0xffff, metrics_list:List[Service.__ServiceNode.__Metric]|None=None):
       if metrics_list is None:
         metrics_list = []
       for metric in metrics_list:
@@ -296,14 +318,14 @@ class Service:
         ipv4 = IPv4Address(ipv4)
       assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address objects!"
       
-      self.__id = id
-      self.__name = name
-      self.__available = available
-      self.__ip = ipv4
-      self.__port = port
-      self.__path = path
-      self.__lifetime = lifetime
-      self.__metrics_list = metrics_list
+      self.__id: str = id
+      self.__ip: IPv4Address = ipv4
+      self.__name: str = name
+      self.__available: bool = available
+      self.__port: int = port
+      self.__path: str = path
+      self.__lifetime: int = lifetime
+      self.__metrics_list: List[Service.__ServiceNode.__Metric] = metrics_list
 
     def __repr__(self):
       # return "{}(id={},name={},ip={},metrics={})".format(self.__class__.__name__, self.get_id(), self.get_name(), self.get_ip(), self.get_metrics_list())
@@ -342,22 +364,22 @@ class Service:
       
     def get_id(self):
  	    return self.__id 
-    def set_id(self, id):
+    def set_id(self, id:str):
       self.__id = id
 
     def get_name(self):
       return self.__name    
-    def set_name(self, name):
+    def set_name(self, name:str):
       self.__name = name
 
     def get_available(self):
       return self.__available    
-    def set_available(self, available):
+    def set_available(self, available:bool):
       self.__available = available
 
     def get_ip(self):
       return self.__ip
-    def set_ip(self, ipv4):
+    def set_ip(self, ipv4:IPv4Address):
       if isinstance(ipv4, str):
         ipv4 = IPv4Address(ipv4)
       assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must me an IPv4Address!"
@@ -365,31 +387,28 @@ class Service:
 
     def get_port(self):
       return self.__port
-    def set_port(self, port):
+    def set_port(self, port:int):
       self.__port = port
 
     def get_path(self):
       return self.__path
-    def set_path(self, path):
+    def set_path(self, path:str):
       self.__path = path
 
     def get_lifetime(self):
       return self.__lifetime
-    def set_lifetime(self, lifetime):
+    def set_lifetime(self, lifetime:int):
       self.__lifetime = lifetime
 
     def get_metrics_list(self):
       return self.__metrics_list
-    
-    def create_and_add_metric_by_type(self, m_type):
-      assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
-      self.get_metrics_list().append(self.__Metric(m_type=m_type))
 
-    def add_metric(self, m_id, m_type):
+    def add_metric(self, m_id:str, m_type:MetricType) -> None:
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       self.get_metrics_list().append(self.__Metric(m_id=m_id, m_type=m_type))
     
-    def get_metric_by_type(self, m_type):
+    # This method supposes that, for each MetricType, there is only a single MetricType entry in metrics_list
+    def get_metric_by_type(self, m_type:MetricType) -> Service.__ServiceNode.__Metric|None:
       assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
       #return next((metric for metric in self.__metric_list if metric.get_name() == m_type), None) # not used because readability    
       for metric in self.get_metrics_list():
@@ -397,7 +416,7 @@ class Service:
           return metric
       return None
       
-    # def refresh_measurements(self): # TODO G: tenere questo metodo o no?
+    # def refresh_measurements(self): # TODO G: keep this method or not?
     #   # method to refresh the value of all metrics of a node
     #   measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id([m.get_id() for m in self.get_metrics_list()])da dentro una sottoclasse?
     #   # populate the data structure
@@ -406,19 +425,19 @@ class Service:
     #     if m_id in measurements:
     #       metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP])
     #       metric.set_value(measurements[m_id][MeasurementFields.VALUE])
-    #       metric.set_unit(measurements[m_id][MeasurementFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
+    #       metric.set_unit(measurements[m_id][MeasurementFields.UNIT]) # TODO G: set the unit each time is useless (?)
     #     else:
-    #       # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
+    #       # TODO G: how can i handle the case in which a node have a metric that is not in the measurements? Is it possible to handle?
     #       pass
 
 
     class __Metric:
-      def __init__(self, m_id="", m_type=MetricType.CPU, timestamp="", value="", unit=""):
-        self.__id = m_id
-        self.__type = m_type
-        self.__timestamp = timestamp
-        self.__value = value
-        self.__unit = unit
+      def __init__(self, m_id:str="", m_type:MetricType=MetricType.CPU, timestamp:str="", value:str="", unit:str=""):
+        self.__id: str = m_id
+        self.__type: MetricType = m_type
+        self.__timestamp: str = timestamp
+        self.__value: str = value
+        self.__unit: str = unit
 
       def __repr__(self):
         # return "{}(id={},type={},timestamp={},value={},unit={})".format(self.__class__.__name__, self.get_id(), self.get_type(), self.get_timestamp(), self.get_value(), self.get_unit())
@@ -432,32 +451,27 @@ class Service:
       
       def get_id(self):
         return self.__id
-      def set_id(self, id):
+      def set_id(self, id:str):
         self.__id = id
 
       def get_type(self):
         return self.__type
-      def set_type(self, m_type):
+      def set_type(self, m_type:MetricType):
         self.__type = m_type
-        
-      def get_name(self):
-        return self.__name
-      def set_name(self, name):
-        self.__name = name
         
       def get_timestamp(self):
         return self.__timestamp
-      def set_timestamp(self, timestamp):
+      def set_timestamp(self, timestamp:str):
         self.__timestamp = timestamp
         
       def get_value(self):
         return self.__value
-      def set_value(self, value):
+      def set_value(self, value:str):
         self.__value = value
       
       def get_unit(self):
         return self.__unit
-      def set_unit(self, unit):
+      def set_unit(self, unit:str):
         self.__unit = unit
 
       # def to_dict(self):
@@ -486,18 +500,9 @@ class Service:
       #   logger.debug(f"Create object {cls.__name__} from pickle {p}")
       #   o = cls()
       #   vars(o).update(pickle.loads(p))
-      #   return o
+      #   return o    
         
-      def update(self, measurements_dict):
-        # measurements_dict is expected to be a dictionary formatted as {'30254': {'node_id': '10313', 'metric_id': '30254', 'metric_name': 'CPU utilization', 'timestamp': '0', 'value': '0', 'unit': '%'}}
-        m_id = self.get_id()
-        assert m_id in measurements_dict, "Measurement of metric {} is not in provided measurements!".format(m_id)
-        self.set_timestamp(measurements_dict[m_id][MeasurementFields.TIMESTAMP.value])
-        self.set_value(measurements_dict[m_id][MeasurementFields.VALUE.value])
-        if self.get_unit() == "":
-          self.set_unit(measurements_dict[m_id][MeasurementFields.UNIT.value])        
-        
-      # def refresh_measurements(self): # TODO G: tenere questo metodo o no?
+      # def refresh_measurements(self): # TODO G: keep this method or not?
       #   # method to refresh the value of a single metric
       #   measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id(self.get_id())
       #   # populate the data structure
@@ -507,5 +512,5 @@ class Service:
       #     metric.set_value(measurements[m_id][MeasurementFields.VALUE])
       #     metric.set_unit(measurements[m_id][MeasurementFields.UNIT]) # TODO G: inutile settare ogni volta le unità (?)
       #   else:
-      #     # TODO G: come gestire il caso in cui un nodo abbia una metrica che però non compare tra le misure? è possibile?
+      #       # TODO G: how can i handle the case in which a node have a metric that is not in the measurements? Is it possible to handle?
       #     pass

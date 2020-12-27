@@ -2,7 +2,11 @@
 # slp.SLP_LIFETIME_DEFAULT = 10800
 # slp.SLP_LIFETIME_MAXIMUM = 65535
 
+# This import allows to hint custom classes and to use | instead of Union[]
+# TODO: remove it when Python 3.10 will be used
+from __future__ import annotations
 import logging
+from typing import List, Tuple
 
 # from logging.config import fileConfig
 # from pathlib import Path
@@ -13,22 +17,18 @@ import logging
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-import sys
 import shlex
 import subprocess
 import re
-from enum import IntEnum, Enum
-from abc import ABCMeta, abstractmethod
-import warnings
+from enum import Enum
 from socket import getservbyname
-import psutil
 import time
 from pathlib import Path
 
 import slp
 
-from . import is_orchestrator, raise_error
-from .fo_service import Service, ServiceCategory
+from . import raise_error
+from .fo_service import Service
 
 _SLP_ATTRIBUTES_SEPARATOR = ','
 
@@ -40,7 +40,7 @@ class _SLPAttributes(Enum):
 
   # https://stackoverflow.com/questions/43634618/how-do-i-test-if-int-value-exists-in-python-enum-without-using-try-catch/43634746
   @classmethod
-  def has_value(cls, value):
+  def has_value(cls, value:object):
     return value in cls._value2member_map_ # pylint: disable=no-member
 
 class SLPFactory:
@@ -48,7 +48,7 @@ class SLPFactory:
   __common_agents_counter = 0
 
   @classmethod
-  def create_UA(cls, new_handler=False):
+  def create_UA(cls, new_handler:bool=False):
     if not bool(new_handler):
       slp_handler = cls.__get_common_handler()
       cls.__increment_agents_counter()
@@ -56,7 +56,7 @@ class SLPFactory:
     return cls.__UserAgent(None)
 
   @classmethod
-  def create_SA(cls, new_handler=False):
+  def create_SA(cls, new_handler:bool=False):
     if not bool(new_handler):
       slp_handler = cls.__get_common_handler()
       cls.__increment_agents_counter()
@@ -64,7 +64,7 @@ class SLPFactory:
     return cls.__ServiceAgent(None)
 
   @classmethod
-  def create_DA(cls, new_handler=False):
+  def create_DA(cls, new_handler:bool=False):
     if not bool(new_handler):
       slp_handler = cls.__get_common_handler()
       cls.__increment_agents_counter()
@@ -88,7 +88,7 @@ class SLPFactory:
       cls.__destroy_common_slp_agent()
 
   @classmethod
-  def __get_common_handler(cls):
+  def __get_common_handler(cls) -> object:
     if cls.__common_slp_agent is None:
       assert cls._get_common_agents_counter() == 0, "If i'm here __agents_counter is supposed to be 0"
       cls.__common_slp_agent = cls.__SLPAgent()
@@ -96,15 +96,15 @@ class SLPFactory:
 
   @classmethod
   def __destroy_common_slp_agent(cls):
-    cls.__common_slp_agent = None #TODO M: basta questo per distruggere l'agente o devo esplicitamente chiamare il suo distruttore?
+    cls.__common_slp_agent = None # Set to None in order to destroy the agent instance
 
   class __SLPAgent:
-    def __init__(self, slp_handler=None):
+    def __init__(self, slp_handler:object=None):
       self.__new_handler = False
       self.__hslp = slp_handler
       if self.__hslp is None:
         self.__new_handler = True
-        self.__hslp = slp.SLPOpen("en", False)
+        self.__hslp: object = slp.SLPOpen("en", False)
         logger.debug(self.__hslp)
 
     def __del__(self):
@@ -116,16 +116,15 @@ class SLPFactory:
         else:
           SLPFactory._decrement_agents_counter()
 
-    def get_handler(self):
+    def get_handler(self) -> object:
       return self.__hslp
 
   # Attenction: Only one slpd at a time is allowed, otherwise it is a mess!
   class __SLPActiveAgent(__SLPAgent):
-    __daemon_pid = None
 
-    def __init__(self, slp_handler=None, is_DA=False):
+    def __init__(self, slp_handler:object=None, is_DA:bool=False):
       if not is_DA:
-        self.__start_daemon()
+        self.__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_SA.conf"))))
       else:
         self.__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_DA.conf"))))
       super().__init__(slp_handler)
@@ -135,20 +134,20 @@ class SLPFactory:
       self.__stop_daemon()
 
     @classmethod
-    def __daemon_is_running(cls):
+    def __daemon_is_running(cls) -> bool:
       return bool(cls.__get_daemon_pid())
 
     @staticmethod
-    def __get_daemon_pid():
+    def __get_daemon_pid() -> int|None:
       out = subprocess.run(shlex.split("pgrep slpd"), capture_output=True).stdout.decode('utf-8')
       if not out:
-        return None
+        return None # TODO: maybe it is better to raise an error
       assert out.count("\n") == 1, "Found more than one slpd PID!"
       return int(out)
 
     @classmethod
-    def __start_daemon(cls, optns=""):#,parameters):
-      assert isinstance(optns, str) or optns is None, "Parameter optns must be a string!"
+    def __start_daemon(cls, optns:str="") -> bool:
+      assert isinstance(optns, str), "Parameter optns must be a string!"
 
       if cls.__daemon_is_running():
         logger.warning("Local slpd is already running.")
@@ -169,7 +168,7 @@ class SLPFactory:
       return True
     
     @classmethod
-    def __stop_daemon(cls):
+    def __stop_daemon(cls) -> bool:
       if not cls.__daemon_is_running():
         return False
 
@@ -185,45 +184,50 @@ class SLPFactory:
     #   return True
       
   class __UserAgent(__SLPAgent):
-    __discovery_list = None
+    __discovery_list = []
 
-    def find_all_services(self):
+    def find_all_services(self) -> List[Service]:
       srvc_types_list = self.__find_srvc_types()
       srvc_types_list = list(set(srvc_types_list)) #if equals elements are returned keep only one of them
 
       found_srvs_list = []
       for srvc_type in srvc_types_list:
         found_srvs_list.extend(self.__find_service(srvc_type))
-      # TODO M: verificare se è possibile che la lista contenga elementi uguali. Nel caso toglierli
-      # NOTE: Il TODO precedente dovrebbe essere automaticamente risolto nell'istruzione di return
+      # Now it should be checked if the list contain equal elements. If yes keep only one of them
+      # Theoretically the previous comment is already solved in the return instruction by aggregate_nodes_of_equal_services()
 
       srvs_dict = {}
       for i, srvc_tuple in enumerate(found_srvs_list):
         srvs_dict.update({srvc_tuple[0]:self.__find_attr_list(srvc_tuple[0]), ("lifetime#" + str(i)):srvc_tuple[1]})
 
       srvs_list = []
+      srvc = None
       for key in srvs_dict:
         if key.split("#")[0] != "lifetime":
           srvc = self.__srvurl_to_service(key) # in this case key = srvurl
 
           if srvs_dict[key] != "":
             tmp_srvc = self.__attrs_to_service(srvs_dict[key])
+            if tmp_srvc is None:
+              raise_error(self.__class__.__name__, "Unexpected __attrs_to_service result!")
 
             srvc.set_id(tmp_srvc.get_id())
             srvc.set_category(tmp_srvc.get_category())
             srvc.set_descr(tmp_srvc.get_descr())
           else:
-            #TODO M: mettere errore perchè gli attributi ci devono essere?
+            # TODO: raise error because attributes must be present?
             pass
         else:
-          assert len(srvc.get_node_list()) == 1, "In theory here we have only one node associated to a service"
-          srvc.get_node_list()[0].set_lifetime(srvs_dict[key]) # in this case key = lifetime
+          assert isinstance(srvc, Service), "Unexpected type of srvc: " + type(srvc)
+          node_list = srvc.get_node_list()
+          assert len(node_list) == 1 if node_list != None else False, "In theory here we have only one node associated to a service"
+          node_list[0].set_lifetime(srvs_dict[key]) # in this case key = lifetime
           srvs_list.append(srvc)
 
       return Service.aggregate_nodes_of_equal_services(srvs_list)
 
     @staticmethod
-    def __srvurl_to_service(srvurl):
+    def __srvurl_to_service(srvurl:str) -> Service:
       parsed_data = slp.SLPParseSrvURL(srvurl)
       logger.debug("Parsed URL: {}".format(parsed_data))
       srvc_type, url, host_port, _, _ = parsed_data
@@ -244,11 +248,11 @@ class SLPFactory:
 
       srvc = Service(name=name, protocol=protocol)
       srvc.add_node(ipv4=host_ipv4, port=host_port, path=path)
-      # TODO: maybe check return value se Zabbix non trova il nodo che ha trovato SLP e in caso exception?
+      # TODO: maybe check return value and, if Zabbix didn't found the node found by SLP, raise an exception?
       return srvc
 
     @staticmethod
-    def __attrs_to_service(attrs_str):
+    def __attrs_to_service(attrs_str:str) -> Service|None:
       if attrs_str == "":
         return None
 
@@ -268,20 +272,23 @@ class SLPFactory:
         elif attrs_list[i] == _SLPAttributes.DESCRIPTION.value:
           srvc.set_descr(attrs_list[i+1])
         elif _SLPAttributes.has_value(attrs_list[i]):
-          warnings.warn("Known service attribute {} not used.".format(attrs_list[i]))
+          logger.warning("Known service attribute {} not used.".format(attrs_list[i]))
         else:
-          raise_error(__class__, "Unexpected service attribute received!") # TODO M: forse mettere un semplice warning?
+          raise_error(__class__.__name__, "Unexpected service attribute received!") # TODO: is a simple warning sufficient?
+
+      if srvc.get_id() == "":
+        return None
 
       return srvc
       
-    # Expected inputs: string, {key1:value1, key2:value2, ...}, string
-    # prints, count and rqst_type are only for debug
+    # Expected inputs: {key1:value1, key2:value2, ...}, int, string
+    # errcode and rqst_type are only for debug
     @staticmethod
-    def __rqsts_callback_core(param_dict,errcode,rqst_type=""):
+    def __rqsts_callback_core(param_dict, errcode:int, rqst_type:str="") -> bool:
       rv = False
       if errcode == slp.SLP_OK:
         for key in param_dict:
-          logger.debug("{}: {}".format(key,param_dict[key]))
+          logger.debug("{}: {}".format(key, param_dict[key]))
           #print("{}: {}".format(key,param_dict[key]))
         rv = True
       elif errcode == slp.SLP_LAST_CALL:
@@ -291,51 +298,48 @@ class SLPFactory:
       return rv
     
     @staticmethod
-    def __srvc_types_callback(h, srvc_type, errcode, cookie_data):
+    def __srvc_types_callback(h:object, srvc_type:str, errcode:int, cookie_data:object) -> bool:
       res = __class__.__rqsts_callback_core({"srvc_type":srvc_type}, errcode, "service types")
       if res == True:
         __class__.__discovery_list = srvc_type.split(",")
       return res
 
     @staticmethod
-    def __service_callback(h, srvurl, lifetime, errcode, cookie_data):
+    def __service_callback(h:object, srvurl:str, lifetime:int, errcode:int, cookie_data:object) -> bool:
       res = __class__.__rqsts_callback_core({"url":srvurl, "timeout":lifetime}, errcode, "service")
       if res == True:
-        __class__.__discovery_list.append((srvurl,lifetime))
+        __class__.__discovery_list.append((srvurl, lifetime))
       return res
 
     @staticmethod
-    def __attr_callback(h, attrs, errcode, cookie_data):
+    def __attr_callback(h:object, attrs:str, errcode:int, cookie_data:object) -> bool:
       res = __class__.__rqsts_callback_core({"attrs":attrs}, errcode, "attribute lists")
       if res == True:
         __class__.__discovery_list.append(attrs)
       return res
 
-    def __find_srvc_types(self):
+    def __find_srvc_types(self) -> List[str]:
       self.__class__.__discovery_list = []
       try:
         slp.SLPFindSrvTypes(self.get_handler(), "*", "", self.__srvc_types_callback, None)
       except RuntimeError as e:
-        print("Error discovering the service types: " + str(e))
-        return None
+        raise_error(self.__class__.__name__, "Error discovering the service types: " + str(e))
       return self.__class__.__discovery_list
       
-    def __find_service(self, service_type):
+    def __find_service(self, service_type:str) -> List[Tuple[str, int]]:
       self.__class__.__discovery_list = []
       try:
         slp.SLPFindSrvs(self.get_handler(), service_type, None, None, self.__service_callback, None)
       except RuntimeError as e:
-        print("Error discovering the service: " + str(e))
-        return None
+        raise_error(self.__class__.__name__, "Error discovering the service: " + str(e))
       return self.__class__.__discovery_list
 
-    def __find_attr_list(self, srvurl):
+    def __find_attr_list(self, srvurl:str) -> str:
       self.__class__.__discovery_list = []
       try:
         slp.SLPFindAttrs(self.get_handler(), srvurl, None, None, self.__attr_callback, None)
       except RuntimeError as e:
-        print("Error discovering the service attributes: " + str(e))
-        return None
+        raise_error(self.__class__.__name__, "Error discovering the service attributes: " + str(e))
       if not self.__class__.__discovery_list:
         return ""
 
@@ -344,18 +348,18 @@ class SLPFactory:
       return res
 
   class __ServiceAgent(__SLPActiveAgent):
-    def register_service(self, service):
+    def register_service(self, service:Service):
       srvurl_list, attrs, lifetime_list = self.__service_to_slp_service(service)
       for i, srvurl in enumerate(srvurl_list):
         self.__register_service(srvurl, attrs, lifetime_list[i])
 
-    def deregister_service(self, service):
+    def deregister_service(self, service:Service):
       srvurl_list = self.__service_to_slp_service(service)[0]
       for srvurl in srvurl_list:
         self.__deregister_service(srvurl)
 
     @staticmethod
-    def __service_to_slp_service(service):
+    def __service_to_slp_service(service:Service) -> Tuple[List[str], str, List[int]]:
       assert isinstance(service, Service), "Parameter service must be a Service() object!"
       srvc_type = "service:" + service.get_name() + ":" + service.get_protocol()
 
@@ -373,12 +377,12 @@ class SLPFactory:
       return (srvurl_list, attrs, lifetime_list)
 
     @staticmethod
-    def __reg_callback(h, errcode, data):
+    def __reg_callback(h:object, errcode:int, data:object) -> None:
       if errcode != slp.SLP_OK:
-        print("Error de/registering service: " + str(errcode))
+        logger.warning("Error de/registering service: " + str(errcode))
       return None
 
-    def __register_service(self, srvurl, attrs="", lifetime=slp.SLP_LIFETIME_DEFAULT):
+    def __register_service(self, srvurl:str, attrs:str="", lifetime:int=slp.SLP_LIFETIME_DEFAULT):
       # TODO this is just a temporary fix
       attempts = 1
       while attempts <= 3:
@@ -393,13 +397,13 @@ class SLPFactory:
           logger.debug(f"Service registered on attempt {attempts}")
           break
 
-    def __deregister_service(self, srvurl):
+    def __deregister_service(self, srvurl:str):
       try:
         slp.SLPDereg(self.get_handler(), srvurl, self.__reg_callback, None)
       except RuntimeError as e:
         print("Error deregistering service: " + str(e))
 
   class __DirectoryAgent(__SLPActiveAgent):
-    def __init__(self, slp_handler=None):
+    def __init__(self, slp_handler:object=None):
       slp.SLPSetProperty("net.slp.isDA", "true") # Maybe useless, but it set correctly the global environment
       super().__init__(slp_handler, True)

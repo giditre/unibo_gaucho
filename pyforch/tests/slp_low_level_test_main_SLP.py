@@ -5,7 +5,7 @@ import slp
 
 def srvc_types_callback(h, srvc_type, errcode, cookie_data):
       _discovered_service_types_list = []
-      # global count
+      global count
       rv = False
       if errcode == slp.SLP_OK:
         print(srvc_type)
