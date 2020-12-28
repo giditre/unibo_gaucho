@@ -56,12 +56,13 @@ def get_local_config(file_name):
   return local_config
 
 
-class FogServiceID(Enum):
+class FogServiceID(Enum): # TODO G: load this values from external conf file and use Enum()
   # APPs
   APACHE_WEB_SERVER = "APP001"
   STRESS = "APP002"
   TRANSCODER = "APP003"
   UNIBO_MEC_TEST = "APP004"
+  SUM = "APP005"
   # SDPs
   PYTHON = "SDP001"
   # FVEs

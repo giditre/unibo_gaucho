@@ -7,9 +7,6 @@ logger.info(f"Load {__name__} with {logger}")
 
 from time import sleep
 import json
-import socket
-
-from enum import Enum
 
 import flask
 from flask_restful import Resource, Api
