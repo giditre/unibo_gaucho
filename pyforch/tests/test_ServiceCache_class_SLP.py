@@ -20,7 +20,7 @@ def test_refresh():
   sc = ServiceCache()
   sc.refresh()
   fnd = sc.get_list()
-  assert all([ann.__dict__ == fnd[fnd.index(ann)].__dict__ for ann in srv_list]), ""
+  assert all([ann.__dict__ == fnd[fnd.index(ann)].__dict__ for ann in srv_list]), "Some found service is different from the registered one"
 
   # Run this to catch eventual exceptions
   for srv in fnd:
