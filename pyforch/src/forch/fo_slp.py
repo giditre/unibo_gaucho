@@ -348,15 +348,29 @@ class SLPFactory:
       return res
 
   class __ServiceAgent(__SLPActiveAgent):
+    def __init__(self, slp_handler:object=None, is_DA:bool=False):
+      super().__init__(slp_handler, is_DA)
+      self.__reg_srvc: List[Service] = [] # If useful, make __reg_srvc getter.
+
+    def __del__(self):
+      for srvc in self.__reg_srvc:
+        self.deregister_service(srvc)
+      super().__del__()
+
     def register_service(self, service:Service):
       srvurl_list, attrs, lifetime_list = self.__service_to_slp_service(service)
       for i, srvurl in enumerate(srvurl_list):
         self.__register_service(srvurl, attrs, lifetime_list[i])
+      self.__reg_srvc.append(service)
 
     def deregister_service(self, service:Service):
       srvurl_list = self.__service_to_slp_service(service)[0]
       for srvurl in srvurl_list:
         self.__deregister_service(srvurl)
+      if service in self.__reg_srvc:
+        self.__reg_srvc.remove(service)
+      else:
+        logger.warning("Deregistered a service that was not registered by this SA.")
 
     @staticmethod
     def __service_to_slp_service(service:Service) -> Tuple[List[str], str, List[int]]:

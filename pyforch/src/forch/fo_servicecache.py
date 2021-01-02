@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from forch.fo_service import Service
+from .fo_service import Service
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -12,7 +12,7 @@ from .fo_slp import SLPFactory
 
 
 class ServiceCache:
-  def __init__(self, *, refresh=False): 
+  def __init__(self, *, refresh:bool=False): 
     self.__slp_ctrl: SLPFactory.__UserAgent = SLPFactory.create_UA()
     self.__service_list: List[Service] = []
     if refresh:

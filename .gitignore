@@ -67,3 +67,6 @@ target/
 # VIM
 .*.swp
 .*.swo
+
+# tmp
+pyforch/tests/main_tests
