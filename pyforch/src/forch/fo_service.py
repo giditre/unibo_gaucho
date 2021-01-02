@@ -72,6 +72,9 @@ class Service:
       return self.get_id() == obj.get_id()
     return False
 
+  def __hash__(self):
+    return hash(self.get_id())
+
   def get_name(self):
     return self.__name
   def set_name(self, name:str):
@@ -339,6 +342,9 @@ class Service:
         return self.get_id() == obj.get_id()
       return False
 
+    def __hash__(self):
+      return hash(self.get_id())
+
     # def to_dict(self):
     #   # TODO G
     #   pass
@@ -451,6 +457,9 @@ class Service:
         if isinstance(obj, self.__class__):
           return self.get_id() == obj.get_id()
         return False
+
+      def __hash__(self):
+        return hash(self.get_id())
       
       def get_id(self):
         return self.__id

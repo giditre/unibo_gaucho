@@ -70,3 +70,4 @@ target/
 
 # tmp
 pyforch/tests/main_tests
+pyforch/evaluations
