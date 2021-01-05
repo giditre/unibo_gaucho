@@ -69,5 +69,4 @@ target/
 .*.swo
 
 # tmp
-pyforch/tests/main_tests
-pyforch/evaluations
+.*
