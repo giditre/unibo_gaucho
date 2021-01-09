@@ -34,6 +34,14 @@ class ServiceCategory(Enum):
 class MetricType(Enum):
   CPU = "CPU utilization"
   RAM = "Memory utilization"
+  TOT_RAM = "Total memory"
+  FREE_RAM = "Available memory"
+  FREE_SWAP = "Free swap space"
+  SYS_UPTIME = "System uptime"
+  N_PROC = "Number of processes"
+  N_CPUS = "Number of CPUs"
+  OS = "Operating system"
+  OS_ARCH = "Operating system architecture"
 
 
 class MeasurementRetrievalMode(IntEnum):
@@ -46,6 +54,16 @@ class Service:
   __orchestrator: bool=False # default value will be never used in theory, but it is necessary to avoid pylint no-member error
 
   def __init__(self, *, name:str="", protocol:str="", node_list:List[Service.__ServiceNode]|None=None, id:str="", category:ServiceCategory|None=None, description:str=""):
+    """Service constructor method.
+
+    Args:
+        name (str, optional): name of the service. Defaults to "".
+        protocol (str, optional): protocol used by the service. Defaults to "".
+        node_list (List[Service.__ServiceNode], optional): list of nodes that deploy the service. Defaults to None.
+        id (str, optional): id of the service. Two services with the same id are considered equal. Defaults to "".
+        category (ServiceCategory, optional): serviceCategory of the service. Defaults to None.
+        description (str, optional): literal description of the service. Defaults to "".
+    """
     if node_list is None:
       node_list = []
     assert all( isinstance(node, self.__ServiceNode) for node in node_list ), "Parameter node_list must be a list of ServiceNode!"
@@ -75,29 +93,74 @@ class Service:
   def __hash__(self):
     return hash(self.get_id())
 
-  def get_name(self):
+  def get_name(self) -> str:
+    """This method returns the service name.
+
+    Returns:
+        str: the name of the service.
+    """
     return self.__name
   def set_name(self, name:str):
+    """This method sets the service name.
+
+    Args:
+        name (str): new service name.
+    """
     self.__name = name
 
-  def get_protocol(self):
+  def get_protocol(self) -> str:
+    """This method returns the service protocol.
+
+    Returns:
+        str: the protocol of the service.
+    """
     return self.__protocol
   def set_protocol(self, protocol:str):
+    """This method sets the service protocol.
+
+    Args:
+        protocol (str): new protocol used by the service.
+    """
     self.__protocol = protocol
 
-  def get_node_list(self):
+  def get_node_list(self) -> List[Service.__ServiceNode]:
+    """This method returns the serviceNode list of the service.
+
+    Returns:
+        List[Service.__ServiceNode]:  serviceNode list of the service.
+    """
     return self.__node_list
   # def __set_node_list(self, node_list):
   #   self.__node_list = node_list
 
-  def get_id(self):
+  def get_id(self) -> str:
+    """This method returns the service id.
+
+    Returns:
+        str: service id.
+    """
     return self.__id
   def set_id(self, id:str):
+    """This method sets the service id.
+
+    Args:
+        id (str): new service id.
+    """
     self.__id = id
 
-  def get_category(self):
+  def get_category(self) -> ServiceCategory:
+    """This method returns the service category.
+
+    Returns:
+        ServiceCategory: service category.
+    """
     return self.__category
   def set_category(self, category:str|ServiceCategory):
+    """This method sets the service category. If the input is a string, it is automatically converted to a ServiceCategoryobject.
+
+    Args:
+        category (str|ServiceCategory): new service category.
+    """
     if isinstance(category, str):
       try:
         category = ServiceCategory[category.upper()]
@@ -105,9 +168,19 @@ class Service:
         raise_error(self.__class__.__name__, "Unexpected service category. Check ServiceCategory class for the allowed possibilities.")
     self.__category = category
 
-  def get_descr(self):
+  def get_descr(self) -> str:
+    """This method returns the service description.
+
+    Returns:
+        str: service description.
+    """
     return self.__description
   def set_descr(self, description:str):
+    """This method sets the service description.
+
+    Args:
+        description (str): new service description.
+    """
     self.__description = description
 
   # def to_json(self):
@@ -116,11 +189,16 @@ class Service:
 
   # This is the convergence point between Zabbix and SLP
   def add_node(self, *, ipv4:IPv4Address, port:int=0, path:str="", lifetime:int=0xffff) -> str|None:
-    """
-    This is the convergence point between Zabbix and SLP.
-    Adds a node to the service. Requires at least the IP address of the node.
-    Retrieves information on the node from Zabbix if this is run on the Zabbix Server.
-    Returns the ID of the created node, or None if node not found in Zabbix.
+    """This method is the convergence point between Zabbix and SLP. Adds a node to the service. Requires at least the IP address of the node. Retrieves information on the node from Zabbix if this is run on the Zabbix Server. Returns the ID of the created node, or None if node not found in Zabbix.
+
+    Args:
+        ipv4 (IPv4Address): IPv4 of the node.
+        port (int): service port number.
+        path (str): filesystem service path.
+        lifetime (int): service lifetime.
+
+    Returns:
+        str|None: node id or None if the method fails.
     """
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
@@ -159,7 +237,14 @@ class Service:
       return node_id
 
   def get_node_by_id(self, node_id:str) -> Service.__ServiceNode|None:
-    # assert ...
+    """This method returns a node given an input node id.
+
+    Args:
+        node_id (str): id of the node to be returned.
+
+    Returns:
+        Service.__ServiceNode | None: returns the found node, otherwise returns None.
+    """
     try:
       return next(sn for sn in self.get_node_list() if sn.get_id() == node_id)
     except StopIteration:
@@ -170,6 +255,14 @@ class Service:
   # https://stackoverflow.com/questions/9542738/python-find-in-list
   @classmethod
   def aggregate_nodes_of_equal_services(cls, service_list:List[Service]) -> List[Service]: # TODO: find a more concise name
+    """Given an input list of services, this method returns a list where equal services with different nodes, have been aggregated in a single service object.
+
+    Args:
+        service_list (List[Service]): input services list.
+
+    Returns:
+        List[Service]: output services list.
+    """
     assert isinstance(service_list, list), "Parameter service_list must be a list!"
     ret_list = []
     for srvc in service_list:
@@ -184,6 +277,15 @@ class Service:
     return ret_list
 
   def get_node_by_metric(self, m_type:MetricType=MetricType.CPU, check:str="min") -> Service.__ServiceNode|None:
+    """Given an input metric, this method returns the node which implements the service, with the higher or lower metric value.
+
+    Args:
+        m_type (MetricType, optional): name of the service. Defaults to MetricType.CPU.
+        check (str, optional): the type of check to be performed on metric values. It can be either "min" or "max". Defaults to "min".
+
+    Returns:
+        Service.__ServiceNode|None: the resulting service node. If the method fails it returns None.
+    """
     assert isinstance(m_type, MetricType), "Parameter m_type must be a MetricType!"
 
     # check is there are nodes offering this service
@@ -218,6 +320,11 @@ class Service:
         return node
         
   def refresh_measurements(self, mode:MeasurementRetrievalMode=MeasurementRetrievalMode.SERVICE) -> None:
+    """This method refreshes the measurements of the metrics of the nodes associadet to the service. This is an experimental method and can be invoched in three different modalities: SERVICE, NODE or METRIC. In the first case it is performed a single Zabbix query, in the second case it is performed a query for each node, finally in the third case it is performed a query for each metric of each node.
+
+    Args:
+        mode (MeasurementRetrievalMode, optional): refresh mode to be used. Defaults to MeasurementRetrievalMode.SERVICE.
+    """
     assert self.__class__.__orchestrator, "This method cannot be called since this node in not the orchestrator!"
     assert isinstance(mode, MeasurementRetrievalMode), "Parameter mode must be a MeasurementRetrievalMode!"
     # check retrieval mode
@@ -282,6 +389,15 @@ class Service:
 
   @classmethod
   def create_services_from_json(cls, *, json_file_name:str|Path, ipv4:IPv4Address) -> List[Service]:
+    """This method parses a proper JSON file and returns a list with the parsed services.
+
+    Args:
+        json_file_name (str|Path): JSON filesystem path.
+        ipv4 (IPv4Address): IPv4 of the node which deploys the service (usually the current node).
+
+    Returns:
+        List[Service]: service list with the parsed services.
+    """
     if isinstance(ipv4, str):
       ipv4 = IPv4Address(ipv4)
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address object!"
