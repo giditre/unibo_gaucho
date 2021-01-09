@@ -453,6 +453,6 @@ class SLPFactory:
 
   class __DirectoryAgent(__SLPActiveAgent):
     def __init__(self, slp_handler:object=None):
-      slp.SLPSetProperty("net.slp.isDA", "true") # Maybe useless, but it set correctly the global environment
+      slp.SLPSetProperty("net.slp.isDA", "true") # Maybe useless, but it sets correctly the global environment
       super().__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_DA.conf")))) # in this case "super()" can be replaced by "self"
       super().__init__(slp_handler)

@@ -34,6 +34,14 @@ class ServiceCategory(Enum):
 class MetricType(Enum):
   CPU = "CPU utilization"
   RAM = "Memory utilization"
+  TOT_RAM = "Total memory"
+  FREE_RAM = "Available memory"
+  FREE_SWAP = "Free swap space"
+  SYS_UPTIME = "System uptime"
+  N_PROC = "Number of processes"
+  N_CPUS = "Number of CPUs"
+  OS = "Operating system"
+  OS_ARCH = "Operating system architecture"
 
 
 class MeasurementRetrievalMode(IntEnum):
