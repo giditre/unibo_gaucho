@@ -140,9 +140,10 @@ if __name__ == "__main__":
   if args.dev == 'n':
     # Sniffer not required because we sniff on the only DA/UA of the network
     sa = SLPFactory.create_SA()
+    time.sleep(1)
     for srv in srv_list:
       sa.register_service(srv)
-    asyncio.get_running_loop().run_forever()
+    asyncio.get_event_loop().run_forever()
   else:
     all_res = [['TRIAL TYPE: {}+{}'.format(args.dev, args.mode), 'TIME', 'N_PKTS', 'TOT_BYTES', 'DATA_CONSISTENCY']]
     da = None
