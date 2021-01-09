@@ -173,7 +173,7 @@ class SLPFactory:
       return int(out)
 
     @classmethod
-    def __start_daemon(cls, optns:str="") -> bool:
+    def _start_daemon(cls, optns:str="") -> bool:
       assert isinstance(optns, str), "Parameter optns must be a string!"
 
       if cls.__daemon_is_running():
@@ -381,7 +381,7 @@ class SLPFactory:
 
   class __ServiceAgent(__SLPActiveAgent):
     def __init__(self, slp_handler:object=None):
-      super().__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_SA.conf")))) # in this case "super()" can be replaced by "self"
+      super()._start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_SA.conf")))) # in this case "super()" can be replaced by "self"
       super().__init__(slp_handler)
       self.__reg_srvc: List[Service] = [] # If useful, make __reg_srvc getter.
 
