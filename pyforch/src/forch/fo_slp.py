@@ -7,6 +7,7 @@
 from __future__ import annotations
 import logging
 from typing import Dict, List, Tuple
+import warnings
 
 # from logging.config import fileConfig
 # from pathlib import Path
@@ -208,6 +209,7 @@ class SLPFactory:
         subprocess.run(shlex.split(cmd_str)) # TODO: find a way to stop slpd in the destructor
       except ImportError:
         logger.warning("subprocess.run() cannot be called during destruction. slpd will remain active.")
+        warnings.warn("subprocess.run() cannot be called during destruction. slpd will remain active.")
 
       return True
       
