@@ -196,11 +196,18 @@ class SLPFactory:
     
     @classmethod
     def __stop_daemon(cls) -> bool:
-      if not cls.__daemon_is_running():
-        return False
+      try:
+        if not cls.__daemon_is_running():
+          return False
+      except ImportError:
+        cmd_str = "sudo pkill -15 slpd" # This has been done as hotfix for the next comment. Find a better alternative.
+      else:
+        cmd_str = "sudo kill -15 {}".format(cls.__get_daemon_pid())
 
-      cmd_str = "sudo kill -15 {}".format(cls.__get_daemon_pid())
-      subprocess.run(shlex.split(cmd_str))
+      try:
+        subprocess.run(shlex.split(cmd_str)) # TODO: find a way to stop slpd in the destructor
+      except ImportError:
+        logger.warning("subprocess.run() cannot be called during destruction. slpd will remain active.")
 
       return True
       
@@ -454,5 +461,5 @@ class SLPFactory:
   class __DirectoryAgent(__SLPActiveAgent):
     def __init__(self, slp_handler:object=None):
       slp.SLPSetProperty("net.slp.isDA", "true") # Maybe useless, but it sets correctly the global environment
-      super().__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_DA.conf")))) # in this case "super()" can be replaced by "self"
+      super()._start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_DA.conf")))) # in this case "super()" can be replaced by "self"
       super().__init__(slp_handler)
