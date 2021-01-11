@@ -6,6 +6,7 @@
 # TODO: remove it when Python 3.10 will be used
 from __future__ import annotations
 import logging
+import os
 from typing import Dict, List, Tuple
 import warnings
 
@@ -182,10 +183,13 @@ class SLPFactory:
         return False
         #raise_error(self.__class__, "Daemon is already running!")
 
-      cmd_str = "sudo slpd"
+      cmd_str = "slpd"
 
       if optns != None and optns != "":
         cmd_str += " " + optns
+
+      if not os.geteuid() == 0:
+        cmd_str = "sudo " + cmd_str
 
       subprocess.run(shlex.split(cmd_str))
 
@@ -201,9 +205,12 @@ class SLPFactory:
         if not cls.__daemon_is_running():
           return False
       except ImportError:
-        cmd_str = "sudo pkill -15 slpd" # This has been done as hotfix for the next comment. Find a better alternative.
+        cmd_str = "pkill -15 slpd" # This has been done as hotfix for the next comment. Find a better alternative.
       else:
-        cmd_str = "sudo kill -15 {}".format(cls.__get_daemon_pid())
+        cmd_str = "kill -15 {}".format(cls.__get_daemon_pid())
+
+      if not os.geteuid() == 0:
+        cmd_str = "sudo " + cmd_str
 
       try:
         subprocess.run(shlex.split(cmd_str)) # TODO: find a way to stop slpd in the destructor
