@@ -198,7 +198,7 @@ if __name__ == "__main__":
     # The file is written only at the end. This means that if the script is stopped before there will not be intermediate works available.
     # This could be an issue to be solved if needed. For the moment i prefer to access to the file once.
     with open('./res/res.csv', mode='w') as res_file:
-      res_writer = csv.writer(res_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+      res_writer = csv.writer(res_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
       res_writer.writerows(all_res)
 
     if not_passed_flag:
