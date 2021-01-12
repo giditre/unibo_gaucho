@@ -35,12 +35,12 @@ class MetricType(Enum):
   CPU = "CPU utilization"
   RAM = "Memory utilization"
   TOT_RAM = "Total memory"
-  FREE_RAM = "Available memory"
-  FREE_SWAP = "Free swap space"
-  SYS_UPTIME = "System uptime"
+  FREE_SWAP = "Free swap space in %"
+  N_THREADS = "Number of threads"
   N_PROC = "Number of processes"
-  N_CPUS = "Number of CPUs"
-  OS = "Operating system"
+  SYS_NAME = "System name"
+  SYS_DESCR = "System description"
+  SYS_UPTIME = "Uptime"
   OS_ARCH = "Operating system architecture"
 
 
