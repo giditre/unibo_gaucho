@@ -172,8 +172,9 @@ class ZabbixAdapter(object):
       return item_list[0]["itemid"]
     else:
       # TODO G: how to handle this case?
+      # item_list = self.__zapi.item.get(hostids=node_id)
       # print(item_list)
-      raise ValueError 
+      raise ValueError
 
   # def get_item_id_by_node(self, node):
   #   node_id = ZabbixNode.validate_node_id(node)
