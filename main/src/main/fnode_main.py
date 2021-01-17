@@ -5,9 +5,12 @@ fileConfig(str(Path(__file__).parent.joinpath("logging.ini")))
 logger = logging.getLogger(__name__)
 logger.info(f"Load {__name__} with {logger}")
 
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, IPv4Network
 from time import time
 import multiprocessing
+import sys
+import configparser
+import socket
 
 import flask
 from flask_restful import Resource, Api
@@ -15,7 +18,7 @@ from flask_restful import Resource, Api
 import docker
 
 import forch
-logger.debug("IS_ORCHESTRATOR: {}".format(forch.is_orchestrator()))
+logger.debug("Running as orchestrator? {}".format(forch.is_orchestrator()))
 
 
 class FNVI(object):
@@ -84,16 +87,16 @@ class FNVI(object):
       active_service_list.append(active_service)
       self.__set_active_service_list(active_service_list)
 
-  def find_active_services(self):
+  def find_active_services(self, *, service_category_list=["APP", "SDP"]):
     # find pre-existing services
-    # TODO avoid hardcoding of IDs
     # cycle over known base services
-    for base_service_id in ["FVE001"]:
-      if base_service_id == "FVE001":
+    for base_service_id in [forch.FogServiceID.DOCKER.value]:
+      if base_service_id == forch.FogServiceID.DOCKER.value:
         # Docker-specific
-        for cont_s_id in self.list_containerized_services_docker():
-          logger.debug(f"Found active service {cont_s_id} base FVE001")
-          self.update_active_service_list(forch.ActiveService(service_id=cont_s_id, base_service_id="FVE001"))
+        for cont_name in [ c.name for c in self.docker_container_list() if any(c.name.startswith(service_category) for service_category in service_category_list) ]:
+          cont_s_id = cont_name.split("-")[0]
+          logger.debug(f"Found active service {cont_s_id} base {forch.FogServiceID.DOCKER.value} on container {cont_name}")
+          self.update_active_service_list(forch.ActiveService(service_id=cont_s_id, base_service_id=forch.FogServiceID.DOCKER.value, instance_name=cont_name))
       elif base_service_id == "FVExxx":
         pass
       else:
@@ -110,26 +113,50 @@ class FNVI(object):
 
   def destroy_service(self, service_id):
     """Returns ID of destroyed service"""
-    # TODO avoid hardcoded FVE SDP APP
-    if service_id.startswith("FVE"):
+    # check if service is of category IaaS, meaning it must be deallocated
+    if service_id.startswith(forch.ServiceCategory.IAAS.value):
+      # service is of category IaaS
       # TODO deallocate
       pass
     else:
-      # check if service_id == base_service_id, meaning service is allocated, else service is deployed
-      # TODO move this search to a function ?
-      active_s = next( s for s in self.get_active_service_list() if s.get_id() == service_id )
-      base_service_id = active_s.get_base_service_id()
-      if service_id == base_service_id:
-        # TODO deallocate
-        pass
-      else:
-        # TODO avoid hardcoding FVE001
-        if base_service_id == "FVE001":
-          return self.destroy_service_docker(service_id)
-        elif base_service_id == "FVExxx":
+      # service is NOT of category IaaS -- need to discover base_service_id
+      # get relevant instance of ActiveService
+      # TODO move this search to a function, handling non-existent service ?
+      active_service_list = [ s for s in self.get_active_service_list() if s.get_service_id() == service_id ]
+      active_base_service_id_list = [ s.get_base_service_id() for s in active_service_list ]
+      base_to_instance_list_dict = { base_service_id: [ active_s.get_instance_name() for active_s in active_service_list
+        if active_s.get_instance_name()
+        ]
+        for base_service_id in active_base_service_id_list
+      }
+      for base_service_id, instance_name_list in base_to_instance_list_dict.items():
+        if service_id == base_service_id:
+          # TODO deallocate
           pass
         else:
-          pass
+          # destroy
+          if base_service_id == forch.FogServiceID.DOCKER.value:
+            return self.destroy_container_list_docker(instance_name_list) # TODO make this multiprocessing (the method to destroy a list of containers already exists, but)
+          elif base_service_id == "FVExxx":
+            pass
+          else:
+            pass
+
+      # for active_s in active_service_list:
+      #   # check if service_id == base_service_id, meaning service is allocated, else service is deployed
+      #   base_service_id = active_s.get_base_service_id()
+      #   if active_s.get_service_id() == base_service_id:
+      #     # TODO deallocate
+      #     pass
+      #   else:
+      #     # destroy
+      #     if base_service_id == forch.FogServiceID.DOCKER.value:
+      #       # instance_list = [ s.get_instance_name() for s in active_service_list if s.get_instance_name()]
+      #       return self.destroy_container_docker(active_s.get_instance_name()) # TODO make this multiprocessing (the method to destroy a list of containers already exists, but)
+      #     elif base_service_id == "FVExxx":
+      #       pass
+      #     else:
+      #       pass
 
   def destroy_all_services(self):
     """Returns list of IDs of destroyed services"""
@@ -148,8 +175,11 @@ class FNVI(object):
   def docker_client_test(self):
     return self.__get_docker_client().ping()
 
+  def docker_network_list(self, *args, **kwargs):
+    return self.__get_docker_client().networks.list(*args, **kwargs)
+
   def docker_network_exists(self, network_name):
-    net_list = self.__get_docker_client().networks.list()
+    net_list = self.docker_network_list()
     for net in net_list:
       if net.name == network_name:
         return True
@@ -168,9 +198,9 @@ class FNVI(object):
     ipam_config = None
     if bridge_address is not None or subnet is not None or dhcp_range is not None:
 
-      assert IPv4Address(bridge_address), "Must provide a valid IPv4 address in CIDR notation!"
-      assert IPv4Address(subnet), "Must provide a valid IPv4 subnet in CIDR notation!"
-      assert IPv4Address(dhcp_range), "Must provide a valid IPv4 subnet in CIDR notation!"
+      assert bridge_address is None or IPv4Address(bridge_address), "Must provide a valid IPv4 address in CIDR notation!"
+      assert subnet is None or IPv4Network(subnet), "Must provide a valid IPv4 subnet in CIDR notation!"
+      assert dhcp_range is None or IPv4Network(dhcp_range), "Must provide a valid IPv4 subnet in CIDR notation!"
 
       ipam_config = docker.types.IPAMConfig( pool_configs=[ docker.types.IPAMPool(
         subnet=subnet, iprange=dhcp_range, gateway=bridge_address)
@@ -200,6 +230,9 @@ class FNVI(object):
   def docker_image_prune(self):
     self.__get_docker_client().images.prune()
 
+  def docker_container_list(self, *args, **kwargs):
+    return self.__get_docker_client().containers.list(*args, **kwargs)
+
   def docker_container_run(self, image_name, **kwargs):
     img = self.docker_image_pull(image_name)
     if img is None:
@@ -214,76 +247,97 @@ class FNVI(object):
     logger.info(f"Pruned {len(deleted_list)} container(s)")
     return deleted_list
 
-  def __generate_container_name(self, service_id, image_name):
-    container_name = "_".join([
+  def __generate_container_name(self, service_id, *, image_name=None):
+    # TODO avoid hardcoding separator
+    container_name = "-".join([
       service_id,
-      image_name.replace("/", "-").replace(":", "-"),
+      # image_name.replace("/", "-").replace(":", "-"),
       str(int(time()*1000)) # or '{0:%Y%m%d-%H%M%S-%f}'.format(datetime.now())
       ])
     # check length (limit imposed by hostname field)
     assert len(container_name) < 64, f"Name {container_name} is longer than 63 chars"
     # check there is no other container with this name
-    assert container_name not in [ c.name for c in self.__get_docker_client().containers.list() ], f"Name {container_name} already in use by container {self.__get_docker_client().containers.get(container_name)}"
+    assert container_name not in [ c.name for c in self.docker_container_list() ], f"Name {container_name} already in use by container {self.__get_docker_client().containers.get(container_name)}"
     return container_name
 
-  def list_containerized_services_docker(self, *, service_type_list=["APP", "SDP"]):
-    return list(set([ c.name.split("_")[0] for c in self.__get_docker_client().containers.list()
-      if any(c.name.startswith(service_type) for service_type in service_type_list) ]))
+  def list_containerized_services_docker(self, *, service_category_list=["APP", "SDP"]):
+    # TODO avoid hardcoding separator
+    return list(set([ c.name.split("-")[0] for c in self.docker_container_list()
+      if any(c.name.startswith(service_category) for service_category in service_category_list) ]))
 
-  def deploy_service_docker(self, service_id, image_name):
+  def deploy_container_docker(self, service_id, image_name, **kwargs):
 
-    container_name = self.__generate_container_name(service_id, image_name)
+    container_name = self.__generate_container_name(service_id)
 
     logger.debug(f"Deploy service {service_id} with container {container_name} using image {image_name}")
 
-    container = self.docker_container_run(image_name, name=container_name, hostname=container_name, detach=True, stdin_open=True, tty=True, publish_all_ports=True, command=None, entrypoint=None)
+    container = self.docker_container_run(image_name, name=container_name, hostname=container_name, **kwargs)
 
     if container is None:
       return None
 
     # just before returning, update active service list
-    # TODO avoid hardcoded base_service_id FVE001
-    self.update_active_service_list(forch.ActiveService(service_id=service_id, base_service_id="FVE001"))
+    self.update_active_service_list(forch.ActiveService(service_id=service_id, base_service_id=forch.FogServiceID.DOCKER.value, instance_name=container_name))
 
     return container
 
-  def destroy_service_docker(self, service_id, *, prune=True):
-    for c in self.__get_docker_client().containers.list():
-      if c.name.startswith(service_id):
+  def destroy_container_docker(self, container_name, *, prune=True):
+    for c in self.docker_container_list():
+      if c.name == container_name:
         c.stop()
+        break
     if prune:
-      self.docker_container_prune()
-    return service_id
+      self.docker_container_prune()      
+      self.docker_network_prune()
+    return container_name
 
-  def destroy_all_services_docker(self):
-    service_list = FNVI.get_instance().list_containerized_services_docker()
-    logger.debug(f"Remove services {service_list}")
+  def destroy_container_list_docker(self, container_name_list, *, prune=True):
+    logger.debug(f"Remove containers {container_name_list}")
     process_list = []
-    for s_id in service_list:
-      p = multiprocessing.Process(target=self.destroy_service_docker, args=(s_id,), kwargs={"prune": False})
+    for container_name in container_name_list:
+      p = multiprocessing.Process(target=self.destroy_container_docker, args=(container_name,), kwargs={"prune": False})
       p.start()
       process_list.append(p)
     for p in process_list:
       p.join()
-    self.docker_container_prune()
+    if prune:
+      self.docker_container_prune()      
+      self.docker_network_prune()
+    return container_name_list
+
+  def destroy_all_containers_docker(self):
+    active_service_list = self.get_active_service_list()
+    active_docker_container_name_list = [ active_s.get_instance_name() for active_s in active_service_list
+      if active_s.get_base_service_id() == forch.FogServiceID.DOCKER.value ]
+    if active_docker_container_name_list:
+      self.destroy_container_list_docker(active_docker_container_name_list)
+    else:
+      logger.debug("No Docker containers to destroy")
+    return active_docker_container_name_list
 
 ### API Resources
 
 class Test(Resource):
   def get(self):
     return {
-      "message": f"This component ({Path(__file__).name}) is up!",
-      "type": "FN_TEST_OK"
+      "message": f"Component {Path(__file__).name} on {socket.gethostname()} is up!",
+      # "type": "FN_TEST_OK"
     }
 
 class FogServices(Resource):
   # this GET replies with the active services, while available services (referred to as just "services") are discovered via SLP
   def get(self, s_id=""):
-    as_id_list = [ s.get_id() for s in FNVI.get_instance().get_active_service_list() ]
+    as_list = [ {
+      "service_id": s.get_service_id(),
+      "base_service_id": s.get_base_service_id(),
+      "node_id": s.get_node_id(),
+      "instance_name": s.get_instance_name(),
+      "instance_ip": s.get_instance_ip()
+    } for s in FNVI.get_instance().get_active_service_list() ]
     return {
-      "message": f"Found {len(as_id_list)} active service(s)",
-      "type": "FN_LS",
-      "services": as_id_list
+      "message": f"Found {len(as_list)} active service(s)",
+      # "type": "FN_LS",
+      "services": as_list
       }, 200
 
   def put(self, s_id):
@@ -292,7 +346,7 @@ class FogServices(Resource):
     # request_json = flask.request.get_json(force=True)
     return {
       "message": f"Allocated service {s_id}",
-      "type": "FN_ALLC_OK",
+      # "type": "FN_ALLC_OK",
       # "name": container_name,
       # "ip": container_ip, # TODO change in IP visible from outside
       # "port_mappings": port_mappings
@@ -303,22 +357,48 @@ class FogServices(Resource):
 
     request_json = flask.request.get_json(force=True)
 
-    assert "base" in request_json, f"Must specify a base service (FVExxx)"
-    assert "FVE" in request_json["base"], f"Must specify valid base service (FVExxx)"
-    base_id = request_json["base"]
+    assert forch.InstanceConfiguration.BASE.value in request_json, f"Must specify a base service"
+    assert forch.ServiceCategory.IAAS.value in request_json[forch.InstanceConfiguration.BASE.value], f"Must specify valid base service ({forch.ServiceCategory.IAAS.value}xxx)"
+    base_id = request_json[forch.InstanceConfiguration.BASE.value]
 
-    if base_id == "FVE001":
-      assert "image" in request_json, f"Must specify image in {request_json}"
-      image_name = request_json["image"]
+    if base_id == forch.FogServiceID.DOCKER.value:
+      assert forch.InstanceConfiguration.IMAGE.value in request_json, f"Must specify image in {request_json}"
+      image_name = request_json[forch.InstanceConfiguration.IMAGE.value]
 
-      container = FNVI.get_instance().deploy_service_docker(s_id, image_name)
+      if "instance_conf" in request_json: # TODO avoid hardcoding string
+        instance_conf_dict = request_json["instance_conf"]
+
+        # preliminary configuration
+        # if a network configuration is requested, check that the network exists
+        if forch.DockerContainerConfiguration[forch.InstanceConfiguration.ATTACH_TO_NETWORK.value].value in instance_conf_dict:
+          network_name = instance_conf_dict[forch.DockerContainerConfiguration[forch.InstanceConfiguration.ATTACH_TO_NETWORK.value].value]
+          if FNVI.get_instance().docker_network_exists(network_name) == False:
+            logger.debug(f"Network {network_name} does not exist")
+            # create it, based on network configuration info in the JSON
+            # these configs are assumed to be compatible with the employed Docker method
+            network_conf_dict = request_json["network_conf"] # TODO avoid hardcoding string
+            FNVI.get_instance().docker_network_create_with_bridge(network_name, **network_conf_dict)
+            # TODO check network was correctly created
+      else:
+        instance_conf_dict = {
+          forch.DockerContainerConfiguration[forch.InstanceConfiguration.DETACH.value].value: True,
+          forch.DockerContainerConfiguration[forch.InstanceConfiguration.KEEP_STDIN_OPEN.value].value: True,
+          forch.DockerContainerConfiguration[forch.InstanceConfiguration.ALLOCATE_TERMINAL.value].value: True,
+          forch.DockerContainerConfiguration[forch.InstanceConfiguration.FORWARD_ALL_PORTS.value].value: True
+        }
+
+      container = FNVI.get_instance().deploy_container_docker(s_id, image_name, **instance_conf_dict)
 
       assert container is not None, f'Error deploying service {s_id}, check image name "{image_name}"'
+      assert container != b'', f'Error deploying service {s_id}, check run parameters'
 
       # refresh attrs dictionary
       container.reload()
       container_name = container.name # equivalent to container.attrs["Name"].strip("/")
       container_ip = container.attrs["NetworkSettings"]["IPAddress"]
+      if not container_ip:
+        container_ip = container.attrs["NetworkSettings"]["Networks"][container.attrs["HostConfig"]["NetworkMode"]]["IPAddress"]
+      
       
       # port_mappings = [ f'{host_port_dict["HostIp"]}:{host_port_dict["HostPort"]}->{container_port}'
       #   for host_port_dict in container.attrs["NetworkSettings"]["Ports"][container_port]
@@ -362,40 +442,52 @@ class FogServices(Resource):
       FNVI.get_instance().destroy_service(s_id)
       return {
         "message": f"Deleted services matching {s_id}",
-        "type": "FN_DEL_OK",
+        # "type": "FN_DEL_OK",
         }, 200
     else:
       FNVI.get_instance().destroy_all_services()
       return {
         "message": f"Deleted all services",
-        "type": "FN_DEL_OK",
+        # "type": "FN_DEL_OK",
         }, 200
-    
 
-if __name__ == '__main__':
 
-  ### Command line argument parser
+# def cleanup():
+#   try:
+#     logger.info("Cleanup")
+#   finally:
+#     FNVI.del_instance()
 
-  import argparse
+if __name__ == "__main__":
 
-  default_address = "0.0.0.0"
+  ### argument parser
 
-  parser = argparse.ArgumentParser()
-  parser.add_argument("-a", "--address", help="This component's IP address", nargs="?", default=default_address)
-  parser.add_argument("-p", "--port", help="This component's TCP port", type=int, nargs="?", default=6001)
-  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
-  args = parser.parse_args()
+  # import argparse
 
-  if args.address == default_address:
-    logger.warning(f"Running with default IP address {args.address}")
+  # default_address = "0.0.0.0"
+  # default_port = forch.get_fog_node_main_port()
+
+  # parser = argparse.ArgumentParser()
+  # parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
+  #   nargs="?", default=default_address)
+  # parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
+  #   nargs="?", default=default_port)
+  # parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
+  # args = parser.parse_args()
+
+  # if args.address == default_address:
+  #   logger.warning(f"Running with default IP address {args.address}")
+
+  local_config = forch.get_local_config(Path(__file__).parent.joinpath("main.ini").absolute())
+  logger.debug(f"Config: {dict(local_config.items())}")
 
   ### instantiate components
 
-  # FNVI.get_instance().set_ipv4("192.168.64.123")
-  FNVI.get_instance().set_ipv4(args.address)
-  FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath("fnode_services.json").absolute()))
+  FNVI.get_instance().set_ipv4(local_config["address"])
+  FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath(local_config["services_json"]).absolute()))
   FNVI.get_instance().register_service_list()
-  FNVI.get_instance().find_active_services()
+  FNVI.get_instance().find_active_services() # this might raise a RuntimeError
+  # TODO add configuration flag for this
 
   ### REST API
 
@@ -404,9 +496,11 @@ if __name__ == '__main__':
 
   api.add_resource(Test, '/test')
   api.add_resource(FogServices, '/services', '/services/<s_id>')
-  
+
   try:
-    app.run(host=args.address, port=args.port, debug=args.debug)
+    app.run(host=local_config.get("address"),
+      port=local_config.getint("fnode_port"),
+      debug=local_config.getboolean("debug"))
   except KeyboardInterrupt:
     pass
   finally:

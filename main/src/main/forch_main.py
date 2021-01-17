@@ -8,15 +8,15 @@ logger.info(f"Load {__name__} with {logger}")
 from time import sleep
 import json
 
-from flask import Flask, request, jsonify
-from flask_restful import Resource, Api, reqparse, abort
+import flask
+from flask_restful import Resource, Api
 
 import requests
 
 import forch
 forch.set_orchestrator()
 
-logger.debug(f"IS_ORCHESTRATOR: {forch.is_orchestrator()}")
+logger.debug(f"Running as orchestrator? {forch.is_orchestrator()}")
 
 
 class Source():
@@ -60,37 +60,6 @@ class Source():
     self.__description = description
 
 
-# class ActiveService():
-
-#   def __init__(self, *, service_id, node_id, base_service_id=None):
-#     self.__service_id = service_id
-#     self.__node_id = node_id
-#     self.__base_service_id = base_service_id if base_service_id is not None else service_id
-
-#   def __eq__(self, obj):
-#     if isinstance(obj, self.__class__):
-#       return ( self.get_service_id() == obj.get_service_id()
-#         and self.get_node_id() == obj.get_node_id()
-#         and self.get_base_service_id() == obj.get_base_service_id()
-#         )
-#     return False
-
-#   def get_service_id(self):
-#     return self.__service_id
-#   def set_service_id(self, service_id) :
-#     self.__service_id = service_id
-
-#   def get_node_id(self):
-#     return self.__node_id
-#   def set_node_id(self, node_id) :
-#     self.__node_id = node_id
-
-#   def get_base_service_id(self):
-#     return self.__base_service_id
-#   def set_base_service_id(self, base_service_id) :
-#     self.__base_service_id = base_service_id
-
-
 class FOB(object):
 
   __key = object()
@@ -104,6 +73,9 @@ class FOB(object):
 
     # define list of active services - active means allocated or deployed, not just available
     self.__active_service_list = []
+
+    # define list of projects
+    self.__project_list = []
 
   @classmethod
   def get_instance(cls):
@@ -154,6 +126,19 @@ class FOB(object):
     assert all( isinstance(s, forch.ActiveService) for s in active_service_list ), "All elements must be ActiveService objects!"
     self.__active_service_list = active_service_list
 
+  def get_project_list(self):
+    return self.__project_list
+
+  def set_project_list(self, project_list):
+    assert all( isinstance(s, forch.Project) for s in project_list ), "All elements must be Project objects!"
+    self.__project_list = project_list
+
+  def get_project_by_name(self, project_name):
+    for p in self.get_project_list():
+      if p.get_name() == project_name:
+        return p
+    return None
+
   def update_active_service_list(self, active_service):
     active_service_list = self.get_active_service_list()
     if active_service not in active_service_list:
@@ -168,12 +153,18 @@ class FOB(object):
         node_ip = sn.get_ip()
         # query node
         # TODO do this through FOVIM
-        response = requests.get(f"http://{node_ip}:6001/services")
+        try:
+          response = requests.get(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services")
+        except requests.exceptions.ConnectionError:
+          logger.debug(f"Node {sn.get_id()} not responding at {node_ip}")
+          continue
         resp_json = response.json()
-        sn_service_id_list = resp_json["services"]
-        for sn_service_id in sn_service_id_list:
-          logger.debug(f"Found active service {sn_service_id}")
-          self.update_active_service_list(forch.ActiveService(service_id=sn_service_id, node_ip=node_ip))
+        sn_service_list = resp_json["services"]
+        for s_dict in sn_service_list: # every element is expected tobe a dict with parameters of ActiveService
+          s_dict.update(node_ip=node_ip)
+          active_s = forch.ActiveService(**s_dict)
+          logger.info(f"Found active service {active_s.get_service_id()}") 
+          self.update_active_service_list(active_s)
 
   @staticmethod
   def get_service_list(*args, **kwargs):
@@ -183,7 +174,7 @@ class FOB(object):
   def get_service(*args, **kwargs):
     return FORS.get_instance().get_service(*args, **kwargs)
 
-  def activate_service(self, service_id):
+  def activate_service(self, service_id, *, project):
     """Takes service ID and returns an ActiveService object or None."""
     logger.debug(f"Start activating instance of service {service_id}")
     s = FORS.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
@@ -237,7 +228,7 @@ class FOB(object):
           if True: # TODO set meaningful condition
             # if so, deploy the source and allocate service on it
             logger.debug(f"Deploy service {service_id} on node {sn.get_id()} on top of base {base_s.get_id()}")
-            active_s = FOVIM.get_instance().manage_deployment(service_id=service_id, source=src, node_ip=sn.get_ip())
+            active_s = FOVIM.get_instance().manage_deployment(service_id=service_id, project=project, source=src, node_ip=sn.get_ip())
             # verify response is a service with single service node and return it to user --> 201 Created
             assert isinstance(active_s, forch.ActiveService) and len(active_s.get_node_list()) == 1, ""
             # just before returning, update active service list
@@ -347,21 +338,37 @@ class FOVIM(object):
     return active_s
 
   @staticmethod
-  def manage_deployment(*, service_id, node_ip, source):
-    """Manages deployment of service on node based on source. Returns ActiveService or None"""
+  def manage_deployment(*, service_id, node_ip, source, project):
+    """Manages deployment of service on node based on source.
+    Returns: ActiveService or None
+    """
     logger.debug(f"Deploy {service_id} on node {node_ip} with source {source}")
     
     base_service_id = source.get_base()
 
-    if base_service_id == "FVE001": # TODO avoid hardcoding of ID
+    if base_service_id == forch.FogServiceID.DOCKER.value:
+      # build JSON
+      request_json = dict(base=source.get_base(), image=source.get_name())
+      # extract additional project configurations for this instance
+      # then relate them to Docker, and serialize them into the JSON of the POST
+      if project.get_instance_configuration_dict():
+        instance_conf_dict = { forch.DockerContainerConfiguration[conf_name].value: conf_value
+          for conf_name, conf_value in project.get_instance_configuration_dict().items() }
+        request_json["instance_conf"] = instance_conf_dict # TODO avoid hardcoding string
+        # network configuration
+        if forch.InstanceConfiguration.ATTACH_TO_NETWORK.value in project.get_instance_configuration_dict():
+          network_conf_dict = { forch.DockerNetworkConfiguration[conf_name].value: conf_value
+          for conf_name, conf_value in project.get_network_configuration_dict().items() }
+          request_json["network_conf"] = network_conf_dict # TODO avoid hardcoding string
       # send deployment request to node
-      response = requests.post(f"http://{node_ip}:6001/services/{service_id}",
-        json={"base": source.get_base(), "image": source.get_name()}
-        )
+      logger.debug("Deployment request: {}".format(json.dumps(request_json)))
+      response = requests.post(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}", json=request_json)
       response_code = response.status_code
       if response_code == 201:
         response_json = response.json()
-        active_s = forch.ActiveService(service_id=service_id, instance_name=response_json["name"])
+        logger.debug("Deployment response: {}".format(json.dumps(response_json)))
+        active_s = forch.ActiveService(service_id=service_id,
+          instance_name=response_json["name"], instance_ip=response_json["ip"])
         src_port_list = source.get_port_list()
         if len(src_port_list) == 0:
           active_s.add_node(ipv4=node_ip)
@@ -385,7 +392,7 @@ class FOVIM(object):
   def manage_destruction(*, service_id, node_ip):
     logger.debug(f"Destroy {service_id} on node {node_ip}")
     
-    response = requests.delete(f"http://{node_ip}:6001/services/{service_id}")
+    response = requests.delete(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}")
     # TODO avoid returning this directly, but process it and return a single value, maybe the service id
     return response.json(), response.status_code
 
@@ -396,7 +403,7 @@ class Test(Resource):
   def get(self):
     return {
       "message": f"This component ({Path(__file__).name}) is up!",
-      "type": "TEST_OK"
+      # "type": "TEST_OK"
     }
 
 class FogServices(Resource):
@@ -430,8 +437,29 @@ class FogServices(Resource):
   def post(self, s_id):
     """Submit request for allocation of a service."""
 
-    active_s = FOB.get_instance().activate_service(s_id) # returns ActiveService
+    request_json = flask.request.get_json(force=True)
+
+    # retrieve project name from request JSON, or if no project is specified, default to a default name
+    if "project" in request_json: # TODO avoid hardcoding strings
+      project_name = request_json["project"]
+    else:
+      return {
+          "message": f"Must specify project name"
+          # "type": "FOCO_SERV_POST",
+          # "services": []
+        }, 404
     
+    # find Project instance in FOB
+    project = FOB.get_instance().get_project_by_name(project_name)
+    if project is None:
+      # project not found
+      return {
+          "message": f"Project {project_name} not found."
+          # "type": "FOCO_SERV_POST",
+          # "services": []
+        }, 404
+
+    active_s = FOB.get_instance().activate_service(s_id, project=project) # returns ActiveService
     if active_s is None:
       # service not found
       return {
@@ -448,14 +476,29 @@ class FogServices(Resource):
         # "type": "FOCO_SERV_POST"
         }, 503
       elif len(active_s.get_node_list()) == 1:
-        # TODO find a way to distinguish 200 from 201 -- maybe check if service_id and base_service_id are the same, meaning allocation (so 200) or otherwise it's deployment (so 201)
-        sn = active_s.get_node_by_id(active_s.get_node_id())
-        return {
-          "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
-          "node_ip": str(sn.get_ip()),
-          "node_port": sn.get_port()
-          # "type": "FOCO_SERV_POST"
-        }, 200
+        # distinguish 200 from 201 by checking if service_id and base_service_id are the same
+        if active_s.get_service_id() == active_s.get_base_service_id():
+          # allocation
+          sn = active_s.get_node_by_id(active_s.get_node_id())
+          return {
+            "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
+            "node_ip": str(sn.get_ip()),
+            "instance_name": str(active_s.get_instance_name()),
+            "instance_ip": str(active_s.get_instance_ip()),
+            "node_port": sn.get_port()
+            # "type": "FOCO_SERV_POST"
+          }, 200
+        else:
+          # deployment
+          sn = active_s.get_node_by_id(active_s.get_node_id())
+          return {
+            "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
+            "node_ip": str(sn.get_ip()),
+            "instance_name": str(active_s.get_instance_name()),
+            "instance_ip": str(active_s.get_instance_ip()),
+            "node_port": sn.get_port()
+            # "type": "FOCO_SERV_POST"
+          }, 201
     else:
       # TODO handle case
       pass
@@ -481,22 +524,26 @@ class FogServices(Resource):
           # "type": "FOCO_SERV_POST"
         }, 200
 
-if __name__ == '__main__':
 
-  ### Command line argument parser
+if __name__ == "__main__":
 
-  import argparse
-  parser = argparse.ArgumentParser()
-  parser.add_argument("address", help="This component's IP address", nargs="?", default="127.0.0.1")
-  parser.add_argument("port", help="This component's TCP port", type=int, nargs="?", default=6001)
-  # parser.add_argument("--db-json", help="Database JSON file, default: rsdb.json", nargs="?", default="rsdb.json")
-  # parser.add_argument("--imgmt-address", help="IaaS management endpoint IP address, default: 127.0.0.1", nargs="?", default="127.0.0.1")
-  # parser.add_argument("--imgmt-port", help="IaaS management endpoint TCP port, default: 5004", type=int, nargs="?", default=5004)
-  # parser.add_argument("-w", "--wait-remote", help="Wait for remote endpoint(s), default: false", action="store_true", default=False)
-  # parser.add_argument("--mon-history", help="Number of monitoring elements to keep in memory, default: 300", type=int, nargs="?", default=300)
-  # parser.add_argument("--mon-period", help="Monitoring period in seconds, default: 10", type=int, nargs="?", default=10)
-  parser.add_argument("-d", "--debug", help="Run in debug mode, default: false", action="store_true", default=False)
-  args = parser.parse_args()
+  ### argument parser
+
+  # import argparse
+
+  # default_address = "127.0.0.1"
+  # default_port = 6000
+
+  # parser = argparse.ArgumentParser()
+  # parser.add_argument("-a", "--address", help=f"This component's IP address, default: {default_address}",
+  #   nargs="?", default=default_address)
+  # parser.add_argument("-p", "--port", help=f"This component's TCP port, default: {default_port}", type=int,
+  #   nargs="?", default=default_port)
+  # parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true", default=False)
+  # args = parser.parse_args()
+
+  local_config = forch.get_local_config(Path(__file__).parent.joinpath("main.ini").absolute())
+  logger.debug(f"Config: {dict(local_config.items())}")
 
   ### instantiate components
 
@@ -508,17 +555,62 @@ if __name__ == '__main__':
 
   ### perform preliminary operations
 
-  FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath("sources_catalog.json").absolute()))
-  FOB.get_instance().find_active_services(refresh_sc=True)
+  FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath(local_config["sources_json"]).absolute()))
+  FOB.get_instance().find_active_services(refresh_sc=True) # TODO add configuration flag for this
+  preexisting_active_service_list = FOB.get_instance().get_active_service_list()
+  if preexisting_active_service_list:
+    logger.debug(f"Found {len(preexisting_active_service_list)} pre-existing service(s): {[(s.get_service_id(), s.get_node_id(), s.get_instance_name()) for s in preexisting_active_service_list]}")
+
+  # project configurations
+
+  # TODO add configuration file for this
+
+  FOB.get_instance().set_project_list([
+    forch.Project("default"),
+    forch.Project("test-project",
+      instance_configuration_dict={
+        forch.InstanceConfiguration.DETACH.value: True,
+        forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
+        forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
+        forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "test-net",
+        forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True
+      },
+      network_configuration_dict={
+        forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-test",
+        forch.NetworkConfiguration.IPv4_SUBNET.value: "192.168.111.0/24",
+        forch.NetworkConfiguration.IPv4_RANGE.value: "192.168.111.128/25",
+        forch.NetworkConfiguration.IPv4_GATEWAY.value: "192.168.111.10"
+      }
+    ),
+    forch.Project("mec-project",
+      instance_configuration_dict={
+        forch.InstanceConfiguration.DETACH.value: True,
+        forch.InstanceConfiguration.KEEP_STDIN_OPEN.value: True,
+        forch.InstanceConfiguration.ALLOCATE_TERMINAL.value: True,
+        forch.InstanceConfiguration.ATTACH_TO_NETWORK.value: "mec-net",
+        forch.InstanceConfiguration.DNS_SERVER.value: ["10.15.105.11"],
+        forch.InstanceConfiguration.FORWARD_ALL_PORTS.value: True,
+        forch.InstanceConfiguration.ENVIRONMENT_VARIABLE.value: {
+          "INFRA": "fog",
+          "MEC_BASE": "http://mec-platform.mec.mec.host"
+        }
+      },
+      network_configuration_dict={
+        forch.NetworkConfiguration.BRIDGE_NAME.value: "bridge-mec",
+        forch.NetworkConfiguration.IPv4_SUBNET.value: "172.30.30.0/24",
+        forch.NetworkConfiguration.IPv4_GATEWAY.value: "172.30.30.254"
+      }
+    )
+  ])
 
   ### REST API
 
-  app = Flask(__name__)
+  app = flask.Flask(__name__)
 
   # @app.before_request
   # def before():
   #   logger.debug("marker start {} {}".format(request.method, request.path))
-  
+
   # @app.after_request
   # def after(response):
   #   logger.debug("marker end {} {}".format(request.method, request.path))
@@ -527,9 +619,11 @@ if __name__ == '__main__':
   api = Api(app)
   api.add_resource(Test, '/test')
   api.add_resource(FogServices, '/services', '/services/<s_id>')
-  
+
   try:
-    app.run(host=args.address, port=args.port, debug=args.debug)
+    app.run(host=local_config.get("address"),
+        port=local_config.getint("forch_port"),
+        debug=local_config.getboolean("debug"))
   except KeyboardInterrupt:
     pass
   finally:

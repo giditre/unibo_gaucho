@@ -47,35 +47,35 @@ def test_docker_image_pull():
   assert FNVI.get_instance().docker_image_is_cached("giditre/gaucho-stress:latest"), ""
   FNVI.del_instance()
 
-def test_deploy_service():
+def test_deploy_container_docker():
   service_id = "APP001"
   image_name = "httpd"
-  c = FNVI.get_instance().deploy_service_docker(service_id, image_name)
+  c = FNVI.get_instance().deploy_container_docker(service_id, image_name)
   assert c.name.startswith(service_id), str(c)
   assert isinstance(c.attrs, dict), str(c.attrs)
   assert c.attrs["Config"]["Image"] == image_name, str(c.attrs)
   FNVI.del_instance()
 
-def test_destroy_service():
+def test_destroy_container_docker():
   service_id = "APP001"
-  FNVI.get_instance().destroy_service_docker(service_id)
+  FNVI.get_instance().destroy_container_docker(service_id)
   FNVI.del_instance()
 
 def test_destroy_all_services_individually():
   service_id_list = [ f"APP99{i}" for i in range(5) ]
   image_name = "alpine"
   for service_id in service_id_list:
-    FNVI.get_instance().deploy_service_docker(service_id, image_name)
+    FNVI.get_instance().deploy_container_docker(service_id, image_name)
   
   for service_id in service_id_list:
-    FNVI.get_instance().destroy_service_docker(service_id)
+    FNVI.get_instance().destroy_container_docker(service_id)
   FNVI.del_instance()
 
 def test_destroy_all_services_together():
   service_id_list = [ f"APP99{i}" for i in range(5) ]
   image_name = "alpine"
   for service_id in service_id_list:
-    FNVI.get_instance().deploy_service_docker(service_id, image_name)
+    FNVI.get_instance().deploy_container_docker(service_id, image_name)
   
   FNVI.get_instance().destroy_all_services_docker()
   FNVI.del_instance()
