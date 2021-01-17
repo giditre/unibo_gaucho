@@ -181,9 +181,9 @@ class ZabbixAdapter(object):
 
 
   def get_measurements_by_node(self, node, item_name_list=[]):
-    return self.get_measurements_by_node_list([node], item_name_list)
+    return self.get_measurements_by_node_list([node], item_name_list=item_name_list)
 
-  def get_measurements_by_node_list(self, node_list, item_name_list=[]):
+  def get_measurements_by_node_list(self, node_list, *, item_name_list=[]):
     node_id_list = []
     for node in node_list:
       node_id = ZabbixNode.validate_node_id(node)
