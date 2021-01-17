@@ -67,7 +67,3 @@ target/
 # VIM
 .*.swp
 .*.swo
-
-# tmp
-.*
-res/

@@ -65,7 +65,7 @@ if __name__ == "__main__":
   parser.add_argument('-m', '--metric', action="store_true", help='Use or add metric refresh mode.')
   parser.add_argument('-i', '--ifaces', nargs="+", help='Specify the inet ifaces where run SLP.')
   parser.add_argument('-a', '--ipaddrs', nargs="+", help='Specify the ip addresses where run SLP.')
-  parser.add_argument('-j', '--files', nargs="+", default=['/home/gaucho/mario/unibo_gaucho/pyforch/tests/main_tests/srvcs_1.json'], help='Specify the service JSON files to be used.') # In a hypotetic final version, the default field should be replaced with required=True
+  parser.add_argument('-j', '--files', nargs="+", default=['/home/gaucho/mario/unibo_gaucho/pyforch/tests/eval_tests/srvcs_1.json'], help='Specify the service JSON files to be used.') # In a hypotetic final version, the default field should be replaced with required=True
   parser.add_argument('-t', '--times', type=int, default=1, help='Specify the number of trials to be done')
   args = parser.parse_args()
 
@@ -187,7 +187,7 @@ if __name__ == "__main__":
       elapsed_time = tt.toc()
 
       time.sleep(0.1)
-      pkts_list = monitor.stop()
+      pkts_list = monitor.stop() # type: ignore
       wrpcap(filename='{}/{}_test{}.pcap'.format(results_path, mode.name, i), pkt=pkts_list)
 
       n_pkts = len(pkts_list)

@@ -63,7 +63,7 @@ if __name__ == "__main__":
   parser.add_argument('-m', '--mode', choices=['c', 'd'], default='d', help='Specify SLP working mode: c (centralized) or d (distributed).')
   parser.add_argument('-i', '--ifaces', nargs="+", help='Specify the inet ifaces where run SLP.')
   parser.add_argument('-a', '--ipaddrs', nargs="+", help='Specify the ip addresses where run SLP.')
-  parser.add_argument('-j', '--files', nargs="+", default=['/home/gaucho/mario/unibo_gaucho/pyforch/tests/main_tests/srvcs_1.json'], help='Specify the service JSON files to be used.') # In a hypotetic final version, the default field should be replaced with required=True
+  parser.add_argument('-j', '--files', nargs="+", default=['/home/gaucho/mario/unibo_gaucho/pyforch/tests/eval_tests/srvcs_1.json'], help='Specify the service JSON files to be used.') # In a hypotetic final version, the default field should be replaced with required=True
   parser.add_argument('-t', '--times', type=int, default=1, help='Specify the number of trials to be done')
   # Mandatory arguments
   parser.add_argument('dev', choices=['o', 'n'], help='Specify the device type: o (for orchestrator) or n (for node).')
@@ -152,7 +152,7 @@ if __name__ == "__main__":
       fnd = sc.get_list()
 
       time.sleep(0.1)
-      pkts_list = monitor.stop()
+      pkts_list = monitor.stop() # type: ignore
       wrpcap(filename='{}/test{}.pcap'.format(results_path, i), pkt=pkts_list)
 
       n_pkts = len(pkts_list)

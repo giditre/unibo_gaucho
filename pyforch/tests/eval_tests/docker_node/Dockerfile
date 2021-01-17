@@ -10,5 +10,5 @@ RUN git clone https://github.com/mrv96/unibo_gaucho.git
 
 # copy everything present in the Dockerfile directory into the container
 # WORKDIR /home/gaucho/mario/unibo_gaucho/pyforch/src/forch
-WORKDIR /home/gaucho/mario/unibo_gaucho/pyforch/tests/main_tests/
+WORKDIR /home/gaucho/mario/unibo_gaucho/pyforch/tests/eval_tests/
 CMD [ "python3", "./search_srv_eval_main.py", "n", "-i", "eth0", "-j", "./srvcs_1.json"]
