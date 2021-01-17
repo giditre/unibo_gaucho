@@ -5,7 +5,6 @@ fileConfig(str(Path(__file__).parent.joinpath("logging.ini")))
 logger = logging.getLogger(__name__)
 logger.info(f"Load {__name__} with {logger}")
 
-from time import sleep
 import json
 
 import flask
@@ -17,6 +16,41 @@ import forch
 forch.set_orchestrator()
 
 logger.debug(f"Running as orchestrator? {forch.is_orchestrator()}")
+
+# TODO G: move this to FOVIM if not used by anything else (the usage in FOB should be moved to FOVIM too)
+def http_request(endpoint, *, method="GET", request_json_data=None):
+  assert method in ["GET", "POST", "PUT", "DELETE"], "Invalid method!"
+  url = f"http://{endpoint}"
+  logger.debug(f"HTTP {method} - URL {url} - JSON: {json.dumps(request_json_data, indent=2)}")
+  response = None
+  try:
+    if method == "GET":
+      response = requests.get(url)
+    elif method == "POST":
+      response = requests.post(url, json=request_json_data)
+    elif method == "PUT":
+      response = requests.put(url, json=request_json_data)
+    elif method == "DELETE":
+      response = requests.delete(url)
+  except requests.exceptions.ConnectionError as ce:
+    logger.warning(f"Failed to {method} {url} {ce}")
+    return None, 500
+  resp_code = response.status_code
+  resp_json = response.json()
+  logger.debug(f"Response code {resp_code} - JSON body {json.dumps(resp_json, indent=2)}")
+  return resp_json, response.status_code
+
+def http_get(endpoint):
+  return http_request(endpoint, method="GET")
+
+def http_post(endpoint, request_json_data):
+  return http_request(endpoint, method="POST", request_json_data=request_json_data)
+
+def http_put(endpoint, request_json_data):
+  return http_request(endpoint, method="PUT", request_json_data=request_json_data)
+  
+def http_delete(endpoint):
+  return http_request(endpoint, method="DELETE")
 
 
 class Source():
@@ -153,12 +187,10 @@ class FOB(object):
         node_ip = sn.get_ip()
         # query node
         # TODO do this through FOVIM
-        try:
-          response = requests.get(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services")
-        except requests.exceptions.ConnectionError:
-          logger.debug(f"Node {sn.get_id()} not responding at {node_ip}")
+        resp_json, resp_code = http_get(f"{node_ip}:{forch.get_fog_node_main_port()}/services")
+        if resp_json is None:
+          logger.warning(f"Failed to get services from node {sn.get_id()} at {node_ip}")
           continue
-        resp_json = response.json()
         sn_service_list = resp_json["services"]
         for s_dict in sn_service_list: # every element is expected tobe a dict with parameters of ActiveService
           s_dict.update(node_ip=node_ip)
@@ -362,10 +394,8 @@ class FOVIM(object):
           request_json["network_conf"] = network_conf_dict # TODO avoid hardcoding string
       # send deployment request to node
       logger.debug("Deployment request: {}".format(json.dumps(request_json)))
-      response = requests.post(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}", json=request_json)
-      response_code = response.status_code
+      response_json, response_code = http_post(f"{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}", request_json)
       if response_code == 201:
-        response_json = response.json()
         logger.debug("Deployment response: {}".format(json.dumps(response_json)))
         active_s = forch.ActiveService(service_id=service_id,
           instance_name=response_json["name"], instance_ip=response_json["ip"])
@@ -392,9 +422,9 @@ class FOVIM(object):
   def manage_destruction(*, service_id, node_ip):
     logger.debug(f"Destroy {service_id} on node {node_ip}")
     
-    response = requests.delete(f"http://{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}")
+    response_json, response_code = http_delete(f"{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}")
     # TODO avoid returning this directly, but process it and return a single value, maybe the service id
-    return response.json(), response.status_code
+    return response_json, response_code
 
 
 ### API Resources
