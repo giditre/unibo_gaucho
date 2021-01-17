@@ -1,0 +1,40 @@
+{
+  "SAAS": {
+    "APP001": {
+    "thumbnail": "",
+    "protocol": "http",
+    "path": "",
+    "port": "",
+    "name": "httpd",
+    "descr": "Apache web server",
+    "lifetime": 65535
+    },
+    "APP002": {
+      "thumbnail": "",
+      "protocol": "http",
+      "path": "",
+      "port": 81,
+      "name": "httpd",
+      "descr": "Apache web server",
+      "lifetime": 65535
+    },
+    "APP003": {
+      "thumbnail": "",
+      "protocol": "http",
+      "path": "",
+      "port": 82,
+      "name": "httpd",
+      "descr": "Apache web server",
+      "lifetime": 65535
+    },
+    "APP004": {
+      "thumbnail": "",
+      "protocol": "http",
+      "path": "",
+      "port": 83,
+      "name": "httpd",
+      "descr": "Apache web server",
+      "lifetime": 65535
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "sudo": true,
+            "console": "integratedTerminal",
+            // "args": ["o","-m","d","-i","ens9","-t","100","-j","srvcs_1.json"]
+            // "args": ["o","-m","c","-i","ens9","lo","-t","100","-j","srvcs_8.json"]
+            "args": ["-s","-i","ens9","-t","1","-j","srvcs_1.json"]
+        }
+    ]
+}

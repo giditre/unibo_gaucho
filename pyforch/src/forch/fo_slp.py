@@ -6,7 +6,9 @@
 # TODO: remove it when Python 3.10 will be used
 from __future__ import annotations
 import logging
-from typing import List, Tuple
+import os
+from typing import Dict, List, Tuple
+import warnings
 
 # from logging.config import fileConfig
 # from pathlib import Path
@@ -49,6 +51,14 @@ class SLPFactory:
 
   @classmethod
   def create_UA(cls, new_handler:bool=False):
+    """This method creates and returns a UserAgent object.
+
+    Args:
+        new_handler (bool, optional): specifies if a new SLP handler must be created for this agent. Defaults to False.
+
+    Returns:
+        SLPFactory.__UserAgent: the created UA.
+    """
     if not bool(new_handler):
       slp_handler = cls.__get_common_handler()
       cls.__increment_agents_counter()
@@ -57,6 +67,14 @@ class SLPFactory:
 
   @classmethod
   def create_SA(cls, new_handler:bool=False):
+    """This method creates and returns a ServiceAgent object.
+
+    Args:
+        new_handler (bool, optional): specifies if a new SLP handler must be created for this agent. Defaults to False.
+
+    Returns:
+        SLPFactory.__ServiceAgent: the created SA.
+    """
     if not bool(new_handler):
       slp_handler = cls.__get_common_handler()
       cls.__increment_agents_counter()
@@ -65,6 +83,14 @@ class SLPFactory:
 
   @classmethod
   def create_DA(cls, new_handler:bool=False):
+    """This method creates and returns a DirectoryAgent object.
+
+    Args:
+        new_handler (bool, optional): specifies if a new SLP handler must be created for this agent. Defaults to False.
+
+    Returns:
+        SLPFactory.__DirectoryAgent: the created DA.
+    """
     if not bool(new_handler):
       slp_handler = cls.__get_common_handler()
       cls.__increment_agents_counter()
@@ -99,7 +125,12 @@ class SLPFactory:
     cls.__common_slp_agent = None # Set to None in order to destroy the agent instance
 
   class __SLPAgent:
-    def __init__(self, slp_handler:object=None):
+    def __init__(self, slp_handler:object|None=None):
+      """Generic SLP Agent constructor.
+
+      Args:
+          slp_handler (object|None, optional): if not None, the agent is initialized with this previously created handler. Defaults to None.
+      """
       self.__new_handler = False
       self.__hslp = slp_handler
       if self.__hslp is None:
@@ -117,17 +148,15 @@ class SLPFactory:
           SLPFactory._decrement_agents_counter()
 
     def get_handler(self) -> object:
+      """This method return the SLP handler of the agent.
+
+      Returns:
+          object: SLP agent handler (hslp).
+      """
       return self.__hslp
 
   # Attenction: Only one slpd at a time is allowed, otherwise it is a mess!
   class __SLPActiveAgent(__SLPAgent):
-
-    def __init__(self, slp_handler:object=None, is_DA:bool=False):
-      if not is_DA:
-        self.__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_SA.conf"))))
-      else:
-        self.__start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_DA.conf"))))
-      super().__init__(slp_handler)
 
     def __del__(self):
       super().__del__()
@@ -146,7 +175,7 @@ class SLPFactory:
       return int(out)
 
     @classmethod
-    def __start_daemon(cls, optns:str="") -> bool:
+    def _start_daemon(cls, optns:str="") -> bool:
       assert isinstance(optns, str), "Parameter optns must be a string!"
 
       if cls.__daemon_is_running():
@@ -154,10 +183,13 @@ class SLPFactory:
         return False
         #raise_error(self.__class__, "Daemon is already running!")
 
-      cmd_str = "sudo slpd"
+      cmd_str = "slpd"
 
       if optns != None and optns != "":
         cmd_str += " " + optns
+
+      if not os.geteuid() == 0:
+        cmd_str = "sudo " + cmd_str
 
       subprocess.run(shlex.split(cmd_str))
 
@@ -169,11 +201,22 @@ class SLPFactory:
     
     @classmethod
     def __stop_daemon(cls) -> bool:
-      if not cls.__daemon_is_running():
-        return False
+      try:
+        if not cls.__daemon_is_running():
+          return False
+      except ImportError:
+        cmd_str = "pkill -15 slpd" # This has been done as hotfix for the next comment. Find a better alternative.
+      else:
+        cmd_str = "kill -15 {}".format(cls.__get_daemon_pid())
 
-      cmd_str = "sudo kill -15 {}".format(cls.__get_daemon_pid())
-      subprocess.run(shlex.split(cmd_str))
+      if not os.geteuid() == 0:
+        cmd_str = "sudo " + cmd_str
+
+      try:
+        subprocess.run(shlex.split(cmd_str)) # TODO: find a way to stop slpd in the destructor
+      except ImportError:
+        logger.warning("subprocess.run() cannot be called during destruction. slpd will remain active.")
+        warnings.warn("subprocess.run() cannot be called during destruction. slpd will remain active.")
 
       return True
       
@@ -187,6 +230,11 @@ class SLPFactory:
     __discovery_list = []
 
     def find_all_services(self) -> List[Service]:
+      """This method search and returns all SLP announced network services.
+
+      Returns:
+          List[Service]: found services list.
+      """
       srvc_types_list = self.__find_srvc_types()
       srvc_types_list = list(set(srvc_types_list)) #if equals elements are returned keep only one of them
 
@@ -284,7 +332,7 @@ class SLPFactory:
     # Expected inputs: {key1:value1, key2:value2, ...}, int, string
     # errcode and rqst_type are only for debug
     @staticmethod
-    def __rqsts_callback_core(param_dict, errcode:int, rqst_type:str="") -> bool:
+    def __rqsts_callback_core(param_dict:Dict[str,str|int], errcode:int, rqst_type:str="") -> bool:
       rv = False
       if errcode == slp.SLP_OK:
         for key in param_dict:
@@ -348,15 +396,40 @@ class SLPFactory:
       return res
 
   class __ServiceAgent(__SLPActiveAgent):
+    def __init__(self, slp_handler:object=None):
+      super()._start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_SA.conf")))) # in this case "super()" can be replaced by "self"
+      super().__init__(slp_handler)
+      self.__reg_srvc: List[Service] = [] # If useful, make __reg_srvc getter.
+
+    def __del__(self):
+      for srvc in self.__reg_srvc:
+        self.deregister_service(srvc)
+      super().__del__()
+
     def register_service(self, service:Service):
+      """This method register a given input service in order to be announced using SLP. Each registered service is automatically deregistered during SA destruction.
+
+      Args:
+          service (Service): service to be registered.
+      """
       srvurl_list, attrs, lifetime_list = self.__service_to_slp_service(service)
       for i, srvurl in enumerate(srvurl_list):
         self.__register_service(srvurl, attrs, lifetime_list[i])
+      self.__reg_srvc.append(service)
 
     def deregister_service(self, service:Service):
+      """This method deregister a given input service.
+
+      Args:
+          service (Service): service to be deregistered.
+      """
       srvurl_list = self.__service_to_slp_service(service)[0]
       for srvurl in srvurl_list:
         self.__deregister_service(srvurl)
+      if service in self.__reg_srvc:
+        self.__reg_srvc.remove(service)
+      else:
+        logger.warning("Deregistered a service that either was not registered by this SA, or had already been deregistered.")
 
     @staticmethod
     def __service_to_slp_service(service:Service) -> Tuple[List[str], str, List[int]]:
@@ -396,5 +469,6 @@ class SLPFactory:
 
   class __DirectoryAgent(__SLPActiveAgent):
     def __init__(self, slp_handler:object=None):
-      slp.SLPSetProperty("net.slp.isDA", "true") # Maybe useless, but it set correctly the global environment
-      super().__init__(slp_handler, True)
+      slp.SLPSetProperty("net.slp.isDA", "true") # Maybe useless, but it sets correctly the global environment
+      super()._start_daemon("-c {}".format(str(Path(__file__).parent.joinpath("slp_DA.conf")))) # in this case "super()" can be replaced by "self"
+      super().__init__(slp_handler)
