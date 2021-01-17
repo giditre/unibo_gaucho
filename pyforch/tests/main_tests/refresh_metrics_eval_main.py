@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import shutil
 import sys
 from typing import List
 
@@ -71,6 +72,17 @@ if __name__ == "__main__":
   # This script must be run as root!
   if not os.geteuid()==0:
     sys.exit('This script must be run as root!')
+
+  results_path: str = './res'
+
+  try:
+    os.mkdir(results_path)
+  except FileExistsError:
+    try:
+      shutil.rmtree(path=results_path, ignore_errors=True)
+      os.mkdir(results_path)
+    except:
+      pass
 
   set_orchestrator()
 
@@ -176,7 +188,7 @@ if __name__ == "__main__":
 
       time.sleep(0.1)
       pkts_list = monitor.stop()
-      wrpcap(filename='./res/{}_test{}.pcap'.format(mode.name, i), pkt=pkts_list)
+      wrpcap(filename='{}/{}_test{}.pcap'.format(results_path, mode.name, i), pkt=pkts_list)
 
       n_pkts = len(pkts_list)
       for pkt in pkts_list:
@@ -195,6 +207,6 @@ if __name__ == "__main__":
 
   # The file is written only at the end. This means that if the script is stopped before there will not be intermediate works available.
   # This could be an issue to be solved if needed. For the moment i prefer to access to the file once.
-  with open('./res/res.csv', mode='w') as res_file:
+  with open(results_path + '/res.csv', mode='w') as res_file:
     res_writer = csv.writer(res_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     res_writer.writerows(all_res)
