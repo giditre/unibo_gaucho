@@ -53,9 +53,9 @@ var info = function() {
 // 	})
 // }
 
-var sum = function() {
+var stress = function() {
 	data = {};
-	[ "input1", "input2" ].forEach((k) => {
+	[ "load", "timeout" ].forEach((k) => {
 		data[k] = $( `#${k}` ).val()
 	})
 
@@ -66,7 +66,7 @@ var sum = function() {
 	// })
 
 	$.ajax({
-		url:'sum',
+		url:'stress',
 		type:'POST',
 		data: JSON.stringify(data),
 		contentType:"application/json; charset=utf-8",
@@ -104,7 +104,7 @@ var sum = function() {
 // 	});
 // }, 1000)
 
-var activeMenu = 'sum'
+var activeMenu = 'info'
 
 /* UI related */
 var activate_menu = function(menu) {

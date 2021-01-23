@@ -9,7 +9,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="bootstrap.min.css">
 
-    <title>GAUCHO Test Web Application</title>
+    <title>GAUCHO Stress</title>
     <style>
         html {
             background-color:#212529;
@@ -79,83 +79,18 @@
       <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
-            <!-- <li id="navhello" class="nav-item active">
-              <a class="nav-link" onclick="activate_menu('hello')" href="#">Hello</a>
-            </li> -->
-            <!-- <li id="navqrcode" class="nav-item">
-              <a class="nav-link" onclick="activate_menu('qrcode')" href="#">QR code</a>
-            </li> -->
-            <li id="navconfiguration" class="nav-item">
-              <!-- <a class="nav-link" onclick="activate_menu('form') ; get_configuration()" href="#">Form</a> -->
-              <a class="nav-link" onclick="activate_menu('sum')" href="#">Sum</a>
-            </li>
+
             <li id="navinfo" class="nav-item active">
               <a class="nav-link" onclick="activate_menu('info')" href="#">Info</a>
             </li>
+            
+            <li id="navconfiguration" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('stress')" href="#">Stress</a>
+            </li>
+
           </ul>
         </div>
       </nav>
-
-      <!-- <div id="hello" class="float-none d-block">
-        <br/>
-        <h2>Hello!</h2>
-        <br/>
-        <button type="button" class="btn btn-success btn-lg"
-          onclick="hello()">Hello</button>
-        <button type="button" class="btn btn-danger btn-lg"
-          onclick="bye()">Bye</button>
-      </div> -->
-
-      <!-- <div id="qrcode" class="float-none d-none">
-        <br/>
-        <h5>QR code</h5>
-        <br/>
-        <form>
-        <form href="#">
-          <div class="form-group">
-            <label for="string">Text input</label>
-            <input type="text" class="form-control" id="string" placeholder="Enter text here!">
-            <small id="input1help" class="form-text text-muted">Some text to encode as QR code</small>
-          </div>
-          <button type="submit" class="btn btn-primary" onclick="qrcode()">QRize</button>
-        </form>
-        <img id="qrcodeimg" src="{{ qrcode('test') }}">
-      </div> -->
-
-      <div id="sum" class="float-none d-none">
-        <br/>
-        <h2>Sum</h2>
-        <br/>
-        <!-- <form> -->
-        <form href="#" class="needs-validation" novalidate>
-          <div class="container">
-            <div class="row justify-content-around align-items-end">
-              <div class="col">
-                <div class="form-group">
-                  <label for="input1">First input</label>
-                  <input type="text" class="form-control" id="input1" placeholder="First input" value="2" required pattern="[0-9]+">
-                  <div class="invalid-tooltip">
-                    Please insert a number.
-                  </div>
-                  <!-- <small id="input1help" class="form-text text-muted">First input</small> -->
-                </div>
-              </div>
-              <div class="col">
-                <div class="form-group">
-                  <label for="input2">Second input</label>
-                  <input type="text" class="form-control" id="input2" placeholder="Second input" value="2" required pattern="[0-9]+">
-                  <div class="invalid-tooltip">
-                    Please insert a number.
-                  </div>
-                  <!-- <small id="input2help" class="form-text text-muted">Second input</small> -->
-                </div>
-              </div>
-            </div>
-            <br/>
-            <button type="submit" class="btn btn-primary btn-lg" onclick="sum()">Compute</button>
-          </div>
-        </form>
-      </div>
 
       <div id="info" class="float-none d-block">
         <br/>
@@ -165,6 +100,39 @@
           onclick="info()">Refresh</button>
         <!-- <button type="button" class="btn btn-danger btn-lg"
           onclick="clear()">Clear</button> -->
+      </div>
+
+      <div id="stress" class="float-none d-none">
+        <br/>
+        <h2>Stress</h2>
+        <br/>
+        <!-- <form> -->
+        <form href="#" class="needs-validation" novalidate>
+          <div class="container">
+            <div class="row justify-content-around align-items-end">
+              <div class="col">
+                <div class="form-group">
+                  <label for="load">Load</label>
+                  <input type="text" class="form-control" id="load" placeholder="Load" required pattern="^[1-9][0-9]?$|^100$">
+                  <div class="invalid-tooltip">
+                    Please insert a number between 1 and 100.
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-group">
+                  <label for="timeout">Timeout</label>
+                  <input type="text" class="form-control" id="timeout" placeholder="Timeout" required pattern="[0-9]+">
+                  <div class="invalid-tooltip">
+                    Please insert a number.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <br/>
+            <button type="submit" class="btn btn-primary btn-lg" onclick="stress()">Start</button>
+          </div>
+        </form>
       </div>
 
       <br/>
