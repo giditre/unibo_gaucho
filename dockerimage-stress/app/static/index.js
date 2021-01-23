@@ -104,7 +104,7 @@ var stress = function() {
 // 	});
 // }, 1000)
 
-var activeMenu = 'info'
+var activeMenu = 'stress'
 
 /* UI related */
 var activate_menu = function(menu) {

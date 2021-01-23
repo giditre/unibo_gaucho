@@ -79,30 +79,20 @@
       <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
-
-            <li id="navinfo" class="nav-item active">
-              <a class="nav-link" onclick="activate_menu('info')" href="#">Info</a>
-            </li>
             
-            <li id="navconfiguration" class="nav-item">
+            <li id="navstress" class="nav-item active">
               <a class="nav-link" onclick="activate_menu('stress')" href="#">Stress</a>
+            </li>
+
+            <li id="navinfo" class="nav-item">
+              <a class="nav-link" onclick="activate_menu('info')" href="#">Info</a>
             </li>
 
           </ul>
         </div>
       </nav>
 
-      <div id="info" class="float-none d-block">
-        <br/>
-        <h2>Info</h2>
-        <br/>
-        <button type="button" class="btn btn-success btn-lg"
-          onclick="info()">Refresh</button>
-        <!-- <button type="button" class="btn btn-danger btn-lg"
-          onclick="clear()">Clear</button> -->
-      </div>
-
-      <div id="stress" class="float-none d-none">
+      <div id="stress" class="float-none d-block">
         <br/>
         <h2>Stress</h2>
         <br/>
@@ -133,6 +123,16 @@
             <button type="submit" class="btn btn-primary btn-lg" onclick="stress()">Start</button>
           </div>
         </form>
+      </div>
+
+      <div id="info" class="float-none d-none">
+        <br/>
+        <h2>Info</h2>
+        <br/>
+        <button type="button" class="btn btn-success btn-lg"
+          onclick="info()">Refresh</button>
+        <!-- <button type="button" class="btn btn-danger btn-lg"
+          onclick="clear()">Clear</button> -->
       </div>
 
       <br/>
