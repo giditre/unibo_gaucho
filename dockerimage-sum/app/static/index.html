@@ -85,11 +85,11 @@
             <!-- <li id="navqrcode" class="nav-item">
               <a class="nav-link" onclick="activate_menu('qrcode')" href="#">QR code</a>
             </li> -->
-            <li id="navconfiguration" class="nav-item">
+            <li id="navsum" class="nav-item active">
               <!-- <a class="nav-link" onclick="activate_menu('form') ; get_configuration()" href="#">Form</a> -->
               <a class="nav-link" onclick="activate_menu('sum')" href="#">Sum</a>
             </li>
-            <li id="navinfo" class="nav-item active">
+            <li id="navinfo" class="nav-item">
               <a class="nav-link" onclick="activate_menu('info')" href="#">Info</a>
             </li>
           </ul>
@@ -122,7 +122,7 @@
         <img id="qrcodeimg" src="{{ qrcode('test') }}">
       </div> -->
 
-      <div id="sum" class="float-none d-none">
+      <div id="sum" class="float-none d-block">
         <br/>
         <h2>Sum</h2>
         <br/>
@@ -133,7 +133,7 @@
               <div class="col">
                 <div class="form-group">
                   <label for="input1">First input</label>
-                  <input type="text" class="form-control" id="input1" placeholder="First input" value="2" required pattern="[0-9]+">
+                  <input type="text" class="form-control" id="input1" placeholder="First input" required pattern="[0-9]+">
                   <div class="invalid-tooltip">
                     Please insert a number.
                   </div>
@@ -143,7 +143,7 @@
               <div class="col">
                 <div class="form-group">
                   <label for="input2">Second input</label>
-                  <input type="text" class="form-control" id="input2" placeholder="Second input" value="2" required pattern="[0-9]+">
+                  <input type="text" class="form-control" id="input2" placeholder="Second input" required pattern="[0-9]+">
                   <div class="invalid-tooltip">
                     Please insert a number.
                   </div>
@@ -157,7 +157,7 @@
         </form>
       </div>
 
-      <div id="info" class="float-none d-block">
+      <div id="info" class="float-none d-none">
         <br/>
         <h2>Info</h2>
         <br/>
