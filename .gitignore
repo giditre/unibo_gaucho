@@ -67,3 +67,6 @@ target/
 # VIM
 .*.swp
 .*.swo
+
+# specific to FORCH
+fnode_services.json
