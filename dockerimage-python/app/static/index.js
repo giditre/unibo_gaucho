@@ -53,9 +53,9 @@ var info = function() {
 // 	})
 // }
 
-var stress = function() {
+var python = function() {
 	data = {};
-	[ "load", "timeout" ].forEach((k) => {
+	[ "code" ].forEach((k) => {
 		data[k] = $( `#${k}` ).val()
 	})
 
@@ -66,7 +66,7 @@ var stress = function() {
 	// })
 
 	$.ajax({
-		url:'stress',
+		url:'python',
 		type:'POST',
 		data: JSON.stringify(data),
 		contentType:"application/json; charset=utf-8",
@@ -104,7 +104,7 @@ var stress = function() {
 // 	});
 // }, 1000)
 
-var activeMenu = 'stress'
+var activeMenu = 'python'
 
 /* UI related */
 var activate_menu = function(menu) {

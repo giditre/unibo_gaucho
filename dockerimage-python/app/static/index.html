@@ -9,7 +9,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="bootstrap.min.css">
 
-    <title>GAUCHO Stress</title>
+    <title>GAUCHO Python</title>
     <style>
         html {
             background-color:#212529;
@@ -80,8 +80,8 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
             
-            <li id="navstress" class="nav-item active">
-              <a class="nav-link" onclick="activate_menu('stress')" href="#">Stress</a>
+            <li id="navpython" class="nav-item active">
+              <a class="nav-link" onclick="activate_menu('python')" href="#">Python</a>
             </li>
 
             <li id="navinfo" class="nav-item">
@@ -92,9 +92,9 @@
         </div>
       </nav>
 
-      <div id="stress" class="float-none d-block">
+      <div id="python" class="float-none d-block">
         <br/>
-        <h2>Stress</h2>
+        <h2>Python</h2>
         <br/>
         <!-- <form> -->
         <form href="#" class="needs-validation" novalidate>
@@ -102,25 +102,16 @@
             <div class="row justify-content-around align-items-end">
               <div class="col">
                 <div class="form-group">
-                  <label for="load">Load</label>
-                  <input type="text" class="form-control" id="load" placeholder="Load" required pattern="^[1-9][0-9]?$|^100$">
+                  <label for="code">Code</label>
+                  <input type="text" class="form-control" id="code" placeholder="Code" required>
                   <div class="invalid-tooltip">
-                    Please insert a number between 1 and 100.
-                  </div>
-                </div>
-              </div>
-              <div class="col">
-                <div class="form-group">
-                  <label for="timeout">Timeout</label>
-                  <input type="text" class="form-control" id="timeout" placeholder="Timeout" required pattern="[0-9]+">
-                  <div class="invalid-tooltip">
-                    Please insert a number.
+                    Please insert valid Python code.
                   </div>
                 </div>
               </div>
             </div>
             <br/>
-            <button type="submit" class="btn btn-primary btn-lg" onclick="stress()">Start</button>
+            <button type="submit" class="btn btn-primary btn-lg" onclick="python()">Run</button>
           </div>
         </form>
       </div>

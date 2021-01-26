@@ -5,7 +5,6 @@ import os
 
 import flask
 from flask_restful import Resource, Api
-# from flask_qrcode import QRcode
 
 from datetime import datetime
 
@@ -18,11 +17,11 @@ class Info(Resource):
     }
 
 
-class Stress(Resource):
+class PythonSDP(Resource):
   def __init__(self):
     super().__init__()
-    self.n_cpu = None
-    self.timeout = None
+    self.code = None
+    self.output_lines = []
 
   def start(self, x):
     end_t = time.time() + self.timeout
@@ -46,29 +45,44 @@ class Stress(Resource):
 
     return self.n_cpu
 
+  def exec_code(self, code):
+    exec(code, {'__builtins__': __builtins__}, {"print": self.store_output, "time": time.time, "sleep": time.sleep})
+
+  def store_output(self, data):
+    print(data)
+    if isinstance(data, str):
+      for line in data.split("\n"):
+        self.output_lines.append(line)
+    else:
+      self.output_lines.append(str(data))
+
+  def get_output(self):
+    if not self.output_lines:
+      return None
+    return "\n".join(self.output_lines)
+    
   def post(self):
     r_json = flask.request.get_json(force=True)
     try:
-      load = int(r_json['load'])
-      timeout = int(r_json['timeout'])
-    except ValueError:
+      code = r_json['code']
+    except KeyError:
       return {
-        "message": f"Invalid inputs"
+        "message": f"Invalid input"
       }, 404
 
-    n_cpu = self.stress(load, timeout)
+    self.exec_code(code)
 
-    if n_cpu == 0:
+    result = self.get_output()
+
+    if result is None:
       return {
-        "message": "Set higher load",
-        "n_cpu": n_cpu
+        "message": "Problem with input or no output"
       }, 404
     
     return {
       "message": "All done!",
-      "n_cpu": n_cpu
+      "output": result
     }
-      
 
 
 app = flask.Flask(__name__)
@@ -76,7 +90,7 @@ app = flask.Flask(__name__)
 api = Api(app)
 api.add_resource(Info, '/info')
 
-api.add_resource(Stress, '/stress')
+api.add_resource(PythonSDP, '/python')
 
 @app.route("/")
 def main():
