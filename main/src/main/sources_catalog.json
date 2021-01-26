@@ -25,7 +25,7 @@
       "uri": "",
       "base": "FVE001",
       "service": "SDP001",
-      "ports": []
+      "ports": ["80/tcp"]
     },
     {
       "id": "SRC004",
