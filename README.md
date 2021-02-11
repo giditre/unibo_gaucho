@@ -241,9 +241,16 @@ docker run hello-world
 
 The following instructions apply for the machine(s) hosting the FORCH components, as well as for those acting as fog nodes.
 
-It is suggested (but not strictly required) to operate inside of a [venv](https://docs.python.org/3.6/library/venv.html).
+It is suggested (but not strictly required) to operate inside of a Python3.8 [venv](https://docs.python.org/3.8/library/venv.html).
 
-Make sure the following Python3 modules are installed on every machine:
+To do so:
+```bash
+sudo apt -y install python3.8 python3.8-dev python3.8-venv
+python3.8 -m venv env
+source env/bin/activate
+```
+
+Make sure the following Python modules are installed on every machine:
 ```bash
 flask
 flask_restful
@@ -252,10 +259,8 @@ psutil
 docker
 pyzabbix
 ```
-This can also be achieved by cloning the repo, then moving into the directory, and let pip3 do the work:
+This can also be achieved by using the file requirements.txt found in the home diretory of the repo, and let pip3 do the work:
 ```bash
-git clone giditre/unibo_gaucho
-cd unibo_gaucho/
 pip3 install -r requirements.txt
 ```
 
