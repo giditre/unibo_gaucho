@@ -192,7 +192,7 @@ class FOB(object):
           logger.warning(f"Failed to get services from node {sn.get_id()} at {node_ip}")
           continue
         sn_service_list = resp_json["services"]
-        for s_dict in sn_service_list: # every element is expected tobe a dict with parameters of ActiveService
+        for s_dict in sn_service_list: # every element is expected to be a dict with parameters of ActiveService
           s_dict.update(node_ip=node_ip)
           active_s = forch.ActiveService(**s_dict)
           logger.info(f"Found active service {active_s.get_service_id()}") 
@@ -363,10 +363,18 @@ class FOVIM(object):
   @staticmethod
   def manage_allocation(*, service_id, node_ip):
     logger.debug(f"Allocate {service_id} on node {node_ip}")
-    # TODO interact with the node and ensure allocation of service (allocation is not deployment)
+    # TODO interact with the node (PUT) and ensure allocation of service (allocation is not deployment)
     # s = FORS.get_instance().get_service(service_id)
     # sn = s.get_node_by_id(node_id)
-    active_s = forch.ActiveService(service_id=service_id, node_ip=node_ip)
+    resp_json, resp_code = http_put(f"{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}", {"test": "dummy"})
+    # TODO check response code and handle errors
+    if resp_json is None:
+      logger.error(f"Failed to allocate service on node at {node_ip}")
+      # TODO handle error
+    # TODO check resp code and act accordingly
+    logger.debug("Allocation response: {}".format(json.dumps(resp_json)))
+    active_s = forch.ActiveService(service_id=service_id)
+    active_s.add_node(ipv4=node_ip, port=int(resp_json["port"]))
     return active_s
 
   @staticmethod
