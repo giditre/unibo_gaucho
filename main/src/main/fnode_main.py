@@ -342,10 +342,20 @@ class FogServices(Resource):
 
   def put(self, s_id):
     """Allocate service."""
-    # TODO
+    # TODO improve!!
     # request_json = flask.request.get_json(force=True)
+    port = 0
+    s_list = FNVI.get_instance().get_service_list()
+    for s in s_list:
+      if s.get_id() == s_id:
+        port=s.get_node_list()[0].get_port() # TODO improve! e.g. avoid accessing list by index
+        active_s = forch.ActiveService(service_id=s_id)
+        active_s.add_node(ipv4=FNVI.get_instance().get_ipv4(), port=port)
+        FNVI.get_instance().update_active_service_list(active_s)
+        break
     return {
       "message": f"Allocated service {s_id}",
+      "port": port
       # "type": "FN_ALLC_OK",
       # "name": container_name,
       # "ip": container_ip, # TODO change in IP visible from outside
