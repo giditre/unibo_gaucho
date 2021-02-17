@@ -16,7 +16,7 @@ parser.add_argument("--endpoint", help=f"FO endpoint, default: {default_endpoint
 parser.add_argument("--path", help=f"FO path, default: {default_path}", nargs="?", default=default_path)
 parser.add_argument("--method", help=f"FO method, default: {default_method}", nargs="?", default=default_method)
 parser.add_argument("--project", help=f"FO project, default: {default_project}", nargs="?", default=default_project)
-parser.add_argument("--measure-time", help="Measure response time", action="store_true", default=False)
+# parser.add_argument("--measure-time", help="Measure response time", action="store_true", default=False)
 parser.add_argument("-y", "--assume-yes", help="Automatic yes to prompts", action="store_true", default=False)
 args = parser.parse_args()
 
@@ -33,13 +33,14 @@ print(f"Request URL: {url}")
 
 # initialize response and start time (both useful for measuring response time)
 response = None
+# response_json = None
 t_start = time.time()
 
 if args.method == "GET":
   # send request
   response = requests.get(url)
-  response_json = response.json()
-  print(f"Response JSON: {json.dumps(response_json, indent=2)}")
+  # response_json = response.json()
+  # print(f"Response JSON: {json.dumps(response_json, indent=2)}")
 
 elif args.method == "PUT":
   pass
@@ -49,16 +50,16 @@ elif args.method == "POST":
   print(f"Request JSON: {json.dumps(request_json, indent=2)}")
   # send request
   response = requests.post(url, json=request_json)
-  response_json = response.json()
-  print(f"Response JSON: {json.dumps(response_json, indent=2)}")
-  if response.status_code not in [200, 201]:
-    sys.exit(f"Code {response.status_code}")
+  # response_json = response.json()
+  # print(f"Response JSON: {json.dumps(response_json, indent=2)}")
+  # if response.status_code not in [200, 201]:
+  #   sys.exit(f"Code {response.status_code}")
 
 elif args.method == "DELETE":
   # send request
   response = requests.delete(url)
-  response_json = response.json()
-  print(f"Response JSON: {json.dumps(response_json, indent=2)}")
+  # response_json = response.json()
+  # print(f"Response JSON: {json.dumps(response_json, indent=2)}")
 
 else:
   raise NotImplementedError
@@ -67,6 +68,13 @@ else:
 t_end = time.time()
 
 if response is not None:
+
+  response_code = response.status_code
+  print(f"Response code: {response_code}")
+
+  response_json = response.json()
+  print(f"Response JSON: {json.dumps(response_json, indent=2)}")
+
   print(f"Response header time: {response.elapsed.total_seconds():.3f} s")
 
   clock_time = t_end-t_start
