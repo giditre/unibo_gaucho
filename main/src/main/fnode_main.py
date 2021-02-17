@@ -86,6 +86,7 @@ class FNVI(object):
     if active_service not in active_service_list:
       active_service_list.append(active_service)
       self.__set_active_service_list(active_service_list)
+      logger.debug("Updated active service list: {}".format([s.get_id() for s in self.get_active_service_list()]))
 
   def find_active_services(self, *, service_category_list=["APP", "SDP"]):
     # find pre-existing services
@@ -348,7 +349,7 @@ class FogServices(Resource):
     s_list = FNVI.get_instance().get_service_list()
     for s in s_list:
       if s.get_id() == s_id:
-        port=s.get_node_list()[0].get_port() # TODO improve! e.g. avoid accessing list by index
+        port = s.get_node_list()[0].get_port() # TODO improve! e.g. avoid accessing list by index
         active_s = forch.ActiveService(service_id=s_id)
         active_s.add_node(ipv4=FNVI.get_instance().get_ipv4(), port=port)
         FNVI.get_instance().update_active_service_list(active_s)
