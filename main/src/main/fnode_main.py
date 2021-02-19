@@ -75,18 +75,24 @@ class FNVI(object):
     self.__service_list = forch.Service.create_services_from_json(json_file_name=json_file_name, ipv4=ipv4)
 
   def get_active_service_list(self):
+    logger.debug("Current active service list: {}".format([s.get_id() for s in self.__active_service_list]))
     return self.__active_service_list
 
   def __set_active_service_list(self, active_service_list):
     assert all( isinstance(s, forch.ActiveService) for s in active_service_list ), "All elements must be ActiveService objects!"
     self.__active_service_list = active_service_list
 
-  def update_active_service_list(self, active_service):
+  def update_active_service_list(self, active_service, *, remove=False):
     active_service_list = self.get_active_service_list()
-    if active_service not in active_service_list:
+    if active_service in active_service_list:
+      if remove:
+        logger.debug(f"Remove service {active_service.get_id()} to active service list")
+        active_service_list.remove(active_service)
+    else:
+      logger.debug(f"Append service {active_service.get_id()} to active service list")
       active_service_list.append(active_service)
       self.__set_active_service_list(active_service_list)
-      logger.debug("Updated active service list: {}".format([s.get_id() for s in self.get_active_service_list()]))
+    return self.get_active_service_list()
 
   def find_active_services(self, *, service_category_list=["APP", "SDP"]):
     # find pre-existing services
@@ -125,15 +131,15 @@ class FNVI(object):
       # TODO move this search to a function, handling non-existent service ?
       active_service_list = [ s for s in self.get_active_service_list() if s.get_service_id() == service_id ]
       active_base_service_id_list = [ s.get_base_service_id() for s in active_service_list ]
-      base_to_instance_list_dict = { base_service_id: [ active_s.get_instance_name() for active_s in active_service_list
-        if active_s.get_instance_name()
-        ]
+      base_to_instance_list_dict = { base_service_id:
+        [ active_s.get_instance_name() for active_s in active_service_list if active_s.get_instance_name() ]
         for base_service_id in active_base_service_id_list
       }
       for base_service_id, instance_name_list in base_to_instance_list_dict.items():
         if service_id == base_service_id:
           # TODO deallocate
-          pass
+          for active_service in active_service_list:
+            self.update_active_service_list(active_service, remove=True)
         else:
           # destroy
           if base_service_id == forch.FogServiceID.DOCKER.value:
@@ -141,6 +147,7 @@ class FNVI(object):
           elif base_service_id == "FVExxx":
             pass
           else:
+            # unknown base service id
             pass
 
       # for active_s in active_service_list:
