@@ -208,19 +208,21 @@ class FOB(object):
 
   def activate_service(self, service_id, *, project):
     """Takes service ID and returns an ActiveService object or None."""
-    logger.debug(f"Start activating instance of service {service_id}")
+    logger.info(f"Start activating instance of service {service_id}")
     s = FORS.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
     if s is not None:
       # it means that the service is defined in the service cache
-      logger.debug(f"Service {s.get_id()} found in cache")
+      logger.info(f"Service {s.get_id()} found in cache")
       # need to check which node is best suited to host the service
-      sn = s.get_node_by_metric() # by default returns node with minimum CPU utilization
-      logger.debug(f"Found node {sn.get_id()} offering {s.get_id()}")
+      sn = s.get_node_by_metric(forch.MetricType.CPU, check="min") # (by default) returns node with minimum CPU utilization
+      logger.info(f"Found node {sn.get_id()} offering {s.get_id()}")
       if sn is not None:
         # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
-        if True: # TODO set meaningful condition
+        sn_metric = sn.get_metric_by_type(forch.MetricType.CPU)
+        logger.info(f"Node {sn.get_id()}: {forch.MetricType.CPU.value} {sn_metric.get_value()}{sn_metric.get_unit()}")
+        if float(sn_metric.get_value()) < 90: # TODO avoid hardcoding threshold
           # if so, trigger the requested allocation through FOVIM
-          logger.debug(f"Allocate service {s.get_id()} on node {sn.get_id()}")
+          logger.info(f"Allocate service {s.get_id()} on node {sn.get_id()}")
           active_s = FOVIM.get_instance().manage_allocation(service_id=s.get_id(), node_ip=sn.get_ip())
           # TODO verify response is an ActiveService with single service node and return it to user --> 200 OK
 
@@ -230,36 +232,38 @@ class FOB(object):
           return active_s
         else:
           # here there are no nodes that are free enough to host this service - it might still be deployable
-          logger.debug(f"Nodes offering service {s.get_id()} are too busy")
+          logger.info(f"Nodes offering service {s.get_id()} are too busy")
           # TODO handle this case
           pass
       else:
         # here there are no service nodes associated to this service - it might still be deployable
-        logger.debug(f"No nodes offering registered service {s.get_id()}")
+        logger.info(f"No nodes offering registered service {s.get_id()}")
         # TODO handle this case - but is it even possible to get here? Because services are registered by nodes offering them
         pass
     
     # we get here if the service is not in the service cache or it is but is offered only by busy nodes
-    logger.debug(f"Attempt deployment of service {service_id}")
+    logger.info(f"Attempt deployment of service {service_id}")
     # check if service is deployable (e.g.: "by deploying an APP on a IaaS node"), starting by looking for a source that offers the requested service
     src = self.__search_source_for_service(service_id)
     # check if there is a source that offers the requested service
     if src is not None:
-      logger.debug(f"Found a source for service {service_id}")
+      logger.info(f"Found a source for service {service_id}")
       # check if there is a service that provides the required base (SDP/FVE) for the source
       base_service_id = src.get_base()
       base_s = FORS.get_instance().get_service(base_service_id)
       if base_s is not None:
         # here the base service is present in the service cache
-        logger.debug(f"Base service {base_s.get_id()} found in cache")
+        logger.info(f"Base service {base_s.get_id()} found in cache")
         # check if there is a node that is free enough to host the new allocation
         sn = base_s.get_node_by_metric()
-        logger.debug(f"Found node {sn.get_id()} offering {base_s.get_id()}")
+        logger.info(f"Found node {sn.get_id()} offering {base_s.get_id()}")
         if sn is not None:
           # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
-          if True: # TODO set meaningful condition
+          sn_metric = sn.get_metric_by_type(forch.MetricType.CPU)
+          logger.info(f"Node {sn.get_id()}: {forch.MetricType.CPU.value} {sn_metric.get_value()}{sn_metric.get_unit()}")
+          if float(sn_metric.get_value()) < 90: # TODO avoid hardcoding threshold
             # if so, deploy the source and allocate service on it
-            logger.debug(f"Deploy service {service_id} on node {sn.get_id()} on top of base {base_s.get_id()}")
+            logger.info(f"Deploy service {service_id} on node {sn.get_id()} on top of base {base_s.get_id()}")
             active_s = FOVIM.get_instance().manage_deployment(service_id=service_id, project=project, source=src, node_ip=sn.get_ip())
             # verify response is a service with single service node and return it to user --> 201 Created
             assert isinstance(active_s, forch.ActiveService) and len(active_s.get_node_list()) == 1, ""
@@ -268,16 +272,16 @@ class FOB(object):
             return active_s
         else:
           # here there are no more resources for new deployments
-          logger.debug(f"Nodes offering base service {base_s.get_id()} are too busy")
+          logger.info(f"Nodes offering base service {base_s.get_id()} are too busy")
           # return service with empty node list --> 503 Service Unavailable
           return forch.Service(id=service_id)
 
     # here unknown service --> 404 Not Found
-    logger.debug(f"Unknown service {service_id}")
+    logger.info(f"Unknown service {service_id}")
     return None
 
   def deactivate_service(self, service_id):
-    logger.debug(f"Start deactivating instances of service {service_id}")
+    logger.info(f"Deactivating instances of service {service_id}")
     # find relevant entry or entries in active services
     for active_service in self.get_active_service_list():
       if active_service.get_service_id() == service_id:
@@ -289,7 +293,7 @@ class FOB(object):
         FOVIM.get_instance().manage_destruction(service_id=service_id, node_ip=sn.get_ip())
 
   def deactivate_all_services(self):
-    logger.debug(f"Start deactivating all services")
+    logger.info(f"Deactivating all services")
     # find relevant entry or entries in active services
     for active_service in self.get_active_service_list():
       self.deactivate_service(active_service.get_service_id())
