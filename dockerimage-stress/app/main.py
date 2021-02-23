@@ -26,6 +26,7 @@ class Stress(Resource):
 
   def start(self, x):
     end_t = time.time() + self.timeout
+    # print(f"Ends at {end_t}")
     try:
       while True:
         if time.time() > end_t:
@@ -39,10 +40,9 @@ class Stress(Resource):
     self.timeout = timeout
 
     if self.n_cpu > 0:
-      processes = self.n_cpu
-      print(f"Stressing {processes} CPUs for {timeout} seconds...")
-      pool = Pool(processes)
-      pool.map(self.start, range(processes))
+      print(f"Stressing {self.n_cpu} CPUs for {timeout} seconds...")
+      pool = Pool(processes=self.n_cpu)
+      pool.map(self.start, range(self.n_cpu))
 
     return self.n_cpu
 
@@ -57,6 +57,8 @@ class Stress(Resource):
       }, 404
 
     n_cpu = self.stress(load, timeout)
+
+    # print(f"post() n_cpu {n_cpu}")
 
     if n_cpu == 0:
       return {
