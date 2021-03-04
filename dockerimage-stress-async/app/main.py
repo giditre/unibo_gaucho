@@ -41,7 +41,9 @@ class StressHandler():
     if n_cpu > 0:
       print(f"Stressing {n_cpu} CPUs for {timeout} seconds...")
       stress_json = {
-          "n_cpu": n_cpu,
+          "args": {
+            "cpu": n_cpu
+          },
           "end_t": end_t
         }
 
@@ -58,7 +60,7 @@ class StressHandler():
 
   def remove_stress(self) -> None:
     stress_json = {
-          "n_cpu": 0,
+          "args": {},
           "end_t": 0
         }
     with open("/app/stress.json", "w") as f:

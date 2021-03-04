@@ -31,11 +31,13 @@ def stress_main(*, file_name, check_interval):
       time.sleep(check_interval)
       continue
 
-    n_cpu = int(stress_json["n_cpu"])
     end_t = int(stress_json["end_t"])
 
     if time.time() < end_t:
-      cmd = f"stress-ng --cpu {n_cpu} --timeout {check_interval}"
+      cmd = f"stress-ng --timeout {check_interval}"
+      for k, v in stress_json["args"].items():
+        if k != "timeout":
+          cmd += f" --{k} {v}"
       print(cmd)
       subprocess.run(cmd.split()) # this is blocking
     else:
