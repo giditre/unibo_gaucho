@@ -258,7 +258,7 @@ class FOB(object):
         sn = base_s.get_node_by_metric()
         logger.info(f"Found node {sn.get_id()} offering {base_s.get_id()}")
         if sn is not None:
-          # TODO check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
+          # check if best node is compliant with constraints (e.g.: if min CPU is lower than threshold for allocation)
           sn_metric = sn.get_metric_by_type(forch.MetricType.CPU)
           logger.info(f"Node {sn.get_id()}: {forch.MetricType.CPU.value} {sn_metric.get_value()}{sn_metric.get_unit()}")
           if float(sn_metric.get_value()) < 90: # TODO avoid hardcoding threshold
@@ -270,11 +270,11 @@ class FOB(object):
             # just before returning, update active service list
             self.update_active_service_list(active_s)
             return active_s
-        else:
-          # here there are no more resources for new deployments
-          logger.info(f"Nodes offering base service {base_s.get_id()} are too busy")
-          # return service with empty node list --> 503 Service Unavailable
-          return forch.Service(id=service_id)
+        
+        # here there are no more resources for new deployments
+        logger.info(f"Nodes offering base service {base_s.get_id()} are too busy")
+        # return service with empty node list --> 503 Service Unavailable
+        return forch.ActiveService(service_id=service_id)
 
     # here unknown service --> 404 Not Found
     logger.info(f"Unknown service {service_id}")
@@ -512,7 +512,7 @@ class FogServices(Resource):
     
     if isinstance(active_s, forch.ActiveService):
       assert len(active_s.get_node_list()) in [0,1], "Too many ServiceNodes!"
-      if len(active_s.get_node_list()) == 0:
+      if active_s.get_node_list() is None or len(active_s.get_node_list()) == 0:
         return {
         "message": f"Service {active_s.get_id()} unavailable."
         # "type": "FOCO_SERV_POST"
