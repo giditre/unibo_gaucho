@@ -35,7 +35,11 @@ class StressHandler():
     return stress_json
 
   def create_stress(self, load: int, timeout: int) -> int:
-    n_cpu = int( cpu_count() * load/100 )
+    # TODO: improve
+    if load < 0:
+      n_cpu = min(abs(load), cpu_count())
+    else:
+      n_cpu = int( cpu_count() * load/100 )
     end_t = int(time.time()) + timeout
 
     if n_cpu > 0:
