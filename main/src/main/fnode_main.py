@@ -12,6 +12,8 @@ import sys
 import configparser
 import socket
 
+import requests
+
 import flask
 from flask_restful import Resource, Api
 
@@ -137,8 +139,19 @@ class FNVI(object):
       }
       for base_service_id, instance_name_list in base_to_instance_list_dict.items():
         if service_id == base_service_id:
-          # TODO deallocate
+          # TODO deallocate properly
           for active_service in active_service_list:
+            # TODO for each active service, send a DELETE to the service node (the node itself running the service) via the REST API described in the services json
+            # get service list, name and port - TODO: improve
+            for s in self.get_service_list():
+              # retrieve name and port
+              if s.get_id() == service_id:
+                service_name = s.get_name()
+                for sn in s.get_node_list():
+                  service_port = sn.get_port()
+                # send DELETE to 127.0.0.1:port/name
+                requests.delete(f"http://127.0.0.1:{service_port}/{service_name}")
+            # remove service from active service list
             self.update_active_service_list(active_service, remove=True)
         else:
           # destroy
