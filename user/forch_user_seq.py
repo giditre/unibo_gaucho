@@ -23,6 +23,11 @@ from forch_user import fu_parser, user_request, print_flush
 
 def user_request_sequence(*, endpoint: str, path: str, method: str, project: str, service_data_json: Dict, n_cycles: int) -> None:
 
+  urs_json = {
+    "preliminary": [],
+    "cycles": []
+  }
+
   # # preliminary
   # url = f"http://{endpoint}"
   # print_flush("GET", url)
@@ -38,11 +43,27 @@ def user_request_sequence(*, endpoint: str, path: str, method: str, project: str
   # print_flush(json.dumps(resp_json, indent=2))
 
   for c in range(n_cycles):
-    print(f"Cycle {c}")
+    print_flush(f"Cycle {c}")
+
+    urs_cycle_json = {
+      "url": None,
+      "method": None,
+      "resp_json": None,
+      "resp_code": None,
+      "resp_time": None
+    }
 
     url = f"http://{args.endpoint}/{args.path}"
     print_flush("POST", url)
+    urs_cycle_json["method"] = "POST"
+    urs_cycle_json["url"] = url
+
     response = user_request(url=url, method=method, project=project)
+    urs_cycle_json["resp_code"] = response.status_code
+    urs_cycle_json["resp_json"] = response.json()
+    urs_cycle_json["resp_time"] = response.elapsed.total_seconds()
+    urs_json["cycles"].append(urs_cycle_json)
+    
     time.sleep(5)
 
     if response.status_code in [200, 201]:
@@ -57,11 +78,13 @@ def user_request_sequence(*, endpoint: str, path: str, method: str, project: str
       print_flush(json.dumps(resp_json, indent=2))
       time.sleep(120)
     else:
-      response_code = response.status_code
-      print_flush(f"Response code: {response_code}")
-      response_json = response.json()
-      print_flush(f"Response JSON: {json.dumps(response_json, indent=2)}")
+      # response_code = response.status_code
+      # print_flush(f"Response code: {response_code}")
+      # response_json = response.json()
+      # print_flush(f"Response JSON: {json.dumps(response_json, indent=2)}")
       break
+
+  print_flush(json.dumps(urs_json))  
 
 
 if __name__ == "__main__":
@@ -74,7 +97,7 @@ if __name__ == "__main__":
   parser = fu_parser
 
   parser.add_argument("-d", "--service-data", help="Service data to be passed to the request starting the service, default: {}", nargs="?", default="{}")
-  parser.add_argument("-n", "--num-cycles", help="Number of measurement cycles", type=int, nargs="?", default=default_cycles)
+  parser.add_argument("-n", "--num-cycles", help="Maximum number of measurement cycles", type=int, nargs="?", default=default_cycles)
 
   args = parser.parse_args()
   print_flush("CLI args: {}".format(vars(args)))
