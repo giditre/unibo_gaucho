@@ -34,14 +34,14 @@ class ServiceCategory(Enum):
 class MetricType(Enum):
   CPU = "CPU utilization"
   RAM = "Memory utilization"
-  TOT_RAM = "Total memory"
-  FREE_SWAP = "Free swap space in %"
-  N_THREADS = "Number of threads"
-  N_PROC = "Number of processes"
-  SYS_NAME = "System name"
-  SYS_DESCR = "System description"
-  SYS_UPTIME = "Uptime"
-  OS_ARCH = "Operating system architecture"
+  #TOT_RAM = "Total memory"
+  #FREE_SWAP = "Free swap space in %"
+  #N_THREADS = "Number of threads"
+  #N_PROC = "Number of processes"
+  #SYS_NAME = "System name"
+  #SYS_DESCR = "System description"
+  #SYS_UPTIME = "Uptime"
+  #OS_ARCH = "Operating system architecture"
 
 
 class MeasurementRetrievalMode(IntEnum):
