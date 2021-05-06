@@ -62,6 +62,33 @@
       "base": "FVE001",
       "service": "APP005",
       "ports": ["80/tcp"]
+    },
+    {
+      "id": "SRC991",
+      "name": "giditre/gaucho-stress",
+      "descr": "Stress",
+      "uri": "",
+      "base": "FVE001",
+      "service": "APP991",
+      "ports": ["80/tcp"]
+    },
+    {
+      "id": "SRC992",
+      "name": "giditre/gaucho-stress",
+      "descr": "Stress",
+      "uri": "",
+      "base": "FVE001",
+      "service": "APP992",
+      "ports": ["80/tcp"]
+    },
+    {
+      "id": "SRC993",
+      "name": "giditre/gaucho-stress",
+      "descr": "Stress",
+      "uri": "",
+      "base": "FVE001",
+      "service": "APP993",
+      "ports": ["80/tcp"]
     }
   ]
 }
