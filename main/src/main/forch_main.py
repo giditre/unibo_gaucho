@@ -649,14 +649,14 @@ if __name__ == "__main__":
 
   app = flask.Flask(__name__)
 
-  # @app.before_request
-  # def before():
-  #   logger.debug("marker start {} {}".format(request.method, request.path))
+  @app.before_request
+  def before():
+    logger.debug("marker start {} {}".format(flask.request.method, flask.request.path))
 
-  # @app.after_request
-  # def after(response):
-  #   logger.debug("marker end {} {}".format(request.method, request.path))
-  #   return response  
+  @app.after_request
+  def after(response):
+    logger.debug("marker end {} {}".format(flask.request.method, flask.request.path))
+    return response  
 
   api = Api(app)
   api.add_resource(Test, '/test')
