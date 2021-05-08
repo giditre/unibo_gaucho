@@ -94,7 +94,7 @@ class Source():
     self.__description = description
 
 
-class FOB(object):
+class FOM(object):
 
   __key = object()
   __instance = None
@@ -200,16 +200,16 @@ class FOB(object):
 
   @staticmethod
   def get_service_list(*args, **kwargs):
-    return FORS.get_instance().get_service_list(*args, **kwargs)
+    return FOA.get_instance().get_service_list(*args, **kwargs)
 
   @staticmethod
   def get_service(*args, **kwargs):
-    return FORS.get_instance().get_service(*args, **kwargs)
+    return FOA.get_instance().get_service(*args, **kwargs)
 
   def activate_service(self, service_id, *, project):
     """Takes service ID and returns an ActiveService object or None."""
     logger.info(f"Start activating instance of service {service_id}")
-    s = FORS.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
+    s = FOA.get_instance().get_service(service_id, refresh_sc=True, refresh_meas=True)
     if s is not None:
       # it means that the service is defined in the service cache
       logger.info(f"Service {s.get_id()} found in cache")
@@ -250,7 +250,7 @@ class FOB(object):
       logger.info(f"Found a source for service {service_id}")
       # check if there is a service that provides the required base (SDP/FVE) for the source
       base_service_id = src.get_base()
-      base_s = FORS.get_instance().get_service(base_service_id)
+      base_s = FOA.get_instance().get_service(base_service_id)
       if base_s is not None:
         # here the base service is present in the service cache
         logger.info(f"Base service {base_s.get_id()} found in cache")
@@ -299,7 +299,7 @@ class FOB(object):
       self.deactivate_service(active_service.get_service_id())
 
 
-class FORS(object):
+class FOA(object):
 
   __key = object()
   __instance = None
@@ -452,7 +452,7 @@ class FogServices(Resource):
   def get(self, s_id=""):
     """Gather list of services and format it in a response."""
     # get list of services
-    s_list = FOB.get_instance().get_service_list(refresh_sc=True, refresh_meas=True)
+    s_list = FOM.get_instance().get_service_list(refresh_sc=True, refresh_meas=True)
     # create list of service IDs
     s_id_list = [ s.get_id() for s in s_list ]
     # check if a service was specified
@@ -492,7 +492,7 @@ class FogServices(Resource):
         }, 404
     
     # find Project instance in FOB
-    project = FOB.get_instance().get_project_by_name(project_name)
+    project = FOM.get_instance().get_project_by_name(project_name)
     if project is None:
       # project not found
       return {
@@ -501,7 +501,7 @@ class FogServices(Resource):
           # "services": []
         }, 404
 
-    active_s = FOB.get_instance().activate_service(s_id, project=project) # returns ActiveService
+    active_s = FOM.get_instance().activate_service(s_id, project=project) # returns ActiveService
     if active_s is None:
       # service not found
       return {
@@ -548,7 +548,7 @@ class FogServices(Resource):
   def delete(self, s_id=""):
     """Submit request for deactivation of services."""
     if s_id:
-      FOB.get_instance().deactivate_service(s_id)
+      FOM.get_instance().deactivate_service(s_id)
       # TODO check if operation was successful
       return {
           "message": f"Service {s_id} deactivated",
@@ -557,7 +557,7 @@ class FogServices(Resource):
           # "type": "FOCO_SERV_POST"
         }, 200
     else:
-      FOB.get_instance().deactivate_all_services()
+      FOM.get_instance().deactivate_all_services()
       # TODO check if operation was successful
       return {
           "message": f"All services deactivated",
@@ -589,17 +589,17 @@ if __name__ == "__main__":
 
   ### instantiate components
 
-  FOB.get_instance()
+  FOM.get_instance()
 
-  FORS.get_instance()
+  FOA.get_instance()
 
   FOVIM.get_instance()
 
   ### perform preliminary operations
 
-  FOB.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath(local_config["sources_json"]).absolute()))
-  FOB.get_instance().find_active_services(refresh_sc=True) # TODO add configuration flag for this
-  preexisting_active_service_list = FOB.get_instance().get_active_service_list()
+  FOM.get_instance().load_source_list_from_json(str(Path(__file__).parent.joinpath(local_config["sources_json"]).absolute()))
+  FOM.get_instance().find_active_services(refresh_sc=True) # TODO add configuration flag for this
+  preexisting_active_service_list = FOM.get_instance().get_active_service_list()
   if preexisting_active_service_list:
     logger.debug(f"Found {len(preexisting_active_service_list)} pre-existing service(s): {[(s.get_service_id(), s.get_node_id(), s.get_instance_name()) for s in preexisting_active_service_list]}")
 
@@ -607,7 +607,7 @@ if __name__ == "__main__":
 
   # TODO add configuration file for this
 
-  FOB.get_instance().set_project_list([
+  FOM.get_instance().set_project_list([
     forch.Project("default"),
     forch.Project("test-project",
       instance_configuration_dict={
@@ -670,6 +670,6 @@ if __name__ == "__main__":
     pass
   finally:
     logger.info("Cleanup after interruption")
-    FOB.del_instance()
-    FORS.del_instance()
+    FOM.del_instance()
+    FOA.del_instance()
     FOVIM.del_instance()
