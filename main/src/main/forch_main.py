@@ -52,6 +52,20 @@ def http_put(endpoint, request_json_data):
 def http_delete(endpoint):
   return http_request(endpoint, method="DELETE")
 
+###
+
+from functools import wraps
+
+def debug_markers(f):
+  @wraps(f)
+  def wrapper(*args, **kwargs):
+    logger.debug(f"marker start {f.__qualname__}")
+    result = f(*args, **kwargs)
+    logger.debug(f"marker end {f.__qualname__}")
+    return result
+  return wrapper
+
+###
 
 class Source():
 
@@ -206,6 +220,7 @@ class FOM(object):
   def get_service(*args, **kwargs):
     return FOA.get_instance().get_service(*args, **kwargs)
 
+  @debug_markers
   def activate_service(self, service_id, *, project):
     """Takes service ID and returns an ActiveService object or None."""
     logger.info(f"Start activating instance of service {service_id}")
@@ -280,6 +295,7 @@ class FOM(object):
     logger.info(f"Unknown service {service_id}")
     return None
 
+  @debug_markers
   def deactivate_service(self, service_id):
     logger.info(f"Deactivating instances of service {service_id}")
     # find relevant entry or entries in active services
@@ -292,6 +308,7 @@ class FOM(object):
         # destroy service on node
         FOVIM.get_instance().manage_destruction(service_id=service_id, node_ip=sn.get_ip())
 
+  @debug_markers
   def deactivate_all_services(self):
     logger.info(f"Deactivating all services")
     # find relevant entry or entries in active services
@@ -325,6 +342,7 @@ class FOA(object):
   def __refresh_service_cache(self):
     self.__get_service_cache().refresh()
 
+  @debug_markers
   def get_service_list(self, *, refresh_sc=False, refresh_meas=False):
     logger.debug(f"Get service list from service cache refresh cache {refresh_sc} refresh meas {refresh_meas}")
     if refresh_sc:
@@ -335,6 +353,7 @@ class FOA(object):
         s.refresh_measurements()
     return service_list
 
+  @debug_markers
   def get_service(self, service_id, *, refresh_sc=False, refresh_meas=False):
     try:
       s_list = self.get_service_list(refresh_sc=refresh_sc, refresh_meas=refresh_meas)
@@ -365,6 +384,7 @@ class FOVIM(object):
       del cls.__instance
 
   @staticmethod
+  @debug_markers
   def manage_allocation(*, service_id, node_ip):
     logger.debug(f"Allocate {service_id} on node {node_ip}")
     # TODO interact with the node (PUT) and ensure allocation of service (allocation is not deployment)
@@ -382,6 +402,7 @@ class FOVIM(object):
     return active_s
 
   @staticmethod
+  @debug_markers
   def manage_deployment(*, service_id, node_ip, source, project):
     """Manages deployment of service on node based on source.
     Returns: ActiveService or None
@@ -431,6 +452,7 @@ class FOVIM(object):
       pass
 
   @staticmethod
+  @debug_markers
   def manage_destruction(*, service_id, node_ip):
     logger.debug(f"Destroy {service_id} on node {node_ip}")
     

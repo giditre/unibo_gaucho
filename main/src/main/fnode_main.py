@@ -22,6 +22,20 @@ import docker
 import forch
 logger.debug("Running as orchestrator? {}".format(forch.is_orchestrator()))
 
+###
+
+from functools import wraps
+
+def debug_markers(f):
+  @wraps(f)
+  def wrapper(*args, **kwargs):
+    logger.debug(f"marker start {f.__qualname__}")
+    result = f(*args, **kwargs)
+    logger.debug(f"marker end {f.__qualname__}")
+    return result
+  return wrapper
+
+###
 
 class FNVI(object):
   __key = object()
@@ -84,6 +98,7 @@ class FNVI(object):
     assert all( isinstance(s, forch.ActiveService) for s in active_service_list ), "All elements must be ActiveService objects!"
     self.__active_service_list = active_service_list
 
+  @debug_markers
   def update_active_service_list(self, active_service, *, remove=False):
     active_service_list = self.get_active_service_list()
     if active_service in active_service_list:
@@ -206,6 +221,7 @@ class FNVI(object):
         return True
     return False
 
+  @debug_markers
   def docker_network_create_with_bridge(self, network_name, *,
     bridge_name=None, bridge_address=None, subnet=None, dhcp_range=None):
 
@@ -286,6 +302,7 @@ class FNVI(object):
     return list(set([ c.name.split("-")[0] for c in self.docker_container_list()
       if any(c.name.startswith(service_category) for service_category in service_category_list) ]))
 
+  @debug_markers
   def deploy_container_docker(self, service_id, image_name, **kwargs):
 
     container_name = self.__generate_container_name(service_id)
