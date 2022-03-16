@@ -430,7 +430,7 @@ class FOVIM(object):
       response_json, response_code = http_post(f"{node_ip}:{forch.get_fog_node_main_port()}/services/{service_id}", request_json)
       if response_code == 201:
         logger.debug("Deployment response: {}".format(json.dumps(response_json)))
-        active_s = forch.ActiveService(service_id=service_id,
+        active_s = forch.ActiveService(service_id=service_id, base_service_id=base_service_id,
           instance_name=response_json["name"], instance_ip=response_json["ip"])
         src_port_list = source.get_port_list()
         if len(src_port_list) == 0:
@@ -499,7 +499,7 @@ class FogServices(Resource):
       }, 200
 
   def post(self, s_id):
-    """Submit request for allocation of a service."""
+    """Submit request for activation of a service."""
 
     request_json = flask.request.get_json(force=True)
 

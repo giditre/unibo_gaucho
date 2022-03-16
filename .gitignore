@@ -70,3 +70,5 @@ target/
 
 # specific to FORCH
 fnode_services.json
+user/results
+simulation
