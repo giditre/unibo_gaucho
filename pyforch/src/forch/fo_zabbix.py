@@ -30,6 +30,19 @@ from pyzabbix import ZabbixAPI
 from ipaddress import IPv4Address
 from enum import Enum
 
+class MetricType(Enum):
+
+  CPU = "CPU utilization"
+  RAM = "Memory utilization"
+  #TOT_RAM = "Total memory"
+  #FREE_SWAP = "Free swap space in %"
+  #N_THREADS = "Number of threads"
+  #N_PROC = "Number of processes"
+  #SYS_NAME = "System name"
+  #SYS_DESCR = "System description"
+  #SYS_UPTIME = "Uptime"
+  #OS_ARCH = "Operating system architecture"
+
 class ZabbixNodeFields(Enum):
   ID = "id"
   NAME = "name"
@@ -92,7 +105,7 @@ class ZabbixNode:
 
   @staticmethod
   def validate_node_id(node:ZabbixNode|str):
-    assert isinstance(node, (ZabbixNode, str)), "Nodes must be provided as ZabbixNode or str, not {}".format(type(node))
+    assert isinstance(node, (ZabbixNode, str)), f"Nodes must be provided as ZabbixNode or str, not {type(node)}"
     if isinstance(node, ZabbixNode):
       # "node" is a ZabbixNode object and we need to extract the ID
       return node.get_node_id()

@@ -107,7 +107,6 @@ class Source():
   def set_description(self, description) :
     self.__description = description
 
-
 class FOM(object):
 
   __key = object()

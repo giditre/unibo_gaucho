@@ -246,15 +246,22 @@ class SLPFactory:
 
       srvs_dict = {}
       for i, srvc_tuple in enumerate(found_srvs_list):
-        srvs_dict.update({srvc_tuple[0]:self.__find_attr_list(srvc_tuple[0]), ("lifetime#" + str(i)):srvc_tuple[1]})
+        srvs_dict.update( {
+            srvc_tuple[0]: self.__find_attr_list(srvc_tuple[0]),
+            f"lifetime#{i}": srvc_tuple[1]
+          }
+        )
 
       srvs_list = []
       srvc = None
       for key in srvs_dict:
         if key.split("#")[0] != "lifetime":
+          # if we get here it means that key = srvurl
           srvc = self.__srvurl_to_service(key) # in this case key = srvurl
 
+          # check if attributes are specified
           if srvs_dict[key] != "":
+            # attributes should contain info on service ID (e.g., APP001), category (e.g., SAAS), and description (e.g., stress)
             tmp_srvc = self.__attrs_to_service(srvs_dict[key])
             if tmp_srvc is None:
               raise_error(self.__class__.__name__, "Unexpected __attrs_to_service result!")
@@ -266,6 +273,8 @@ class SLPFactory:
             # TODO: raise error because attributes must be present?
             pass
         else:
+          # if we get here it means that key = lifetime
+          # for the way it was constructed, at this point the variable srvc should be a Service object
           assert isinstance(srvc, Service), "Unexpected type of srvc: " + type(srvc)
           node_list = srvc.get_node_list()
           assert len(node_list) == 1 if node_list != None else False, "In theory here we have only one node associated to a service"

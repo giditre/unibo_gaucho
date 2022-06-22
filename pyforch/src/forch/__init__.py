@@ -40,7 +40,8 @@ def raise_error(class_name:str, msg:str="") -> NoReturn:
     print(msg)
     raise
 
-from .fo_service import Service, MetricType, MeasurementRetrievalMode, ServiceCategory
+from .fo_adapter import MetricType
+from .fo_service import Service, MeasurementRetrievalMode, ServiceCategory
 from .fo_servicecache import ServiceCache
 from .fo_slp import SLPFactory
 from .fo_zabbix import ZabbixAPI, ZabbixAdapter, ZabbixNode, ZabbixNodeFields
@@ -251,19 +252,19 @@ class ActiveService(Service):
     self.__base_service_id = base_service_id
 
   def get_instance_name(self):
-	  return self.__instance_name
+    return self.__instance_name
   def set_instance_name(self, instance_name) :
-	  self.__instance_name = instance_name
+    self.__instance_name = instance_name
 
   def get_instance_ip(self):
-	  return self.__instance_ip
+    return self.__instance_ip
   def set_instance_ip(self, instance_ip) :
-	  self.__instance_ip = instance_ip
+    self.__instance_ip = instance_ip
 
   def get_user(self):
-	  return self.__user
+    return self.__user
   def set_user(self, user) :
-	  self.__user = user
+    self.__user = user
 
   def get_project(self):
     return self.__project
