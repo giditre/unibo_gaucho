@@ -89,6 +89,15 @@
       "base": "FVE001",
       "service": "APP993",
       "ports": ["80/tcp"]
+    },
+    {
+      "id": "SRC994",
+      "name": "giditre/gaucho-transcode",
+      "descr": "Transcode",
+      "uri": "",
+      "base": "FVE001",
+      "service": "LAF001",
+      "ports": ["80/tcp"]
     }
   ]
 }
