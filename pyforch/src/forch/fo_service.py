@@ -20,8 +20,9 @@ import json
 from pathlib import Path
 
 from . import is_orchestrator, raise_error
-from .fo_zabbix import ZabbixAdapter, ZabbixNodeFields, MeasurementFields
+from .fo_zabbix import MeasurementFields, MetricType
 
+from .fo_adapter import MonitoringSystemAdapter
 
 class ServiceCategory(Enum):
   IAAS = "FVE"    # Fog Virtualization Engine
@@ -30,25 +31,10 @@ class ServiceCategory(Enum):
   FAAS = "LAF"    # Lightweight Atomic Function
   NONE = "None"
 
-
-class MetricType(Enum):
-  CPU = "CPU utilization"
-  RAM = "Memory utilization"
-  #TOT_RAM = "Total memory"
-  #FREE_SWAP = "Free swap space in %"
-  #N_THREADS = "Number of threads"
-  #N_PROC = "Number of processes"
-  #SYS_NAME = "System name"
-  #SYS_DESCR = "System description"
-  #SYS_UPTIME = "Uptime"
-  #OS_ARCH = "Operating system architecture"
-
-
 class MeasurementRetrievalMode(IntEnum):
   SERVICE = 1
   NODE = 2
   METRIC = 3
-
 
 class Service:
   __orchestrator: bool=False # default value will be never used in theory, but it is necessary to avoid pylint no-member error
@@ -189,7 +175,8 @@ class Service:
 
   # This is the convergence point between Zabbix and SLP
   def add_node(self, *, ipv4:IPv4Address, port:int=0, path:str="", lifetime:int=0xffff) -> str|None:
-    """This method is the convergence point between Zabbix and SLP. Adds a node to the service. Requires at least the IP address of the node. Retrieves information on the node from Zabbix if this is run on the Zabbix Server. Returns the ID of the created node, or None if node not found in Zabbix.
+
+    """This method is the convergence point between the monitoring system and SLP. Adds a node to the service. Requires at least the IP address of the node. Retrieves information on the node from the monitoring system. Returns the ID of the created node, or None if node not found.
 
     Args:
         ipv4 (IPv4Address): IPv4 of the node.
@@ -200,29 +187,36 @@ class Service:
     Returns:
         str|None: node id or None if the method fails.
     """
+
     if isinstance(ipv4, str):
+
       ipv4 = IPv4Address(ipv4)
+
     assert isinstance(ipv4, IPv4Address), "Parameter ipv4 must be an IPv4Address objects!"
 
-    # merge with zabbix only if is_orchestrator
     if self.__class__.__orchestrator:
-      node = ZabbixAdapter.get_instance().get_node_by_ip(ipv4)
-      logger.debug("Retrieved ZabbixNode {}".format(node))
-      node_dict = node.to_dict()
-      node_dict[ZabbixNodeFields.AVAILABLE.value] = node_dict[ZabbixNodeFields.AVAILABLE.value] == "1"
 
-      if node_dict[ZabbixNodeFields.AVAILABLE.value]:
-        node = self.__ServiceNode(id=node_dict[ZabbixNodeFields.ID.value], ipv4=ipv4, name=node_dict[ZabbixNodeFields.NAME.value], available=node_dict[ZabbixNodeFields.AVAILABLE.value], port=port, path=path, lifetime=lifetime)
+      node = MonitoringSystemAdapter.get_instance().get_monitoring_node(ipv4=ipv4)
+      logger.debug(f"Retrieved monitoring_node {node}") #--representation of the node?
+
+      #create ServiceNode instance only if node appears as available (known and responsive)
+      if MonitoringSystemAdapter.get_instance().monitoring_node_is_available(node=node):
+          
+        node_dict = node.to_dict()
+        node_s = self.__ServiceNode(id=MonitoringSystemAdapter.get_instance().get_msn_id(node_dict=node_dict), ipv4=ipv4, name=MonitoringSystemAdapter.get_instance().get_msn_name(node_dict=node_dict), available=MonitoringSystemAdapter.get_instance().get_msn_avaiability(node_dict=node_dict), port=port, path=path, lifetime=lifetime)
 
         for elem in MetricType:
-          node.add_metric(m_id=ZabbixAdapter.get_instance().get_item_id_by_node_and_item_name(node_dict[ZabbixNodeFields.ID.value], elem.value), m_type=elem)
 
-        self.get_node_list().append(node)
+          node_s.add_metric(m_id=MonitoringSystemAdapter.get_instance().metric_id_finder(elem=elem, node=node), m_type=elem)
 
-        return node.get_id()
+        self.get_node_list().append(node_s)
+
+        return node_s.get_id()
 
       else:
-        logger.info("Node {} not added in service {} because, according to Zabbix, unavailable.".format(str(ipv4), self.__repr__()))
+
+        logger.info(f"Node {ipv4} not added in service {self.__repr__()} because unavailable.")
+
         return None
       
       # # create metrics list for this node
@@ -319,8 +313,8 @@ class Service:
       if res_metric == node.get_metric_by_type(m_type):
         return node
         
-  def refresh_measurements(self, mode:MeasurementRetrievalMode=MeasurementRetrievalMode.SERVICE) -> None:
-    """This method refreshes the measurements of the metrics of the nodes associadet to the service. This is an experimental method and can be invoched in three different modalities: SERVICE, NODE or METRIC. In the first case it is performed a single Zabbix query, in the second case it is performed a query for each node, finally in the third case it is performed a query for each metric of each node.
+  def refresh_measurements(self, mode:MeasurementRetrievalMode=MeasurementRetrievalMode.NODE) -> None:
+    """This method refreshes the measurements of the metrics of the nodes associated to the service. This is an experimental method and can be invoched in three different modalities: SERVICE, NODE or METRIC. In the first case it is performed a single Zabbix query, in the second case it is performed a query for each node, finally in the third case it is performed a query for each metric of each node.
 
     Args:
         mode (MeasurementRetrievalMode, optional): refresh mode to be used. Defaults to MeasurementRetrievalMode.SERVICE.
@@ -334,7 +328,7 @@ class Service:
       node_list = self.get_node_list()
       # retrieve all measurements for all nodes for all defined metric types
       # this returns a dictionary formatted as {'30254': {'node_id': '10313', 'metric_id': '30254', 'metric_name': 'CPU utilization', 'timestamp': '0', 'value': '0', 'unit': '%'}}
-      measurements = ZabbixAdapter.get_instance().get_measurements_by_node_list([node.get_id() for node in node_list], item_name_list=[item.value for item in MetricType])
+      measurements = MonitoringSystemAdapter.get_instance().get_measurements_by_nl(node_id_list=[node.get_id() for node in node_list], node_ip_list=[node.get_ip() for node in node_list], item_name_list=[item.value for item in MetricType], metric_name_list=[item for item in MetricType])
       # populate the data structure
       for node in node_list:
         for metric in node.get_metrics_list():
@@ -347,7 +341,7 @@ class Service:
     elif mode == MeasurementRetrievalMode.NODE:
       # refresh the value of all metrics of a node
       for node in self.get_node_list(): 
-        measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id_list([m.get_id() for m in node.get_metrics_list()])
+        measurements = MonitoringSystemAdapter.get_instance().get_measurements_by_item_id_list(item_id_list=[m.get_id() for m in node.get_metrics_list()])
         # populate the data structure
         for metric in node.get_metrics_list():
           m_id = metric.get_id()
@@ -360,7 +354,7 @@ class Service:
       # refresh the value of a single metric
       for node in self.get_node_list():
         for metric in node.get_metrics_list():
-          measurements = ZabbixAdapter.get_instance().get_measurements_by_item_id(metric.get_id())
+          measurements = MonitoringSystemAdapter.get_instance().get_measurements_by_item_id(item_id=metric.get_id())
           m_id = metric.get_id()
           assert m_id in measurements, "Measurement of metric {} is not in provided measurements!".format(m_id)
           metric.set_timestamp(measurements[m_id][MeasurementFields.TIMESTAMP.value])
@@ -370,6 +364,24 @@ class Service:
     else:
       # should never happen
       pass
+  
+  # @classmethod
+  # def __create_service_node_by_id(cls, node_id):
+  #   return cls.__ServiceNode(id=node_id)
+
+  # def create_and_add_node_by_id(self, node_id):
+  #   self.get_node_list().append(self.__ServiceNode(id=node_id))
+
+  # @classmethod
+  # def create_service_by_id(cls, *, service_id, node_id_list=None):
+  #   node_list = [ cls.__create_service_node_by_id(node_id=sn_id) for sn_id in node_id_list ]
+  #   return cls(id=service_id, node_list=node_list)
+
+  # @classmethod
+  # def create_service_by_id(cls, service_id):
+  #   return cls(id=service_id)
+    
+    
   
   # @classmethod
   # def __create_service_node_by_id(cls, node_id):
@@ -488,7 +500,7 @@ class Service:
     #   return all(check_list)
       
     def get_id(self):
- 	    return self.__id 
+      return self.__id 
     def set_id(self, id:str):
       self.__id = id
 

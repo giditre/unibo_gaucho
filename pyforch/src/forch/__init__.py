@@ -40,7 +40,8 @@ def raise_error(class_name:str, msg:str="") -> NoReturn:
     print(msg)
     raise
 
-from .fo_service import Service, MetricType, MeasurementRetrievalMode, ServiceCategory
+from .fo_adapter import MetricType
+from .fo_service import Service, MeasurementRetrievalMode, ServiceCategory
 from .fo_servicecache import ServiceCache
 from .fo_slp import SLPFactory
 from .fo_zabbix import ZabbixAPI, ZabbixAdapter, ZabbixNode, ZabbixNodeFields
