@@ -12,7 +12,6 @@ from prometheus_client.parser import text_string_to_metric_families
 import time
 import threading
 import configparser
-from pathlib import Path
 import subprocess
 from .fo_zabbix import MetricType
 
@@ -249,6 +248,8 @@ class PrometheusApi(object):
     Returns:
       .
     """
+
+    print("ciao")
 
     logger.debug("Starting the prometheus server...")
     start_http_server(port)

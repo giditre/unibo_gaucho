@@ -1,36 +1,42 @@
 import logging
 from ipaddress import IPv4Address
-from pathlib import Path
 import configparser
 from typing import List
-from enum import Enum
-# from __future__ import annotations
+
+# import of the classes needed from both monitoring system implementations
 from .fo_zabbix import ZabbixAdapter, ZabbixNodeFields, MetricType
 from .fo_prometheus import PrometheusApi, PrometheusNode, PrometheusNodeFields
 
+# configuration of the logger that prints the debugging messages
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
+# setting the config file from which the information about the monitoring system selected is taken
 config = configparser.ConfigParser()
 config.read("/home/gaucho/unibo_gaucho-master/main/src/main/main.ini")
 
 class MonitoringSystemAdapter(object):
 
+  # variable that possess the information about the selected monitoring system 
   __monitoring_system = ""
+
   __key = object() 
   __ma = None  
 
   def __init__(self, *, key=None):
 
+    # it makes sure only one instance of the class is created
     assert key == self.__class__.__key, f"There can only be one {self.__class__.__name__} object and it can only be accessed with {self.__class__.__name__}.get_instance()"
     
     if 'MONITORING SYSTEM' in config.sections():
-    
+      
+      # it takes the string containing the monitoring system selected from the configuration file
       self.__monitoring_system = config['MONITORING SYSTEM']['msystem_is']
       logging.info(f"The selected monitoring system is: {config['MONITORING SYSTEM']['msystem_is']}")
 
     else: 
 
+      # if no monitoring system is specified in the configuration file then default: Zabbix
       self.__monitoring_system = 'ZABBIX'
       logging.info(f"No monitoring system specified, defualt applied: ZABBIX") 
 
@@ -47,11 +53,11 @@ class MonitoringSystemAdapter(object):
 
     if self.__monitoring_system == 'ZABBIX':
 
-      node = ZabbixAdapter.get_instance().get_node_by_ip(ipv4) #--no check on ipv4?
+      node = ZabbixAdapter.get_instance().get_node_by_ip(ipv4)
 
     elif self.__monitoring_system == 'PROMETHEUS':
 
-      node = PrometheusApi.get_instance().get_node_by_ip(url=ipv4) #--no check on ipv4?
+      node = PrometheusApi.get_instance().get_node_by_ip(url=ipv4)
 
     return node
 
@@ -111,6 +117,7 @@ class MonitoringSystemAdapter(object):
 
       return PrometheusApi.get_instance().get_item_id(node=node, item=elem) 
 
+  # utilized by measurements retrieval mode: SERVICE 
   def get_measurements_by_nl(self, *, node_id_list:List[str]=[], node_ip_list:List[IPv4Address]=[], item_name_list:List[str]=[], metric_name_list:List[str]=[]):
 
     if self.__monitoring_system == 'ZABBIX':
@@ -121,6 +128,7 @@ class MonitoringSystemAdapter(object):
 
       return PrometheusApi.get_instance().get_measurements_by_nl(node_ip_list=node_ip_list, item_list=metric_name_list) 
 
+  # utilized by measurements retrieval mode: NODE
   def get_measurements_by_item_id_list(self, *, item_id_list:List[str]=[]):
 
     if self.__monitoring_system == 'ZABBIX':
@@ -131,6 +139,7 @@ class MonitoringSystemAdapter(object):
 
       return PrometheusApi.get_instance().get_measurements_by_item_id_list(item_id_list=item_id_list) 
 
+  # utilized by measurements retrieval mode: METRIC
   def get_measurements_by_item_id(self, *, item_id:str=""):
 
     if self.__monitoring_system == 'ZABBIX':

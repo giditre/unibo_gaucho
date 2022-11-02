@@ -1,0 +1,4 @@
+flask-restful
+werkzeug
+psycopg2
+pillow

@@ -1,6 +1,9 @@
 import logging
 from logging.config import fileConfig
 from pathlib import Path
+
+from forch.fo_prometheus import PrometheusApi
+
 fileConfig(str(Path(__file__).parent.joinpath("logging.ini")))
 logger = logging.getLogger(__name__)
 logger.info(f"Load {__name__} with {logger}")
@@ -8,8 +11,6 @@ logger.info(f"Load {__name__} with {logger}")
 from ipaddress import IPv4Address, IPv4Network
 from time import time
 import multiprocessing
-import sys
-import configparser
 import socket
 
 import requests
@@ -18,6 +19,7 @@ import flask
 from flask_restful import Resource, Api
 
 import docker
+import json
 
 import forch
 logger.debug("Running as orchestrator? {}".format(forch.is_orchestrator()))
@@ -73,11 +75,21 @@ class FNVI(object):
     logger.info(f"Register service {service}")
     self.__get_SA().register_service(service)
 
+  def deregister_service(self, service):
+    logger.info(f"Register service {service}")
+    self.__get_SA().deregister_service(service)
+
   def register_service_list(self):
     s_list = self.get_service_list()
     assert len(s_list) > 0, "Empty service list"
     for service in s_list:
       self.__register_service(service)
+
+  # def deregister_service_list(self):
+  #   s_list = self.get_service_list()
+  #   assert len(s_list) > 0, "Empty service list"
+  #   for service in s_list:
+  #     self.__deregister_service(service)
     
   def load_service_list_from_json(self, json_file_name):
     ipv4 = None
@@ -400,7 +412,7 @@ class FogServices(Resource):
       # "port_mappings": port_mappings
       }, 200
 
-  def post(self, s_id):
+  def post(self, s_id:str):
     """Deploy service."""
 
     request_json = flask.request.get_json(force=True)
@@ -463,6 +475,51 @@ class FogServices(Resource):
           # logger.debug(port_map)
       
       logger.debug(f"Deployed service {s_id} using image {image_name} on container {container_name} with address {container_ip} and ports {port_mappings}")
+      
+      if s_id.startswith('LAF'):
+
+        with open("/home/gaucho/unibo_gaucho/main/src/main/fnode_services.json", "r") as f:
+          data = json.load(f)
+
+        if "FAAS" not in data:
+
+          entry = {  
+          "FAAS": {
+            "{id}".format(id=s_id): {
+              "thumbnail": "",
+              "protocol": "http",
+              "path": "",
+              "port": "{0}".format(port_mappings['80/tcp']),
+              "name": "docker",
+              "descr": "Docker",
+              "lifetime": 65535
+              }
+            }
+          }
+
+          data.update(entry)
+        
+        else: 
+
+          entry = {
+          "{id}".format(id=s_id): {
+            "thumbnail": "",
+            "protocol": "http",
+            "path": "",
+            "port": "{0}".format(port_mappings['80/tcp']),
+            "name": "docker",
+            "descr": "Docker",
+            "lifetime": 65535
+            }
+          }
+
+          data["FAAS"].update(entry)
+
+        with open("/home/gaucho/unibo_gaucho/main/src/main/fnode_services.json", "w") as f:
+          json.dump(data, f, indent=2)
+
+        FNVI.get_instance().load_service_list_from_json(str(Path(__file__).parent.joinpath(local_config["services_json"]).absolute()))
+        FNVI.get_instance().register_service_list()
 
       return {
         "message": f"Deployed service {s_id} on {base_id} with image {image_name}",
@@ -487,7 +544,26 @@ class FogServices(Resource):
 
   def delete(self, s_id=""):
     if s_id:
+
       FNVI.get_instance().destroy_service(s_id)
+
+      if s_id.startswith('LAF'):
+
+        with open("/home/gaucho/unibo_gaucho/main/src/main/fnode_services.json", "r") as f:
+          data = json.load(f)
+          
+        if "FAAS" in data:
+          if data["FAAS"][s_id]:
+            del data["FAAS"][s_id]
+
+            if not data["FAAS"]:
+              del data["FAAS"]
+
+            with open("/home/gaucho/unibo_gaucho/main/src/main/fnode_services.json", "w") as f:
+              json.dump(data, f, indent=2)
+
+            FNVI.get_instance().deregister_service(next(s for s in FNVI.get_instance().get_service_list() if s.get_id() == s_id))
+
       return {
         "message": f"Deleted services matching {s_id}",
         # "type": "FN_DEL_OK",
@@ -528,6 +604,8 @@ if __name__ == "__main__":
 
   local_config = forch.get_local_config(Path(__file__).parent.joinpath("main.ini").absolute())
   logger.debug(f"Config: {dict(local_config.items())}")
+
+  PrometheusApi.get_instance().expose_measurements(port=2412)
 
   ### instantiate components
 
