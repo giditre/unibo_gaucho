@@ -314,6 +314,75 @@ class FOM(object):
     for active_service in self.get_active_service_list():
       self.deactivate_service(active_service.get_service_id())
 
+  @staticmethod
+  def check_faas():
+
+    faas_list = []
+
+    s_list = FOM.get_instance().get_service_list(refresh_sc=True, refresh_meas=True)
+
+    for item in FOM.get_instance().__get_source_list():
+    
+      if item.get_service()[0:3] == 'LAF' and item.get_service() not in [s.get_id() for s in s_list]:
+
+        faas_list.append({'s_id': item.get_service(), 's_ipv4': '192.168.64.117:6000', 's_path': f'/faasservices/{item.get_service()}'})
+
+    return faas_list
+
+class FOGW(object):
+
+  __key = object()
+  __instance = None
+
+  def __init__(self, *, key=None):
+
+    assert key == self.__class__.__key, f"There can only be one {self.__class__.__name__} object and it can only be accessed with {self.__class__.__name__}.get_instance()"
+  
+  @classmethod
+  def get_instance(cls):
+
+    if cls.__instance is None:
+
+      cls.__instance = cls(key=cls.__key)
+
+    return cls.__instance
+
+  @classmethod
+  def del_instance(cls):
+  
+    if cls.__instance is not None:
+  
+      del cls.__instance
+
+  @staticmethod
+  def get_service_list(*args, **kwargs):
+
+    return FOM.get_instance().get_service_list(*args, **kwargs)
+
+  @staticmethod
+  def get_project_by_name(project_name):
+
+    return FOM.get_instance().get_project_by_name(project_name)
+
+  @staticmethod
+  def activate_service(service_id, *, project):
+
+    return FOM.get_instance().activate_service(service_id, project=project)
+
+  @staticmethod
+  def check_faas():
+
+    return FOM.get_instance().check_faas()
+
+  @staticmethod
+  def deactivate_service(service_id):
+
+    FOM.get_instance().deactivate_service(service_id)
+
+  @staticmethod
+  def deactivate_all_services():
+
+    FOM.get_instance().deactivate_all_services()
 
 class FOA(object):
 
@@ -343,13 +412,21 @@ class FOA(object):
 
   @debug_markers
   def get_service_list(self, *, refresh_sc=False, refresh_meas=False):
+
     logger.debug(f"Get service list from service cache refresh cache {refresh_sc} refresh meas {refresh_meas}")
+
     if refresh_sc:
+
       self.__refresh_service_cache()
+
     service_list = self.__sc.get_list()
+
     if refresh_meas:
+
       for s in service_list:
+
         s.refresh_measurements()
+
     return service_list
 
   @debug_markers
@@ -469,13 +546,59 @@ class Test(Resource):
       # "type": "TEST_OK"
     }
 
+class FaaSServices(Resource):
+
+  def post(self, s_id):
+
+    project = FOGW.get_instance().get_project_by_name('FaaS')
+
+    active_s = FOGW.get_instance().activate_service(s_id, project=project) # returns ActiveService
+    if active_s is None:
+      # service not found
+      return {
+          "message": f"Requested service {s_id} not found."
+          # "type": "FOCO_SERV_POST",
+          # "services": []
+        }, 404
+    
+    if isinstance(active_s, forch.ActiveService):
+      assert len(active_s.get_node_list()) in [0,1], "Too many ServiceNodes!"
+      if active_s.get_node_list() is None or len(active_s.get_node_list()) == 0:
+        return {
+        "message": f"Service {active_s.get_id()} unavailable."
+        # "type": "FOCO_SERV_POST"
+        }, 503
+      elif len(active_s.get_node_list()) == 1:
+        sn = active_s.get_node_by_id(active_s.get_node_id())
+        return {
+          "message": f"Service {active_s.get_id()} available on node {sn.get_id()}",
+          "node_ip": str(sn.get_ip()),
+          "instance_name": str(active_s.get_instance_name()),
+          "instance_ip": str(active_s.get_instance_ip()),
+          "node_port": sn.get_port()
+          # "type": "FOCO_SERV_POST"
+        }, 307
+    else:
+      # TODO handle case
+      pass
+
 class FogServices(Resource):
+
   def get(self, s_id=""):
     """Gather list of services and format it in a response."""
     # get list of services
-    s_list = FOM.get_instance().get_service_list(refresh_sc=True, refresh_meas=True)
+    s_list = FOGW.get_instance().get_service_list(refresh_sc=True, refresh_meas=True)
+    # check faas services in sources
+    faas_list = FOGW.get_instance().check_faas()
     # create list of service IDs
     s_id_list = [ s.get_id() for s in s_list ]
+    # create list of faas service IDs 
+    faas_id_list = [ fs['s_id'] for fs in faas_list ]
+    for serv in s_list:
+      if serv.get_id().startswith('LAF'):
+        s_list.remove(serv)
+        # newfaas = {'s_id': serv.get_id(), 's_ipv4': f'{serv.get_node_list()[0].get_ip()}:{serv.get_node_list()[0].get_port()}', 's_path': f'/faasservices/{serv.get_id()}'}
+        faas_list.append({'s_id': serv.get_id(), 's_ipv4': f'{serv.get_node_list()[0].get_ip()}:{serv.get_node_list()[0].get_port()}', 's_path': '/trn'})
     # check if a service was specified
     if s_id:
       if s_id in s_id_list:
@@ -483,6 +606,16 @@ class FogServices(Resource):
           "message": f"Requested service {s_id} found.",
           # "type": "FOCO_SERV_OK",
           "services": [ s_id ]
+        }, 200
+      elif s_id in faas_id_list:
+        fs = {}
+        for item in faas_list:
+          if s_id == item['s_id']:
+            fs.update(item)
+        return {
+          "message": f"Requested service {s_id} found.",
+          # "type": "FOCO_SERV_OK",
+          "faasservices": [ f"{s_id} {item['s_ipv4']}{item['s_path']}" ]
         }, 200
       else:
         return {
@@ -492,9 +625,10 @@ class FogServices(Resource):
         }, 404
     else:
       return {
-        "message": f"Found {len(s_list)} service(s).",
+        "message": f"Found {len(s_list)+len(faas_list)} service(s).",
         # "type": "FOCO_SERV_LIST",
-        "services": [ s.get_id() for s in s_list ]
+        "services": [ s.get_id() for s in s_list ],
+        "faasservices": [ f"{item['s_id']} {item['s_ipv4']}{item['s_path']}" for item in faas_list ]
       }, 200
 
   def post(self, s_id):
@@ -507,13 +641,13 @@ class FogServices(Resource):
       project_name = request_json["project"]
     else:
       return {
-          "message": f"Must specify project name"
+          "message": f"Must specify project name" 
           # "type": "FOCO_SERV_POST",
           # "services": []
         }, 404
     
     # find Project instance in FOB
-    project = FOM.get_instance().get_project_by_name(project_name)
+    project = FOGW.get_instance().get_project_by_name(project_name)
     if project is None:
       # project not found
       return {
@@ -522,7 +656,7 @@ class FogServices(Resource):
           # "services": []
         }, 404
 
-    active_s = FOM.get_instance().activate_service(s_id, project=project) # returns ActiveService
+    active_s = FOGW.get_instance().activate_service(s_id, project=project) # returns ActiveService
     if active_s is None:
       # service not found
       return {
@@ -569,7 +703,7 @@ class FogServices(Resource):
   def delete(self, s_id=""):
     """Submit request for deactivation of services."""
     if s_id:
-      FOM.get_instance().deactivate_service(s_id)
+      FOGW.get_instance().deactivate_service(s_id)
       # TODO check if operation was successful
       return {
           "message": f"Service {s_id} deactivated",
@@ -578,7 +712,7 @@ class FogServices(Resource):
           # "type": "FOCO_SERV_POST"
         }, 200
     else:
-      FOM.get_instance().deactivate_all_services()
+      FOGW.get_instance().deactivate_all_services()
       # TODO check if operation was successful
       return {
           "message": f"All services deactivated",
@@ -586,7 +720,6 @@ class FogServices(Resource):
           # "node_port": sn.get_port(),
           # "type": "FOCO_SERV_POST"
         }, 200
-
 
 if __name__ == "__main__":
 
@@ -629,6 +762,7 @@ if __name__ == "__main__":
   # TODO add configuration file for this
 
   FOM.get_instance().set_project_list([
+    forch.Project("FaaS"),
     forch.Project("default"),
     forch.Project("test-project",
       instance_configuration_dict={
@@ -682,6 +816,7 @@ if __name__ == "__main__":
   api = Api(app)
   api.add_resource(Test, '/test')
   api.add_resource(FogServices, '/services', '/services/<s_id>')
+  api.add_resource(FaaSServices, '/faasservices/<s_id>')
 
   try:
     app.run(host=local_config.get("address"),
