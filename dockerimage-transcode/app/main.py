@@ -26,11 +26,11 @@ class Transcode(Resource):
     parse.add_argument('image', type=werkzeug.datastructures.FileStorage, location='files')
     args = parse.parse_args()
     image_file = args['image']
-    image_file.save('/tmp/prova')
+    image_file.save('/tmp/image')
 
     try:
 
-      image = Image.open('/tmp/prova')
+      image = Image.open('/tmp/image')
 
     except UnidentifiedImageError:
 
