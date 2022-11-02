@@ -313,7 +313,7 @@ class Service:
       if res_metric == node.get_metric_by_type(m_type):
         return node
         
-  def refresh_measurements(self, mode:MeasurementRetrievalMode=MeasurementRetrievalMode.SERVICE) -> None:
+  def refresh_measurements(self, mode:MeasurementRetrievalMode=MeasurementRetrievalMode.NODE) -> None:
     """This method refreshes the measurements of the metrics of the nodes associated to the service. This is an experimental method and can be invoched in three different modalities: SERVICE, NODE or METRIC. In the first case it is performed a single Zabbix query, in the second case it is performed a query for each node, finally in the third case it is performed a query for each metric of each node.
 
     Args:
